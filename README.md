@@ -1,7 +1,6 @@
 # fvnkhead's stupid gun game
 
-fixed bug where you get someone who's left points when you join
-added scorch's shield as one of the final weapons
+fixed bug where you get someone who's left points when you join and added scorch's shield as one of the final weapons
 
 ## features
 
