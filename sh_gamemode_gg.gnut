@@ -61,7 +61,6 @@ void function CreateGamemodeGG()
 
 
         // titan mains
-        GunGameWeapon ggShield       = { weapon = "mp_titanweapon_heat_shield",         offhandSlot = 0, ... }
         GunGameWeapon ggSword        = { weapon = "melee_titan_sword",         offhandSlot = 0, ... }
         GunGameWeapon ggLeadwall     = { weapon = "mp_titanweapon_leadwall", ... }
         GunGameWeapon ggPlasma       = { weapon = "mp_titanweapon_sniper", ... }
@@ -70,7 +69,11 @@ void function CreateGamemodeGG()
         GunGameWeapon gg40mm         = { weapon = "mp_titanweapon_sticky_40mm", ... }
         GunGameWeapon ggPredator     = { weapon = "mp_titanweapon_predator_cannon", ... }
         GunGameWeapon ggXo16         = { weapon = "mp_titanweapon_xo16_vanguard", ... }
-
+        
+        //titan abilities
+        GunGameWeapon ggWeebWave     = { weapon = "mp_titanweapon_arc_wave",  mods = ["pas_ronin_arcwave", "burn_mod_titan_arc_wave", "dev_mod_low_recharge"],         offhandSlot = 0, ... }                        
+        GunGameWeapon ggShield       = { weapon = "mp_titanweapon_heat_shield",         offhandSlot = 0, ... }
+                
         // smg
 	    GunGameWeapon ggCar          = { weapon = "mp_weapon_car",             mods = ["extended_ammo", "pas_fast_reload", "holosight"], ... }
 	    GunGameWeapon ggAlternator   = { weapon = "mp_weapon_alternator_smg",  mods = ["extended_ammo", "pas_fast_reload"], ... }
@@ -165,6 +168,8 @@ void function CreateGamemodeGG()
 	    file.weapons.append(ggRe45)
 	    file.weapons.append(ggP2016)
 	    file.weapons.append(ggWingman)
+         
+       file.weapons.append(ggWeebWave)                  
 
         // Random order til now
         file.weapons.randomize()
