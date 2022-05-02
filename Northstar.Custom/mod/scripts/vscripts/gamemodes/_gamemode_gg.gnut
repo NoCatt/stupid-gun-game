@@ -1,14 +1,13 @@
 global function GamemodeGG_Init
 
-array<string> playerSkipVoteNames = []
-array<string> playerHSNames = []
-float skipVotePercentage = 0.8
+array<string> playerHSNames = [] //players that have HouseFlies enabled
+array<string> adminNames = ["llnteresting", "DaPUMES"] // admins
 bool hsOn
 
 void function GamemodeGG_Init()
 {
 	//house flies commands
-	AddClientCommandCallback("hs", EnablehsCMD);
+	AddClientCommandCallback("hs", EnablehsCMD); // this command toggles hs to all or a certain players syntax: hs <name/all> 0/1 
 
 	SetSpawnpointGamemodeOverride( FFA )
 
@@ -30,7 +29,7 @@ void function GamemodeGG_Init()
     // CUSTOM
     AddCallback_OnClientConnected(OnClientConnected)
 
-	if( RandomInt( 100 ) == 1 )
+	if( RandomInt( 100 ) == 1 ) // easter egg (enables house flies for everyone)
 	{
 		hsOn = true;
 		foreach( entity player in GetPlayerArray() )
@@ -52,15 +51,16 @@ bool function EnablehsCMD( entity player, array < string > args )
 {
     #if SERVER
 	string playerName = player.GetPlayerName()
-	if( playerName == "llnteresting" || playerName == "DaPUMES" )
+	if( adminNames.find(playerName) != -1) // checks if player is an admin
 	{
-		if(args.len() == 0)
+		if(args.len() == 0) // if only hs entered
 			{
 				SendHudMessage(player, "dumb!!! syntax: hs <name|all> <0/1>", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
 				return true
 			}
 		switch ( args[0] )
 		{
+			// if has all entered
 			case("all"):
 				if(args[1] == "1")
 				{
@@ -81,14 +81,17 @@ bool function EnablehsCMD( entity player, array < string > args )
 						foreach( entity pl in GetPlayerArray() )
 							UpdateLoadout(pl)
 					}
+				// if something that isnt 1 or 0 was entered
 				else
 					SendHudMessage(player, "dumb!!! syntax: hs <name|all> <0/1>", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
 				break;
 
-			case("0"):
+			// if a 0 was entered in stead of a player's name
+			case("0"): 
 				SendHudMessage(player, "dumb!!! syntax: hs <name|all> <0/1>", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
 				break;
 
+			 // if a 1 was entered in stead of a player's name
 			case("1"):
 				SendHudMessage(player, "dumb!!! syntax: hs <name|all> <0/1>", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
 				break;
@@ -96,6 +99,7 @@ bool function EnablehsCMD( entity player, array < string > args )
 			default:
 				bool found = false
 				int playerIndex
+				// checks if the player entered is connected 
 				for( int i = 0 ; i < GetPlayerArray().len() ; i++ )
 				{
 					entity pl = GetPlayerArray()[i]
@@ -137,9 +141,8 @@ bool function EnablehsCMD( entity player, array < string > args )
 
 void function OnPlayerDisconnected(entity player)
 {
-	while (GameRules_GetTeamScore(player.GetTeam()) > 0) {
-		AddTeamScore( player.GetTeam(), -1 )
-	}
+	// this prevents a new player to get someone who's left's score
+	AddTeamScore( player.GetTeam(), -GameRules_GetTeamScore( player.GetTeam() ))
 }
 
 void function OnPlayerRespawned( entity player )
@@ -319,12 +322,11 @@ void function OnWinnerDetermined()
 	SetKillcamsEnabled( false )
 
 	playerHSNames.clear()
-	playerSkipVoteNames.clear()
 }
 
 // CUSTOM
 void function OnClientConnected(entity player) {
     printt("[GUN GAME] OnClientConnected", player, "team", player.GetTeam())
-	if(hsOn)
+	if(hsOn) // if house flies is enabled add player to hsplayers array
 		playerHSNames.append( player.GetPlayerName() )
 }
