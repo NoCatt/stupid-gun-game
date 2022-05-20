@@ -1,7 +1,7 @@
 global function GamemodeGG_Init
 
 array<string> playerHSNames = [] //players that have HouseFlies enabled
-array<string> adminNames = ["llnteresting", "DaPUMES"] // admins
+array<string> adminNames = ["admin1", "admin2"] // admins
 bool hsOn
 
 void function GamemodeGG_Init()
