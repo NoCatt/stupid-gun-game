@@ -1,4 +1,4 @@
-stupid gun game but stupider__
+stupid gun game but stupider <br />
 
 cool features that aren't present in fvnk's version: <br />
 Dinotick's houseflies mod on last weapon <br />
