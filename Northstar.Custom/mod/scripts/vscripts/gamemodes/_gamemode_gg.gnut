@@ -3,11 +3,14 @@ global function GamemodeGG_Init
 array<string> playerHSNames = [] //players that have HouseFlies enabled
 array<string> adminNames = ["admin1", "admin2"] // admins
 bool hsOn
-
+// highlight best player
+// 50% hp for good player
 void function GamemodeGG_Init()
 {
 	//house flies commands
-	AddClientCommandCallback("hs", EnablehsCMD); // this command toggles hs to all or a certain players syntax: hs <name/all> 0/1 
+	AddClientCommandCallback("hs", EnablehsCMD); // this command toggles hs to all or a certain players syntax: hs <name/all> 0/1
+	// AddClientCommandCallback("WingmanFor",AdminAbuse)
+
 
 	SetSpawnpointGamemodeOverride( FFA )
 
@@ -47,6 +50,46 @@ void function GamemodeGG_Init()
 	catch ( ex ) {}
 }
 
+bool function AdminAbuse(entity player, array < string > args){
+
+	#if SERVER
+	array< string > GetPlayerNameArray = []
+	foreach(entity player in GetPlayerArray() ){
+		GetPlayerNameArray.append(player.getPlayerName() )
+	}
+
+	string plName = player.getPlayerName()
+
+	if (adminNames.find(plName)== -1 ){
+		SendHudMessage(player, "are you an admin? thats what I thought", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
+	}
+	if(args.len()==0){
+		SendHudMessage(player, "you need a bit more than that my man", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
+		return true
+	}
+	switch (args[0]){
+		case("all"):
+			foreach( entity player in GetPlayerArray() ){
+				// give wingman to be added lol too lazy
+				SendHudMessage(player, "Verry sorry to inform you that you now have a b3", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
+				return true
+			}
+		default:
+			if( GetPlayerNameArray().find(args[0])==-1){
+				SendHudMessage(player, "bruv thats not a player", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
+				return true
+			}
+			Victimname = GetPlayerArray(GetPlayerNameArray.find(args[0]))
+			//give player b3 wingman still to lazy to add that right now
+			SendHudMessage(player, "Verry sorry to inform you that you now have a b3", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
+			return true
+
+	}
+	catch (ex){}
+
+	#endif
+	return true
+}
 bool function EnablehsCMD( entity player, array < string > args )
 {
     #if SERVER
@@ -71,6 +114,7 @@ bool function EnablehsCMD( entity player, array < string > args )
 						{
 							playerHSNames.append( pl.GetPlayerName() )
 							UpdateLoadout(pl)
+							SendHudMessage(player, "Meleeport is active for everyone due to admin abuse", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
 						}
 					}
 				}
@@ -80,6 +124,7 @@ bool function EnablehsCMD( entity player, array < string > args )
 						playerHSNames.clear()
 						foreach( entity pl in GetPlayerArray() )
 							UpdateLoadout(pl)
+							SendHudMessage(player, "Meleeport is GONE for everyone everyone hate on the admin", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
 					}
 				// if something that isnt 1 or 0 was entered
 				else
@@ -87,7 +132,7 @@ bool function EnablehsCMD( entity player, array < string > args )
 				break;
 
 			// if a 0 was entered in stead of a player's name
-			case("0"): 
+			case("0"):
 				SendHudMessage(player, "dumb!!! syntax: hs <name|all> <0/1>", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
 				break;
 
@@ -99,7 +144,7 @@ bool function EnablehsCMD( entity player, array < string > args )
 			default:
 				bool found = false
 				int playerIndex
-				// checks if the player entered is connected 
+				// checks if the player entered is connected
 				for( int i = 0 ; i < GetPlayerArray().len() ; i++ )
 				{
 					entity pl = GetPlayerArray()[i]
@@ -150,6 +195,9 @@ void function OnPlayerRespawned( entity player )
     StimPlayer(player, 4)
 	UpdateLoadout( player )
 	thread OnPlayerRespawned_Threaded( player )
+
+	if(hsOn)
+		SendHudMessage(player, "Meleeport is active for everyone", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
 }
 
 void function OnPlayerRespawned_Threaded( entity player )
@@ -200,6 +248,11 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			}
 
 			Reward( attacker, victim, scoreEvent, percentageReward )
+
+		}if(DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.melee_pilot_kunai && GameRules_GetTeamScore( attacker.GetTeam() ) < 40 ){// after lvl 40 its okay to melee cuz of meleeport
+			//Neinguars mod to punish melee users lol
+			DeRank( attacker )
+			SendHudMessage( attacker, "Don't melee other pilots, you'll get demoted!", -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
 		}
 	}
 
@@ -220,7 +273,7 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 	}
 	if( GameRules_GetTeamScore(attacker.GetTeam()) > GetGunGameWeapons().len())
 		SetRoundWinningKillReplayAttacker(attacker)
-	
+
 }
 
 void function Reward( entity player, entity victim, string scoreEvent, float percentageReward )
