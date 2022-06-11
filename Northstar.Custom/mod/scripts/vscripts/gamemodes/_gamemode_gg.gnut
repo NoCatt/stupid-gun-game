@@ -51,46 +51,6 @@ void function GamemodeGG_Init()
 	catch ( ex ) {}
 }
 
-bool function AdminAbuse(entity player, array < string > args){
-
-	#if SERVER
-	array< string > GetPlayerNameArray = []
-	foreach(entity player in GetPlayerArray() ){
-		GetPlayerNameArray.append(player.getPlayerName() )
-	}
-
-	string plName = player.getPlayerName()
-
-	if (adminNames.find(plName)== -1 ){
-		SendHudMessage(player, "are you an admin? thats what I thought", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-	}
-	if(args.len()==0){
-		SendHudMessage(player, "you need a bit more than that my man", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-		return true
-	}
-	switch (args[0]){
-		case("all"):
-			foreach( entity player in GetPlayerArray() ){
-				player.SetActiveWeaponByName("mp_weapon_wingman") // no clue if that breaks everything, but the idea is funny
-				SendHudMessage(player, "Verry sorry to inform you that you now have a b3", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-				return true
-			}
-		default:
-			if( GetPlayerNameArray().find(args[0])==-1){
-				SendHudMessage(player, "bruv thats not a player", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-				return true
-			}
-			Victimn = GetPlayerArray(GetPlayerNameArray.find(args[0]))
-			Victimn.SetActiveWeaponByName("mp_weapon_wingmam")// lol no clue if this works 
-			SendHudMessage(player, "Verry sorry to inform you that you now have a b3", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-			return true
-
-	}
-	catch (ex){}
-
-	#endif
-	return true
-}
 bool function EnablehsCMD( entity player, array < string > args )
 {
     #if SERVER
