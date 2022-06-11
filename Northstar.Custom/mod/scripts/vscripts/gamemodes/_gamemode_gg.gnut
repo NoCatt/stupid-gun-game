@@ -2,6 +2,7 @@ global function GamemodeGG_Init
 
 array<string> playerHSNames = [] //players that have HouseFlies enabled
 array<string> adminNames = ["admin1", "admin2"] // admins
+array<string> goodPlayers = [] // players that have won a game can opt into a system where they have 50% hp
 bool hsOn
 // highlight best player
 // 50% hp for good player
@@ -70,7 +71,7 @@ bool function AdminAbuse(entity player, array < string > args){
 	switch (args[0]){
 		case("all"):
 			foreach( entity player in GetPlayerArray() ){
-				// give wingman to be added lol too lazy
+				player.SetActiveWeaponByName("mp_weapon_wingman") // no clue if that breaks everything, but the idea is funny
 				SendHudMessage(player, "Verry sorry to inform you that you now have a b3", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
 				return true
 			}
@@ -79,8 +80,8 @@ bool function AdminAbuse(entity player, array < string > args){
 				SendHudMessage(player, "bruv thats not a player", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
 				return true
 			}
-			Victimname = GetPlayerArray(GetPlayerNameArray.find(args[0]))
-			//give player b3 wingman still to lazy to add that right now
+			Victimn = GetPlayerArray(GetPlayerNameArray.find(args[0]))
+			Victimn.SetActiveWeaponByName("mp_weapon_wingmam")// lol no clue if this works 
 			SendHudMessage(player, "Verry sorry to inform you that you now have a b3", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
 			return true
 
@@ -274,6 +275,9 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 	if( GameRules_GetTeamScore(attacker.GetTeam()) > GetGunGameWeapons().len())
 		SetRoundWinningKillReplayAttacker(attacker)
 
+	if(GameRules_GetTeamScore(attacker.GetTeam())>40){
+		
+	}
 }
 
 void function Reward( entity player, entity victim, string scoreEvent, float percentageReward )
