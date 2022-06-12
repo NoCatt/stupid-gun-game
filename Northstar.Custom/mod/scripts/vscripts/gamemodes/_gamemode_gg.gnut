@@ -50,46 +50,6 @@ void function GamemodeGG_Init()
 	catch ( ex ) {}
 }
 
-bool function AdminAbuse(entity player, array < string > args){
-
-	#if SERVER
-	array< string > GetPlayerNameArray = []
-	foreach(entity player in GetPlayerArray() ){
-		GetPlayerNameArray.append(player.getPlayerName() )
-	}
-
-	string plName = player.getPlayerName()
-
-	if (adminNames.find(plName)== -1 ){
-		SendHudMessage(player, "are you an admin? thats what I thought", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-	}
-	if(args.len()==0){
-		SendHudMessage(player, "you need a bit more than that my man", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-		return true
-	}
-	switch (args[0]){
-		case("all"):
-			foreach( entity player in GetPlayerArray() ){
-				// give wingman to be added lol too lazy
-				SendHudMessage(player, "Verry sorry to inform you that you now have a b3", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-				return true
-			}
-		default:
-			if( GetPlayerNameArray().find(args[0])==-1){
-				SendHudMessage(player, "bruv thats not a player", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-				return true
-			}
-			Victimname = GetPlayerArray(GetPlayerNameArray.find(args[0]))
-			//give player b3 wingman still to lazy to add that right now
-			SendHudMessage(player, "Verry sorry to inform you that you now have a b3", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-			return true
-
-	}
-	catch (ex){}
-
-	#endif
-	return true
-}
 bool function EnablehsCMD( entity player, array < string > args )
 {
     #if SERVER
@@ -188,6 +148,10 @@ void function OnPlayerDisconnected(entity player)
 {
 	// this prevents a new player to get someone who's left's score
 	AddTeamScore( player.GetTeam(), -GameRules_GetTeamScore( player.GetTeam() ))
+
+	if(GetWinningPlayer() == player){
+		thread CheckNewPlayerHighlight(player)
+	}
 }
 
 void function OnPlayerRespawned( entity player )
@@ -198,6 +162,10 @@ void function OnPlayerRespawned( entity player )
 
 	if(hsOn)
 		SendHudMessage(player, "Meleeport is active for everyone", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
+
+	if (player == GetWinningPlayer())
+		SetHighlight( player )
+
 }
 
 void function OnPlayerRespawned_Threaded( entity player )
@@ -274,6 +242,9 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 	if( GameRules_GetTeamScore(attacker.GetTeam()) > GetGunGameWeapons().len())
 		SetRoundWinningKillReplayAttacker(attacker)
 
+	if(attacker == GetWinningPlayer()){
+		SetHighlight( attacker )
+	} // dont even know if thats how this works but one can hope
 }
 
 void function Reward( entity player, entity victim, string scoreEvent, float percentageReward )
@@ -382,4 +353,34 @@ void function OnClientConnected(entity player) {
     printt("[GUN GAME] OnClientConnected", player, "team", player.GetTeam())
 	if(hsOn) // if house flies is enabled add player to hsplayers array
 		playerHSNames.append( player.GetPlayerName() )
+}
+
+//from the sns code lol
+void function SetHighlight(entity player) {
+	foreach ( entity player in GetPlayerArray() )
+		Highlight_ClearEnemyHighlight(player)
+	Highlight_SetEnemyHighlight( player, file.score_leader_highlight )
+}
+entity function getBestPlayer(){
+
+	string bestPlayer
+
+	foreach( entity player in GetPlayerArray() ){
+
+		if(best_player == null){ best_player = player}
+		if(Game_Rueles_GetTeamScore(player.GetTeam()) > Game_Rueles_GetTeamScore(best_player.GetTeam())){
+			best_player = player
+		}
+	}
+	return best_player
+}
+void function CheckNewPlayerHighlight(entity player){
+	while(IsValid(player)){
+		wait 0.25
+	}
+	enity winningPlayer = GetWinningPlayer()
+	if(IsValid(winningPlayer)){
+		SetHighlight(winningPlayer)
+	}
+
 }
