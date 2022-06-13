@@ -50,46 +50,7 @@ void function GamemodeGG_Init()
 	catch ( ex ) {}
 }
 
-bool function AdminAbuse(entity player, array < string > args){
 
-	#if SERVER
-	array< string > GetPlayerNameArray = []
-	foreach(entity player in GetPlayerArray() ){
-		GetPlayerNameArray.append(player.getPlayerName() )
-	}
-
-	string plName = player.getPlayerName()
-
-	if (adminNames.find(plName)== -1 ){
-		SendHudMessage(player, "are you an admin? thats what I thought", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-	}
-	if(args.len()==0){
-		SendHudMessage(player, "you need a bit more than that my man", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-		return true
-	}
-	switch (args[0]){
-		case("all"):
-			foreach( entity player in GetPlayerArray() ){
-				// give wingman to be added lol too lazy
-				SendHudMessage(player, "Verry sorry to inform you that you now have a b3", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-				return true
-			}
-		default:
-			if( GetPlayerNameArray().find(args[0])==-1){
-				SendHudMessage(player, "bruv thats not a player", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-				return true
-			}
-			Victimname = GetPlayerArray(GetPlayerNameArray.find(args[0]))
-			//give player b3 wingman still to lazy to add that right now
-			SendHudMessage(player, "Verry sorry to inform you that you now have a b3", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-			return true
-
-	}
-	catch (ex){}
-
-	#endif
-	return true
-}
 bool function EnablehsCMD( entity player, array < string > args )
 {
     #if SERVER
@@ -216,7 +177,7 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 
 	if ( attacker == victim ) // suicide
 	{
-		string message = victim.GetPlayerName() + " committed suicide."
+		string message = victim.GetPlayerName() + " committed suicide. \n Press F in the chat"
 		foreach ( entity player in GetPlayerArray() )
 			SendHudMessage( player, message, -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
 
@@ -249,7 +210,7 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 
 			Reward( attacker, victim, scoreEvent, percentageReward )
 
-		}if(DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.melee_pilot_kunai && GameRules_GetTeamScore( attacker.GetTeam() ) < 40 ){// after lvl 40 its okay to melee cuz of meleeport
+		}if(attacker.GetOffhandWeapon( OFFHAND_MELEE )==melee_pilot_kunai /* && GameRules_GetTeamScore(attacker.getTeam())> 40*/){// after lvl 40 its okay to melee cuz of meleeport
 			//Neinguars mod to punish melee users lol
 			DeRank( attacker )
 			SendHudMessage( attacker, "Don't melee other pilots, you'll get demoted!", -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
