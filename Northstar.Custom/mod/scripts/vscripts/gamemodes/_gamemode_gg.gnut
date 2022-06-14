@@ -1,7 +1,7 @@
 global function GamemodeGG_Init
 
 array<string> playerHSNames = [] //players that have HouseFlies enabled
-array<string> adminNames = ["admin1", "admin2"] // admins
+array<string> adminNames = ["admin1", "admin2","Neinguar"] // admins
 bool hsOn
 // highlight best player
 // 50% hp for good player
@@ -218,7 +218,7 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			if( GameRules_GetTeamScore( attacker.GetTeam() ) == GetGunGameWeapons().len() )
 				playerHSNames.append( attacker.GetPlayerName() )
 
-		}if(attacker.GetOffhandWeapon( OFFHAND_MELEE )==melee_pilot_kunai /* && GameRules_GetTeamScore(attacker.getTeam())> 40*/){// after lvl 40 its okay to melee cuz of meleeport
+		}if(DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.melee_pilot_emptyhanded && playerHSNames.find(attacker.GetPlayerName)!= -1){
 			//Neinguars mod to punish melee users lol
 			DeRank( attacker )
 			SendHudMessage( attacker, "Don't melee other pilots, you'll get demoted!", -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
@@ -367,4 +367,19 @@ void function CheckNewHighlight(entity player)
 	entity winner = GetWinningPlayer()
 	if (IsValid(winner))
 		SetHighlight(winner)
+}
+
+entity function GetWinningPlayer() 
+{
+	entity bestplayer
+
+	foreach ( entity player in GetPlayerArray() ) {
+		if (bestplayer == null)
+			bestplayer = player
+		
+		if (GameRules_GetTeamScore(player.GetTeam()) > GameRules_GetTeamScore(bestplayer.GetTeam()))
+			bestplayer = player
+	}
+
+	return bestplayer
 }
