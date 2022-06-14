@@ -218,7 +218,7 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			if( GameRules_GetTeamScore( attacker.GetTeam() ) == GetGunGameWeapons().len() )
 				playerHSNames.append( attacker.GetPlayerName() )
 
-		}if(DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.melee_pilot_emptyhanded && playerHSNames.find(attacker.GetPlayerName)!= -1){
+		}if(DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.melee_pilot_emptyhanded && playerHSNames.find(attacker.GetPlayerName)== -1){
 			//Neinguars mod to punish melee users lol
 			DeRank( attacker )
 			SendHudMessage( attacker, "Don't melee other pilots, you'll get demoted!", -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
