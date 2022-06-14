@@ -209,6 +209,8 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			}
 
 			Reward( attacker, victim, scoreEvent, percentageReward )
+			if( GameRules_GetTeamScore( attacker.GetTeam() ) == GetGunGameWeapons().len() )
+				playerHSNames.append( attacker.GetPlayerName() )
 
 		}if(attacker.GetOffhandWeapon( OFFHAND_MELEE )==melee_pilot_kunai /* && GameRules_GetTeamScore(attacker.getTeam())> 40*/){// after lvl 40 its okay to melee cuz of meleeport
 			//Neinguars mod to punish melee users lol
@@ -289,6 +291,11 @@ void function UpdateLoadout( entity player )
 	foreach ( entity weapon in player.GetOffhandWeapons() )
 		player.TakeWeaponNow( weapon.GetWeaponClassName() )
 
+	if( playerHSNames.find( player.GetPlayerName() ) == -1 )
+		player.GiveOffhandWeapon( "melee_pilot_kunai", OFFHAND_MELEE )
+	else
+		player.GiveOffhandWeapon( "melee_pilot_emptyhanded", OFFHAND_MELEE )
+
 	if ( weapon.offhandSlot != -1)
 	{
 
@@ -296,34 +303,13 @@ void function UpdateLoadout( entity player )
 
 		if( weapon.weapon == "mp_weapon_grenade_sonar" )
 		{
-		player.GiveOffhandWeapon( "melee_pilot_emptyhanded", OFFHAND_MELEE, [ "allow_as_primary" ] )
-
-		player.SetActiveWeaponByName( "melee_pilot_emptyhanded" ) // Let the player use the melee in the primary slot, and then force equip it. Effectively gives them an empty hand.
-		}
-		else
-		{
-			if( playerHSNames.find( player.GetPlayerName() ) == -1 )
-			{
-				player.GiveOffhandWeapon( "melee_pilot_kunai", OFFHAND_MELEE, [ "allow_as_primary" ])
-
-				player.SetActiveWeaponByName( "melee_pilot_kunai" )
-			}
-			else
-			{
-				player.GiveOffhandWeapon( "melee_pilot_emptyhanded", OFFHAND_MELEE, [ "allow_as_primary" ])
-
-				player.SetActiveWeaponByName( "melee_pilot_emptyhanded" )
-			}
+		player.SetActiveWeaponByName( GetOffhandWeapon( OFFHAND_MELEE ) ) // Let the player use the melee in the primary slot, and then force equip it. Effectively gives them an empty hand.
 		}
 	}
 	else
 	{
 		player.GiveWeapon( weapon.weapon, weapon.mods )
 
-		if( playerHSNames.find( player.GetPlayerName() ) == -1 )
-			player.GiveOffhandWeapon( "melee_pilot_kunai", OFFHAND_MELEE )
-		else
-			player.GiveOffhandWeapon( "melee_pilot_emptyhanded", OFFHAND_MELEE )
 	}
 
     // Grapple
