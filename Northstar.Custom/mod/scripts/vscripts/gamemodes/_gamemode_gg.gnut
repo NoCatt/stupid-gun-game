@@ -149,6 +149,9 @@ void function OnPlayerDisconnected(entity player)
 {
 	// this prevents a new player to get someone who's left's score
 	AddTeamScore( player.GetTeam(), -GameRules_GetTeamScore( player.GetTeam() ))
+
+	if (GetWinningPlayer() == player)
+		thread CheckNewHighlight(player)
 }
 
 void function OnPlayerRespawned( entity player )
@@ -159,6 +162,9 @@ void function OnPlayerRespawned( entity player )
 
 	if(hsOn)
 		SendHudMessage(player, "Meleeport is active for everyone", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
+		
+	if (player == GetWinningPlayer())
+		SetHighlight( player )
 }
 
 void function OnPlayerRespawned_Threaded( entity player )
@@ -217,6 +223,9 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			DeRank( attacker )
 			SendHudMessage( attacker, "Don't melee other pilots, you'll get demoted!", -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
 		}
+
+		if (attacker == GetWinningPlayer())
+			SetHighlight( attacker )
 	}
 
 	table<int, bool> alreadyAssisted
@@ -349,4 +358,13 @@ entity function getBestPlayer(){
 		}
 	}
 	return best_player
+}
+void function CheckNewHighlight(entity player) 
+{
+	while (IsValid(player)) //wait till disconnected player not exist
+		wait 0.25
+	
+	entity winner = GetWinningPlayer()
+	if (IsValid(winner))
+		SetHighlight(winner)
 }
