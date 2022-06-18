@@ -3,6 +3,7 @@ global function GamemodeGG_Init
 array<string> playerHSNames = [] //players that have HouseFlies enabled
 array<string> adminNames = ["admin1", "admin2","Neinguar"] // admins
 bool hsOn
+bool gnsOn
 // highlight best player
 // 50% hp for good player
 struct {
@@ -55,6 +56,12 @@ void function GamemodeGG_Init()
 	else
 	{
 		hsOn = false;
+	}
+	if(RandomInt(20)==1){
+		gnsOn = true
+	}
+	else{
+		gns = false
 	}
 	try
 	{
@@ -176,6 +183,9 @@ void function OnPlayerRespawned( entity player )
 
 	if(hsOn)
 		SendHudMessage(player, "Meleeport is active for everyone", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
+	if(gnsOn){
+		SendHudMessage(player, "Guns and stones in ON \n hit a player with Pulsblade and the get reset to 0", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
+	}
 		
 	if (player == GetWinningPlayer())
 		SetHighlight( player )
@@ -210,6 +220,11 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
             attacker.SetHealth(attacker.GetMaxHealth())
             StimPlayer(attacker, 4)
         }
+		if( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.mp_weapon_grenade_sonar && gnsOn ){
+ 			 AddTeamScore( victim.GetTeam(), -GameRules_GetTeamScore( victim.GetTeam() ))
+			 foreach( entity player in GetPlayerArray() )
+			 	SendHudMessage(player, victim.GetPlayerName()+" got bankrupted", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
+		}
 
 		if ( DamageInfo_GetDamageSourceIdentifier( damageInfo ) != eDamageSourceId.melee_pilot_emptyhanded )
 		{
@@ -339,7 +354,13 @@ void function UpdateLoadout( entity player )
 	}
 
     // Grapple
-    player.GiveOffhandWeapon( "mp_ability_grapple", OFFHAND_LEFT )
+	if( gnsOn && weapon.offhandSlot != 0 )
+ 		 player.GiveOffhandWeapon( "mp_weapon_grenade_sonar", OFFHAND_RIGHT )
+
+	if( gnsOn && weapon.offhandSlot == 0 && weapon.weapon != "mp_weapon_grenade_sonar" )
+  		player.GiveOffhandWeapon( "mp_weapon_grenade_sonar", OFFHAND_LEFT )
+	else
+  		player.GiveOffhandWeapon( "mp_ability_grapple", OFFHAND_LEFT )
 }
 
 void function OnWinnerDetermined()

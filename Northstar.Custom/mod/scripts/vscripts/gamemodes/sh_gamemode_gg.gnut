@@ -12,6 +12,7 @@ global struct GunGameWeapon
 
 struct {
 	array<GunGameWeapon> weapons
+	array<GunGameWeapon> hardWeapons
 } file
 
 void function Sh_GamemodeGG_Init()
@@ -174,7 +175,18 @@ void function CreateGamemodeGG()
         // Random order til now
         file.weapons.randomize()
         
-        
+		/*
+		file.hardWeapons.append(ggWingman)
+		file.hardWeapons.append(ggMozambique)
+		file.hardWeapons.append(ggArena2)
+		file.hardWeapons.append(ggP2016)
+		file.hardWeapons.append(ggSmr)
+		file.hardWeapons.append(ggKraber)
+		while(file.hardWeapons.find(file.weapon[0])){
+			file.weapon.randomize()
+		}
+		*/
+
 	    file.weapons.append(ggChargerifle)
       file.weapons.append(ggSword)
       file.weapons.append(ggShield)
