@@ -23,9 +23,9 @@ struct {
 void function GamemodeGG_Init()
 {
 	//house flies commands
-	AddClientCommandCallback("hs", EnablehsCMD); // this command toggles hs to all or a certain players syntax: hs <name/all> 0/1
+	AddClientCommandCallback("hs", EnablehsCMD) // this command toggles hs to all or a certain players syntax: hs <name/all> 0/1
 	// AddClientCommandCallback("WingmanFor",AdminAbuse)
-
+	AddClientCommandCallback("gns", EnablehsGNS);
 
 	SetSpawnpointGamemodeOverride( FFA )
 
@@ -71,6 +71,13 @@ void function GamemodeGG_Init()
 	catch ( ex ) {}
 }
 
+bool function EnablehsGNS (entity player, array < string > args)
+{
+if (args[0]== 1)
+	gnsOn = true
+if(args[0]==0)
+	gnsOn = false
+}
 
 bool function EnablehsCMD( entity player, array < string > args )
 {
