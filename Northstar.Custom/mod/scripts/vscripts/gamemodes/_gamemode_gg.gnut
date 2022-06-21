@@ -61,7 +61,7 @@ void function GamemodeGG_Init()
 		gnsOn = true
 	}
 	else{
-		gns = false
+		gnsOn = false
 	}
 	try
 	{
