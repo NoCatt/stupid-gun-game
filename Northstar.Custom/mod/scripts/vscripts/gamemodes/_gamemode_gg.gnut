@@ -75,14 +75,14 @@ bool function EnablehsGNS (entity player, array < string > args)
 {
 if (args[0]== 1){
 	gnsOn = true
-	foreach(entity player in GetPlayerArray())
-		UpdateLoadout(player)
+	foreach(entity playerInArray in GetPlayerArray())
+		UpdateLoadout(playerInArray)
 	return true
 }
 if(args[0]==0){
 	gnsOn = false
-	foreach(entity player in GetPlayerArray())
-		UpdateLoadout(player)
+	foreach(entity playerInArray in GetPlayerArray())
+		UpdateLoadout(playerInArray)
 	return true
 }
 return false
