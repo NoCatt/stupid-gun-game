@@ -238,6 +238,7 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
         }
 		if( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.mp_weapon_grenade_sonar && gnsOn ){
  			 AddTeamScore( victim.GetTeam(), -GameRules_GetTeamScore( victim.GetTeam() ))
+			 player.SetPlayerGameStat( PGS_ASSAULT_SCORE, 0)
 			 foreach( entity player in GetPlayerArray() )
 			 	SendHudMessage(player, victim.GetPlayerName()+" got bankrupted", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
 		}
