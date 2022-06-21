@@ -175,17 +175,17 @@ void function CreateGamemodeGG()
         // Random order til now
         file.weapons.randomize()
         
-		/*
+		
 		file.hardWeapons.append(ggWingman)
 		file.hardWeapons.append(ggMozambique)
 		file.hardWeapons.append(ggArena2)
 		file.hardWeapons.append(ggP2016)
 		file.hardWeapons.append(ggSmr)
 		file.hardWeapons.append(ggKraber)
-		while(file.hardWeapons.find(file.weapon[0])){
+		while(file.hardWeapons.find(file.weapon[0])!=-1){
 			file.weapon.randomize()
 		}
-		*/
+		
 
 	    file.weapons.append(ggChargerifle)
       file.weapons.append(ggSword)
