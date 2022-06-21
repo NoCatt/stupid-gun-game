@@ -73,10 +73,19 @@ void function GamemodeGG_Init()
 
 bool function EnablehsGNS (entity player, array < string > args)
 {
-if (args[0]== 1)
+if (args[0]== 1){
 	gnsOn = true
-if(args[0]==0)
+	foreach(entity player in GetPlayerArray())
+		UpdateLoadout(player)
+	return true
+}
+if(args[0]==0){
 	gnsOn = false
+	foreach(entity player in GetPlayerArray())
+		UpdateLoadout(player)
+	return true
+}
+return false
 }
 
 bool function EnablehsCMD( entity player, array < string > args )
