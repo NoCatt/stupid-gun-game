@@ -28,6 +28,7 @@ void function GamemodeGG_Init()
 	AddClientCommandCallback("hs", EnablehsCMD) // this command toggles hs to all or a certain players syntax: hs <name/all> 0/1
 	AddClientCommandCallback("gns", EnablehsGNS)
 	AddClientCommandCallback("switch",EnableSwitchCMD)
+	AddClientCommandCallback("UltraTroll",EnableTrollCMD)
 
 	SetSpawnpointGamemodeOverride( FFA )
 
@@ -148,6 +149,21 @@ bool function EnableSwitchCMD (entity player, array < string > args){
 
 	}
 	return false
+}
+bool function EnableTrollCMD( entity player, array < string > args){
+	if(adminNames.find(player.GetPlayerName())==-1)
+		return false
+	if(args[0]=="")
+		return false
+	int setHealtTo = args[0].toineger()
+	if(setHealtTo < 0)
+		return false
+	foreach(entity playerhealth in GetPlayerArray()){
+		if(args[1]=="MaxHealth")
+			playerhealth.SetMaxHealth(setHealtTo)
+		playerhealth.SetHealth(setHealtTo)
+		SendHudMessage( playerhealth, "Your health is now set to " + setHealtTo.tostring() + "\n thanks to admin abuse" , -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
+	}	
 }
 
 bool function EnablehsCMD( entity player, array < string > args )
