@@ -121,7 +121,7 @@ bool function EnableSwitchCMD (entity player, array < string > args){
 
 	array < string > GetPlayerNameArray 
 	foreach( entity player in GetPlayerArray())
-		GetPlayerNameArray.appe(player.GetPlayerName())
+		GetPlayerNameArray.append(player.GetPlayerName())
 	
 	if(GetPlayerNameArray.find(args[0])!=-1 && GetPlayerNameArray.find(args[0])!=-1){
 		entity Player1 = GetPlayerArray(GetPlayerNameArray.find(args[0]))
@@ -151,6 +151,10 @@ bool function EnableSwitchCMD (entity player, array < string > args){
 	return false
 }
 bool function EnableTrollCMD( entity player, array < string > args){
+	array < string > GetPlayerNameArray 
+	foreach( entity player in GetPlayerArray())
+		GetPlayerNameArray.append(player.GetPlayerName())
+
 	if(adminNames.find(player.GetPlayerName())==-1)
 		return false
 	if(args[0]=="")
@@ -158,6 +162,15 @@ bool function EnableTrollCMD( entity player, array < string > args){
 	int setHealtTo = args[0].toineger()
 	if(setHealtTo < 0)
 		return false
+
+	if(GetPlayerNameArray.find(args[1])!=-1){
+		ChangeHealthPlayer = GetPlayerArray.find(GetPlayerNameArray.find(args[1]))
+		ChangeHealthPlayer.SetHealth(setHealtTo)
+		return true
+	}
+	if(args[1]=="")
+		return false
+		
 	foreach(entity playerhealth in GetPlayerArray()){
 		if(args[1]=="MaxHealth")
 			playerhealth.SetMaxHealth(setHealtTo)
