@@ -215,7 +215,7 @@ void function OnPlayerRespawned( entity player )
 	if(gnsOn){
 		 Chat_ServerPrivateMessage( player, "Guns and stones is ON \n Kill players with pulse blade to reset them", false )
 	}
-	if(isPlayerInHardMode)
+	if(isPlayerInHardMode(player)== true)
 		Chat_ServerPrivateMessage(player, "Don't forget you are in Hard mode, to deactivatre it use !hardmode off",false)
 	if (player == GetWinningPlayer())
 		SetHighlight( player )
