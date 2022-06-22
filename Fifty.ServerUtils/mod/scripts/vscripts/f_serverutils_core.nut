@@ -52,7 +52,7 @@ void function FSU_init ()
   FSU_RegisterCommand( "usage", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "usage\x1b[0m <command> Prints usage of provided command", "core", FSU_C_Usage )
   FSU_RegisterCommand( "discord", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "discord\x1b[0m Prints a discord invite", "core", FSU_C_Discord, [ "dc" ] )
   FSU_RegisterCommand( "report", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "report <player>\x1b[0m Creates a report and prints it in console so you can copy it", "core", FSU_C_Report )
-  //FSU_RegisterCommand( "gns", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "gns <on/off>\x1b[0m Votes if Guns and Stones should be turned on", "core", FSU_C_GNS )
+  FSU_RegisterCommand( "gns", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "gns <on/off>\x1b[0m Votes if Guns and Stones should be turned on", "core", FSU_C_GNS )
   FSU_RegisterCommand("hardmode","\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "Reduces <on/off>x1b[0m your health by 50% to make it more difficult","core",FSU_C_Hard_Mode)
   if( FSU_GetBool("FSU_ENABLE_SWITCH") )
     FSU_RegisterCommand( "switch", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "switch\x1b[0m switches team", "core", FSU_C_Switch )
@@ -628,22 +628,23 @@ void function FSU_C_Report ( entity player, array < string > args )
 //!gns
 void function FSU_C_GNS( entity player, array < string > args)
 {
-	if(gnsOn == true || gnsOn==null ){
+	try{
+	if(gnsOn == true){
 
 		if(playerWantingToActivateGNS.find(player)!= -1){
 			Chat_ServerPrivateMessage( player, "You already voted", false )
 			return
 		}
-		if(args[0]!="on"||args[0]!="ON"||args[0]!="On"||args[0]!="1"){
-      Chat_ServerPrivateMessage(player,"Not a vali command \n Syntax is: !gns <on/off>")
+		if(args[0]!="on"&&args[0]!="ON"&&args[0]!="On"&&args[0]!="1"){
+      Chat_ServerPrivateMessage(player,"Not a vali command \n Syntax is: !gns <on/off>",false	)
       return
     }
 
 		playerWantingToActivateGNS.append(player)
     foreach( entity playerMessage in GetPlayerArray())
-      Chat_ServerPrivateMessage( playerMessage, "Vote to activate Guns and Stones,["+ playerWantingToActivateGNS.len() + "/" + GetPlayerArray.len()/3 +"] have casted votes", false )
+      Chat_ServerPrivateMessage( playerMessage, "Vote to activate Guns and Stones,["+ playerWantingToActivateGNS.len() + "/" + amoutOfVotesNedded() +"] have casted votes", false )
 		
-    if(playerWantingToActivateGNS.len()<= GetPlayerArray.len()/3)
+    if(playerWantingToActivateGNS.len()<= amoutOfVotesNedded())
       return 
 
 		gnsOn = true
@@ -661,16 +662,16 @@ if(gnsOn == false){
 			Chat_ServerPrivateMessage( player, "You already voted", false )
 			return
 		}
-		if(args[0]!="off"||args[0]!="OFF"||args[0]!="Off"||args[0]!="0"){
-      Chat_ServerPrivateMessage(player,"Not a vali command \n Syntax is: !gns <on/off>")
+		if(args[0]!="off"&&args[0]!="OFF"&&args[0]!="Off"&&args[0]!="0"){
+      Chat_ServerPrivateMessage(player,"Not a vali command \n Syntax is: !gns <on/off>",false)
       return
     }
 
 		playerWantingToDeactivateGNS.append(player)
     foreach( entity playerMessage in GetPlayerArray())
-      Chat_ServerPrivateMessage( playerMessage, "Vote to deactivate Guns and Stones,["+ playerWantingToActivateGNS.len() + "/" + GetPlayerArray.len()/3 +"] have casted votes", false )
+      Chat_ServerPrivateMessage( playerMessage, "Vote to deactivate Guns and Stones,["+ playerWantingToActivateGNS.len() + "/" + amoutOfVotesNedded() +"] have casted votes", false )
 		
-    if(playerWantingToDeactivateGNS.len()<= GetPlayerArray.len()/3)
+    if(playerWantingToDeactivateGNS.len()<= amoutOfVotesNedded())
       return 
       
 		gnsOn = false
@@ -681,11 +682,13 @@ if(gnsOn == false){
     }
 		
 		return
-  }
+	}
+   }
+   catch(ex){}
 }
 //!hardmode
 void function FSU_C_Hard_Mode (entity player, array < string > args){
-  if(args[0]==null){
+  if(args.len()==0){
     Chat_ServerPrivateMessage( player, "Invalid syntax \n use: !hardmode <on/off>", false)
   }
   if(args[0]=="on"||args[0]=="ON"||args[0]=="On"||args[0]=="1"){
@@ -695,7 +698,7 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
     HardModePlayers.append(player)
     Chat_ServerPrivateMessage(player, "Your health is now at 50%", false)
     player.SetMaxHealth(50)
-    player.setHealth(player.GetMaxHealth())
+    player.SetHealth(player.GetMaxHealth())
 
   }
   if(args[0]=="off"||args[0]=="Off"||args[0]=="OFF"||args[0]=="0"){
@@ -705,12 +708,35 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
     HardModePlayers.remove(HardModePlayers.find(player))
     Chat_ServerPrivateMessage(player, "you are now in normal mode again", false)
     player.SetMaxHealth(100)
-    player.setHealth(player.GetMaxHealth())
+    player.SetHealth(player.GetMaxHealth())
   }
 }
 
 bool function isPlayerInHardMode(entity player){
-  if(player in HardModePlayers)
-    return true
-  return false
+  if(HardModePlayers.find(player)==-1)
+    return false
+  return true
+}
+
+int function amoutOfVotesNedded(){
+switch(GetPlayerArray().len()){
+case(1): return 1
+case(2): return 1
+case(3): return 1
+case(4): return 2
+case(5): return 2
+case(6): return 3
+case(7): return 3
+case(8): return 4
+case(9): return 4
+case(10): return 5
+case(11): return 5
+case(12): return 5
+case(13): return 5
+case(14): return 6
+case(15): return 6
+case(16): return 6
+
+}
+return 0
 }
