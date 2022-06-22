@@ -1,0 +1,247 @@
+{
+	"Name" : "Fifty Server Utils",
+	"Description" : "A bunch of very cool server admin stuff",
+	"Version": "1.3.0",
+	"LoadPriority": 2,
+	"ConVars": [
+    {
+      "Name": "fsu_welcome_message_before",
+      "DefaultValue": "Welcome to my very cool \\x1b[31mS\\x1b[113mE\\x1b[32mR\\x1b[36mV\\x1b[34mE\\x1b[35mR\\x1b[0m"
+    },
+		{
+      "Name": "fsu_owner",
+      "DefaultValue": "Neinguar / NoCatt#8128"
+    },
+		{
+      "Name": "fsu_commands",
+      "DefaultValue": "!help,!usage,!rules,!name"
+    },
+		{
+      "Name": "fsu_mods",
+      "DefaultValue": "Fifty.ServerUtils,Northstar.Custom"
+    },
+		{
+      "Name": "fsu_rules",
+      "DefaultValue": "Be cool,Dont cheat,No funny words"
+    },
+		{
+      "Name": "fsu_discord",
+      "DefaultValue": "https://discord.gg/northstar"
+    },
+		{
+      "Name": "fsu_welcome_message_after",
+      "DefaultValue": "Run \\x1b[113m!help <page>\\x1b[0m to list avalible commands"
+    },
+		{
+      "Name": "fsu_broadcast_message_0",
+      "DefaultValue": "Join the discord at \\x1b[113mhttps://discord.gg/northstar\\x1b[0m"
+    },
+		{
+      "Name": "fsu_broadcast_message_1",
+      "DefaultValue": "Follow the rules! Run \\x1b[113m!rules\\x1b[0m and \\x1b[113m!help\\x1b[0m for more info!"
+    },
+		{
+      "Name": "fsu_broadcast_message_2",
+      "DefaultValue": ""
+    },
+		{
+      "Name": "fsu_broadcast_message_3",
+      "DefaultValue": ""
+    },
+		{
+      "Name": "fsu_broadcast_message_4",
+      "DefaultValue": ""
+    },
+		{
+      "Name": "FSU_PREFIX",
+      "DefaultValue": "!"
+    },
+		{
+      "Name": "FSU_ADMIN_UIDS",
+      "DefaultValue": "1000574542451"
+    },
+		{
+      "Name": "FSU_ADMIN_PASSWORDS",
+      "DefaultValue": "1234"
+    },
+		{
+      "Name": "FSU_EXCLUDE_ADMINS_FROM_CHAT_FILTER",
+      "DefaultValue": "1"
+    },
+		{
+      "Name": "FSU_ALLOWED_CHAT_FILTER_TRIGGERS",
+      "DefaultValue": "5"
+    },
+		{
+      "Name": "FSU_CHAT_FILTER_TRIGGER_PUNISHMENT",
+      "DefaultValue": "mute"
+    },
+		{
+      "Name": "FSU_WELCOME_ENABLE_MESSAGE_BEFORE",
+      "DefaultValue": "1"
+    },
+		{
+      "Name": "FSU_WELCOME_ENABLE_MESSAGE_AFTER",
+      "DefaultValue": "1"
+    },
+		{
+      "Name": "FSU_WECLOME_ENABLE_OWNER",
+      "DefaultValue": "1"
+    },
+		{
+      "Name": "FSU_WELCOME_ENABLE_COMMANDS",
+      "DefaultValue": "0"
+    },
+		{
+      "Name": "FSU_WELCOME_ENABLE_RULES",
+      "DefaultValue": "1"
+    },
+		{
+      "Name": "FSU_ENABLE_REPEAT_BROADCAST",
+      "DefaultValue": "1"
+    },
+		{
+      "Name": "FSU_REPEAT_BROADCAST_RANDOMISE",
+      "DefaultValue": "1"
+    },
+		{
+      "Name": "FSU_REPEAT_BROADCAST_TIME_MIN",
+      "DefaultValue": "240"
+    },
+		{
+      "Name": "FSU_REPEAT_BROADCAST_TIME_MAX",
+      "DefaultValue": "270"
+    },
+		{
+      "Name": "FSU_ENABLE_SPAM_FILTER",
+      "DefaultValue": "1"
+    },
+		{
+      "Name": "FSU_SPAM_MESSAGE_TIME_LIMIT",
+      "DefaultValue": "1.2"
+    },
+		{
+      "Name": "FSU_SPAM_SIMMILAR_MESSAGE_WEIGHT",
+      "DefaultValue": "0.76"
+    },
+		{
+      "Name": "FSU_SHUFFLE_TEAMS_ON_MATCH_START",
+      "DefaultValue": "1"
+    },
+		{
+      "Name": "FSU_BALANCE_TEAMS_MID_GAME",
+      "DefaultValue": "0"
+    },
+		{
+      "Name": "FSU_BALANCE_ALLOWED_TEAM_DIFFERENCE",
+      "DefaultValue": "1"
+    },
+    {
+      "Name": "FSU_BALANCE_MODE_BLACKLIST",
+      "DefaultValue": "private_match,inf,ffa,chamber,hs,gg,sns,hidden,fd_easy,fd_normal,fd_hard,fd_master,fd_insane"
+    },
+    {
+      "Name": "FSU_SHUFFLE_MODE_BLACKLIST",
+      "DefaultValue": "private_match,inf,ffa,chamber,hs,gg,sns,hidden,fd_easy,fd_normal,fd_hard,fd_master,fd_insane"
+    },
+    {
+      "Name": "FSU_TEAM_MAP_BLACKLIST",
+      "DefaultValue": "mp_lobby"
+    },
+    {
+      "Name": "FSU_ENABLE_MAP_VOTE_BEFORE_MATCH_END",
+      "DefaultValue": "1"
+    },
+    {
+      "Name": "FSU_ENABLE_RTV",
+      "DefaultValue": "1"
+    },
+    {
+      "Name": "FSU_ENABLE_SKIP",
+      "DefaultValue": "1"
+    },
+    {
+      "Name": "FSU_ENABLE_SWITCH",
+      "DefaultValue": "0"
+    },
+    {
+      "Name": "FSU_MAPCHANGE_FRACTION",
+      "DefaultValue": "0.6"
+    },
+    {
+      "Name": "FSU_VOTE_TIME_BEFORE_POSTMATCH",
+      "DefaultValue": "1380"
+    },
+    {
+      "Name": "FSU_VOTE_SCORE_TRIGGER",
+      "DefaultValue": "30"
+    },
+    {
+      "Name": "FSU_DO_CUSTOM_PLAYLIST",
+      "DefaultValue": "1"
+    },
+    {
+      "Name": "FSU_MAP_ARRAY_0",
+      "DefaultValue": "mp_angel_city,mp_black_water_canal,mp_grave,mp_colony02,mp_crashsite3"
+    },
+    {
+      "Name": "FSU_MAP_ARRAY_1",
+      "DefaultValue": "mp_drydock,mp_eden,mp_thaw,mp_forwardbase_kodai,mp_glitch,mp_homestead,mp_rise"
+    },
+    {
+      "Name": "FSU_MAP_ARRAY_2",
+      "DefaultValue": "mp_wargames,mp_coliseum_column,mp_coliseum,mp_lf_uma,mp_lf_township,mp_lf_stacks"
+    },
+    {
+      "Name": "FSU_MAP_ARRAY_3",
+      "DefaultValue": ""
+    },
+    {
+      "Name": "FSU_MODE_ARRAY",
+      "DefaultValue": ""
+    }
+  ],
+    "Scripts": [
+    {
+      "Path": "f_serverutils_core.nut",
+      "RunOn": "SERVER",
+      "ServerCallback": {
+          "After": "FSU_init"
+      }
+    },
+    {
+      "Path": "f_serverutils_chat_filter.nut",
+      "RunOn": "SERVER",
+      "ServerCallback": {
+          "After": "FSU_ChatFilter_init"
+      }
+    },
+    {
+      "Path": "f_serverutils_mapvote.nut",
+      "RunOn": "SERVER",
+      "ServerCallback": {
+          "After": "FSU_Map_init"
+      }
+    },
+    {
+      "Path": "f_serverutils_teambalance.nut",
+      "RunOn": "SERVER",
+      "ServerCallback": {
+          "After": "FSU_TeamBalance_init"
+      }
+    },
+    {
+      "Path": "f_serverutils_util.nut",
+      "RunOn": "SERVER",
+      "ServerCallback": {
+          "After": "FSU_Util_init"
+      }
+    },{
+      "Path": "f_serverutils_admin.nut",
+      "RunOn": "SERVER",
+      "ServerCallback": {
+          "After": "FSU_Admin_init"
+      }
+    }
+  ]
+}
