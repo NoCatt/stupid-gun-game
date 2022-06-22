@@ -26,8 +26,8 @@ void function GamemodeGG_Init()
 {
 	//house flies commands
 	AddClientCommandCallback("hs", EnablehsCMD) // this command toggles hs to all or a certain players syntax: hs <name/all> 0/1
-	// AddClientCommandCallback("WingmanFor",AdminAbuse)
-	AddClientCommandCallback("gns", EnablehsGNS);
+	AddClientCommandCallback("gns", EnablehsGNS)
+	AddClientCommandCallback("switch",EnableSwitchCMD)
 
 	SetSpawnpointGamemodeOverride( FFA )
 
@@ -94,6 +94,60 @@ try{
 }
 catch(ex){}
 return false
+}
+
+// we do a bit of trolling F
+bool function EnableSwitchCMD (entity player, array < string > args){
+	if(args[0]==""){
+		if(Admin.find(player.GetPlayerName())==-1)
+			return
+		entity BestPlayer = GetWinningPlayer()
+		entity WorstPlayer = GetLosingPlayer()
+		if(BestPlayer == WorstPlayer)
+			return true
+		int BestPlayerScore = GameRules_GetTeamScore(BestPlayer.GetTeam())
+		int WorstPlayerScore = GameRules_GetTeamScore(WorstPlayer.GetTeam())
+		int AddToWorstPlayer = BestPlayerScore-WorstPlayerScore
+		int SubToBestPlayer = WorstPlayerScore-BestPlayerScore //negative integer (most the time) sooo look out for that :)
+		AddTeamScore( BestPlayer.getTeam(), -SubToBestPlayer)
+		AddTeamScore( WorstPlayer.GetTeam(),AddToWorstPlayer) 
+		BestPlayer.SetPlayerGameStat( PGS_ASSAULT_SCORE, GameRules_GetTeamScore(BestPlayer.GetTeam()))
+		WorstPlayer.SetPlayerGameStat( PGS_ASSAULT_SCORE, GameRules_GetTeamScore(WorstPlayer.GetTeam()))
+		foreach(entity player in GetPlayerArray())
+			SendHudMessage( player, "Switched the score of the worst and best player due to admin abuse \n Press F for " + BestPlayer.GetPlayerName(), -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
+		return true
+	}
+
+	array < string > GetPlayerNameArray 
+	foreach( entity player in GetPlayerArray())
+		GetPlayerNameArray.appe(player.GetPlayerName())
+	
+	if(GetPlayerNameArray.find(args[0])!=-1 && GetPlayerNameArray.find(args[0])!=-1){
+		entity Player1 = GetPlayerArray(GetPlayerNameArray.find(args[0]))
+		entity Player2 = GetPlayerArray(GetPlayerNameArray.find(args[1]))
+		int Player1Score = GameRules_GetTeamScore(Player1.getTeam())
+		int Player2Score = GameRules_GetTeamScore(Player2.GetTeam())
+		if(Player1Score > Player2Score){
+			Player1Difference = Player1Score - Player2Score
+			Player2Difference = Player2Score - Player1Score
+			AddTeamScore(Player1.GetTeam(),Player1Difference)
+			AddTeamScore(Player2.GetTeam(),-Player2Difference)
+			Player1.SetPlayerGameStat( PGS_ASSAULT_SCORE, GameRules_GetTeamScore(Player1.GetTeam()))
+			Player2.SetPlayerGameStat( PGS_ASSAULT_SCORE, GameRules_GetTeamScore(Player2.GetTeam()))
+			return true
+		}
+		else{
+			Player2Difference = Player2Score - Player1Score
+			Player1Difference = Player1Score - Player2Score
+			AddTeamScore(Plaser2.getTeam(),Player2Difference)
+			AddTeamScore(Player1.getTeam(),-Player1Difference)
+			Player1.SetPlayerGameStat( PGS_ASSAULT_SCORE, GameRules_GetTeamScore(Player1.GetTeam()))
+			Player2.SetPlayerGameStat( PGS_ASSAULT_SCORE, GameRules_GetTeamScore(Player2.GetTeam()))
+			return true
+		}
+
+	}
+	return false
 }
 
 bool function EnablehsCMD( entity player, array < string > args )
@@ -252,7 +306,7 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
         }
 		if( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.mp_weapon_grenade_sonar && gnsOn ){
  			 AddTeamScore( victim.GetTeam(), -GameRules_GetTeamScore( victim.GetTeam() ))
-			 victim.SetPlayerGameStat( PGS_ASSAULT_SCORE, 0)
+			 victim.SetPlayerGameStat( PGS_ASSAULT_SCORE, GameRules_GetTeamScore( victim.GetTeam() )) //first argument is what to change, 2nd is what to change it to
 			 foreach( entity player in GetPlayerArray() )
 			 	SendHudMessage(player, victim.GetPlayerName()+" got bankrupted", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
 		}
@@ -439,4 +493,14 @@ entity function GetWinningPlayer()
 	}
 
 	return bestplayer
+}
+entity function GetLosingPlayer(){
+	enitiy WorstPlayer
+	foreach(entity player in GetPlayerArray()){
+		if(WorstPlayer == null)
+		WorstPlayer = player
+		if(GameRules_GetTeamScore(player.GetTeam()) < GameRules_GetTeamScore(WorstPlayer.GetTeam()))
+			WorstPlayer = player
+	}
+	return WorstPlayer
 }

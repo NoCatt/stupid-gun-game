@@ -691,19 +691,17 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
   if(args.len()==0){
     Chat_ServerPrivateMessage( player, "Invalid syntax \n use: !hardmode <on/off>", false)
   }
+  // removed check if player is in array, they can cut their health in half as much as they want, their problem not mine LOL
   if(args[0]=="on"||args[0]=="ON"||args[0]=="On"||args[0]=="1"){
-    if(isPlayerInHardMode(player)){
-       Chat_ServerPrivateMessage(player, "You are already in hardmode", false)
-    }
     HardModePlayers.append(player)
-    Chat_ServerPrivateMessage(player, "Your health is now at 50%", false)
-    player.SetMaxHealth(50)
+    player.SetMaxHealth(palyer.GetMaxHealth()/2)
     player.SetHealth(player.GetMaxHealth())
-
+    Chat_ServerPrivateMessage(player, "Your health is now at " + player.GetMaxHealth().tostring(), false)
   }
   if(args[0]=="off"||args[0]=="Off"||args[0]=="OFF"||args[0]=="0"){
     if(!isPlayerInHardMode(player)){
       Chat_ServerPrivateMessage(player, "You need to be in hard mode to deactivate it", false)
+      return
     }
     HardModePlayers.remove(HardModePlayers.find(player))
     Chat_ServerPrivateMessage(player, "you are now in normal mode again", false)
