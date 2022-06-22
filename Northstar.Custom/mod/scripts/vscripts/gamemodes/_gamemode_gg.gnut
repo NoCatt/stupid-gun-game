@@ -278,7 +278,6 @@ void function OnPlayerDisconnected(entity player)
 {
 	// this prevents a new player to get someone who's left's score
 	AddTeamScore( player.GetTeam(), -GameRules_GetTeamScore( player.GetTeam() ))
-	player.SetPlayerGameStat( PGS_ASSAULT_SCORE, 0) //you need this so the scoreboard isnt bugged when you rejoin I think o.O
 
 	if (GetWinningPlayer() == player)
 		thread CheckNewHighlight(player)
