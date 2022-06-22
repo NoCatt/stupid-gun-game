@@ -6,9 +6,10 @@ global function FSU_CanCreatePoll
 global function FSU_CreatePoll
 global function FSU_GetPollResultIndex
 global function FSU_IsDedicated
+global function isPlayerInHardMode
 global array < entity > playerWantingToActivateGNS
 global array < entity > playerWantingToDeactivateGNS
-
+global array < entity > HardModePlayers
 
 struct commandStruct
 {
@@ -52,6 +53,7 @@ void function FSU_init ()
   FSU_RegisterCommand( "discord", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "discord\x1b[0m Prints a discord invite", "core", FSU_C_Discord, [ "dc" ] )
   FSU_RegisterCommand( "report", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "report <player>\x1b[0m Creates a report and prints it in console so you can copy it", "core", FSU_C_Report )
   //FSU_RegisterCommand( "gns", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "gns <on/off>\x1b[0m Votes if Guns and Stones should be turned on", "core", FSU_C_GNS )
+  FSU_RegisterCommand("hardmode","\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "Reduces <on/off>x1b[0m your health by 50% to make it more difficult","core",FSU_C_Hard_Mode)
   if( FSU_GetBool("FSU_ENABLE_SWITCH") )
     FSU_RegisterCommand( "switch", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "switch\x1b[0m switches team", "core", FSU_C_Switch )
   
@@ -648,6 +650,7 @@ void function FSU_C_GNS( entity player, array < string > args)
 		foreach(entity playerVote in GetPlayerArray() ){
 			Chat_ServerPrivateMessage( playerVote, "Guns and stones is now activated", false )
       UpdateLoadout(playerVote)
+      playerWantingToActivateGNS.clear()
     }
 		
 		return
@@ -674,8 +677,40 @@ if(gnsOn == false){
 		foreach(entity playerVote in GetPlayerArray() ){
 			Chat_ServerPrivateMessage( playerVote, "Guns and stones is now deactivated", false )
       UpdateLoadout(playerVote)
+      playerWantingToDeactivateGNS.clear()
     }
 		
 		return
   }
+}
+//!hardmode
+void function FSU_C_Hard_Mode (entity player, array < string > args){
+  if(args[0]==null){
+    Chat_ServerPrivateMessage( player, "Invalid syntax \n use: !hardmode <on/off>", false)
+  }
+  if(args[0]=="on"||args[0]=="ON"||args[0]=="On"||args[0]=="1"){
+    if(isPlayerInHardMode(player)){
+       Chat_ServerPrivateMessage(player, "You are already in hardmode", false)
+    }
+    HardModePlayers.append(player)
+    Chat_ServerPrivateMessage(player, "Your health is now at 50%", false)
+    player.SetMaxHealth(50)
+    player.setHealth(player.GetMaxHealth())
+
+  }
+  if(args[0]=="off"||args[0]=="Off"||args[0]=="OFF"||args[0]=="0"){
+    if(!isPlayerInHardMode(player)){
+      Chat_ServerPrivateMessage(player, "You need to be in hard mode to deactivate it", false)
+    }
+    HardModePlayers.remove(HardModePlayers.find(player))
+    Chat_ServerPrivateMessage(player, "you are now in normal mode again", false)
+    player.SetMaxHealth(100)
+    player.setHealth(player.GetMaxHealth())
+  }
+}
+
+bool function isPlayerInHardMode(entity player){
+  if(player in HardModePlayers)
+    return true
+  return false
 }

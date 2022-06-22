@@ -1,5 +1,6 @@
 global function GamemodeGG_Init
 global bool gnsOn
+global function UpdateLoadout
 
 array<string> playerHSNames = [] //players that have HouseFlies enabled
 array<string> adminNames = ["admin1", "admin2","Neinguar"] // admins
@@ -214,7 +215,8 @@ void function OnPlayerRespawned( entity player )
 	if(gnsOn){
 		 Chat_ServerPrivateMessage( player, "Guns and stones is ON \n Kill players with pulse blade to reset them", false )
 	}
-		
+	if(isPlayerInHardMode)
+		Chat_ServerPrivateMessage(player, "Don't forget you are in Hard mode, to deactivatre it use !hardmode off",false)
 	if (player == GetWinningPlayer())
 		SetHighlight( player )
 }
