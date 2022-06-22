@@ -644,7 +644,7 @@ void function FSU_C_GNS( entity player, array < string > args)
     foreach( entity playerMessage in GetPlayerArray())
       Chat_ServerPrivateMessage( playerMessage, "Vote to activate Guns and Stones,["+ playerWantingToActivateGNS.len() + "/" + amoutOfVotesNedded() +"] have casted votes", false )
 		
-    if(playerWantingToActivateGNS.len()<= amoutOfVotesNedded())
+    if(playerWantingToActivateGNS.len()< amoutOfVotesNedded())
       return 
 
 		gnsOn = true
@@ -671,7 +671,7 @@ if(gnsOn == false){
     foreach( entity playerMessage in GetPlayerArray())
       Chat_ServerPrivateMessage( playerMessage, "Vote to deactivate Guns and Stones,["+ playerWantingToActivateGNS.len() + "/" + amoutOfVotesNedded() +"] have casted votes", false )
 		
-    if(playerWantingToDeactivateGNS.len()<= amoutOfVotesNedded())
+    if(playerWantingToDeactivateGNS.len()< amoutOfVotesNedded())
       return 
       
 		gnsOn = false
