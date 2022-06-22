@@ -9,5 +9,7 @@ melee will reset you one point, if you are not at the puls blade <br />
 #
 stupid-gun-game by [fvnkhead](https://github.com/fvnkhead)
 #
+serverUtils by [fifty](https://northstar.thunderstore.io/package/Fifty/Server_Utilities/)
+#
 house flies mod by DINOTICK#3135
 
