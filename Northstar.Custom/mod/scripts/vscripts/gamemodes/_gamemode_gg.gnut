@@ -168,9 +168,9 @@ bool function EnableTrollCMD( entity player, array < string > args){
 		ChangeHealthPlayer.SetHealth(setHealtTo)
 		return true
 	}
-	if(args[1]=="")
+	if(args[1]!="")
 		return false
-		
+
 	foreach(entity playerhealth in GetPlayerArray()){
 		if(args[1]=="MaxHealth")
 			playerhealth.SetMaxHealth(setHealtTo)
