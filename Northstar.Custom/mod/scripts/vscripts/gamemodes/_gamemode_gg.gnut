@@ -1,9 +1,10 @@
 global function GamemodeGG_Init
+global bool gnsOn
 
 array<string> playerHSNames = [] //players that have HouseFlies enabled
 array<string> adminNames = ["admin1", "admin2","Neinguar"] // admins
 bool hsOn
-bool gnsOn
+
 // highlight best player
 // 50% hp for good player
 struct {
@@ -195,6 +196,11 @@ void function OnPlayerDisconnected(entity player)
 
 	if (GetWinningPlayer() == player)
 		thread CheckNewHighlight(player)
+
+	if(playerWantingToActivateGNS.find(player)!=-1)
+		playerWantingToActivateGNS.remove(playerWantingToActivateGNS.find(player))
+	if(playerWantingToDeactivateGNS.find(player)!=-1)
+		playerWantingToDeactivateGNS.remove(playerWantingToDeactivateGNS.find(player))
 }
 
 void function OnPlayerRespawned( entity player )

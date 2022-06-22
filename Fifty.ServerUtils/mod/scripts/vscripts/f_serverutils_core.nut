@@ -6,6 +6,9 @@ global function FSU_CanCreatePoll
 global function FSU_CreatePoll
 global function FSU_GetPollResultIndex
 global function FSU_IsDedicated
+global array < entity > playerWantingToActivateGNS
+global array < entity > playerWantingToDeactivateGNS
+
 
 struct commandStruct
 {
@@ -30,8 +33,7 @@ string poll_before
 int poll_result
 bool poll_show_result
 
-array < entity > playerWantingToActivateGNS
-array < entity > playerWantingToDeactivateGNS
+
 
 // init
 void function FSU_init ()
@@ -622,37 +624,58 @@ void function FSU_C_Report ( entity player, array < string > args )
   Chat_ServerPrivateMessage( player, "Report created! Check your console.", false )
 }
 //!gns
-/*
 void function FSU_C_GNS( entity player, array < string > args)
 {
-	if(gnsOn == true){
+	if(gnsOn == true || gnsOn==null ){
+
 		if(playerWantingToActivateGNS.find(player)!= -1){
 			Chat_ServerPrivateMessage( player, "You already voted", false )
 			return
 		}
-		if(args[0]=="On"||args[0]=="ON"||args[0]=="on"||args[0]=="1")
-			playerWantingToActivateGNS.append(player)
+		if(args[0]!="on"||args[0]!="ON"||args[0]!="On"||args[0]!="1"){
+      Chat_ServerPrivateMessage(player,"Not a vali command \n Syntax is: !gns <on/off>")
+      return
+    }
+
+		playerWantingToActivateGNS.append(player)
+    foreach( entity playerMessage in GetPlayerArray())
+      Chat_ServerPrivateMessage( playerMessage, "Vote to activate Guns and Stones,["+ playerWantingToActivateGNS.len() + "/" + GetPlayerArray.len()/3 +"] have casted votes", false )
 		
-		if(playerWantingToActivateGNS.len()>= GetPlayerArray.len()/3){
-			gnsOn = true
-			foreach(entity playerVote in GetPlayerArray() )
-				Chat_ServerPrivateMessage( player, "Guns and stones is now activated", false )
+    if(playerWantingToActivateGNS.len()<= GetPlayerArray.len()/3)
+      return 
+
+		gnsOn = true
+		foreach(entity playerVote in GetPlayerArray() ){
+			Chat_ServerPrivateMessage( playerVote, "Guns and stones is now activated", false )
+      UpdateLoadout(playerVote)
+    }
 		
-		}
 		return
 	}
-	if(gnsOn== false){
-		if(playerWantingToActivateGNS.find(player)!= -1){
+if(gnsOn == false){
+
+		if(playerWantingToDeactivateGNS.find(player)!= -1){
 			Chat_ServerPrivateMessage( player, "You already voted", false )
 			return
 		}
-		playerWantingToActivateGNS.append(player)
+		if(args[0]!="off"||args[0]!="OFF"||args[0]!="Off"||args[0]!="0"){
+      Chat_ServerPrivateMessage(player,"Not a vali command \n Syntax is: !gns <on/off>")
+      return
+    }
+
+		playerWantingToDeactivateGNS.append(player)
+    foreach( entity playerMessage in GetPlayerArray())
+      Chat_ServerPrivateMessage( playerMessage, "Vote to deactivate Guns and Stones,["+ playerWantingToActivateGNS.len() + "/" + GetPlayerArray.len()/3 +"] have casted votes", false )
 		
-		if(playerWantingToActivateGNS.len()>= GetPlayerArray.len()/3){
-			gnsOn = true
-			foreach(entity playerVote in GetPlayerArray() )
-				Chat_ServerPrivateMessage( player, "Guns and stones is now activated", false )
-		}
-	}
+    if(playerWantingToDeactivateGNS.len()<= GetPlayerArray.len()/3)
+      return 
+      
+		gnsOn = false
+		foreach(entity playerVote in GetPlayerArray() ){
+			Chat_ServerPrivateMessage( playerVote, "Guns and stones is now deactivated", false )
+      UpdateLoadout(playerVote)
+    }
+		
+		return
+  }
 }
-*/
