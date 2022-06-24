@@ -19,11 +19,8 @@ struct commandStruct
   string group // Group, used for help
   bool functionref( entity ) visible // Should show to player ?
 }
-global struct HardModeStruct {
-  entity player 
-  int MaxHealth
-}
-global array < HardModeStruct > ArrayHardMode
+global array < entity> PlayersInHardMode
+global array < int> PlayerMaxHealth
 
 // List of registered commands
 table < string, commandStruct > commands
@@ -698,29 +695,31 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
   }
   // removed check if player is in array, they can cut their health in half as much as they want, their problem not mine LOL
   if(args[0]=="on"||args[0]=="ON"||args[0]=="On"||args[0]=="1"){
-    foreach(HardModeStruct hms in ArrayHardMode){
-      if( hms.player == player)
-        hms.MaxHealth=hms.MaxHealth/2
-      player.SetMaxHealth(player.GetMaxHealth()/2)
-      player.SetHealth(player.GetMaxHealth())
-      Chat_ServerPrivateMessage(player, "Your health is now at " + player.GetMaxHealth().tostring(), false)
-      return
+    if(HardModePlayers.find(player)==-1){
+        HardModePlayers.append(player)
+        int index = HardModePlayers.find() 
+        PlayerMaxHealth[index] = player.GetMaxHealth/2
+        player.SetMaxHealth(PlayerMaxHealth[index])
+        player.SetHealth(player.GetMaxHealth())
+        return
     }
-    ArrayHardMode.append({player, player.GetMaxHealth()/2})
-    player.SetMaxHealth(player.GetMaxHealth()/2)
-    player.SetHealth(player.GetMaxHealth())
-    Chat_ServerPrivateMessage(player, "Your health is now at " + player.GetMaxHealth().tostring(), false)
+    int index = HardModePlayers.find(player)
+    PlayerMaxHealth[index] = PlayerMaxHealth[index]/2
+    player.SetMaxHealth(PlayerMaxHealth[index])
+    return
   }
   if(args[0]=="off"||args[0]=="Off"||args[0]=="OFF"||args[0]=="0"){
-    if(!isPlayerInHardMode(player)){
-      Chat_ServerPrivateMessage(player, "You need to be in hard mode to deactivate it", false)
+    if(HardModePlayers.find(player)==-1){
+      Chat_ServerPrivateMessage(player, "You need to be in hard mode to deactivate it",false)
       return
     }
-    HardModePlayers.remove(HardModePlayers.find(player))
-    Chat_ServerPrivateMessage(player, "you are now in normal mode again", false)
-    player.SetMaxHealth(100)
-    player.SetHealth(player.GetMaxHealth())
-  }
+  int index HardModePlayers.find(player)
+  HardModePlayers.remove(index)
+  PlayerMaxHealth.remove(index)
+  player.SetMaxHealth(100)
+  player.SetHealth(player.GetMaxHealth())
+  Chat_ServerPrivateMessage(player,"Your health is now back to deafault at "+player.GetMaxHealth(),false)
+  return
 }
 
 bool function isPlayerInHardMode(entity player){

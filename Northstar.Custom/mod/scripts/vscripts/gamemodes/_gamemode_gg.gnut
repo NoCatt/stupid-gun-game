@@ -291,11 +291,9 @@ void function OnPlayerRespawned( entity player )
 	UpdateLoadout( player )
 	thread OnPlayerRespawned_Threaded( player )
 
-	foreach(HardModeStruct hms in ArrayHardMode){
-		if(hms.player == player){
-			player.SetMaxHealth(hms.MaxHealth)
-			player.SetHealth(player.GetMaxHealth)
-		}
+	if(HardModePlayers.find(player)!=-1){
+		player.SetMaxHealth(PlayerMaxHealth[HardModePlayers.find(player)])
+		player.SetHealth(player.GetMaxHealth())
 	}
 
 	if(hsOn)
