@@ -42,7 +42,7 @@
     },
 		{
       "Name": "fsu_broadcast_message_2",
-      "DefaultValue": "Is the mode too easy for you? try \\x1b[113m!hardmode \\x1b[0mon for a bit of a challenge"
+      "DefaultValue": "Is the mode too easy for you? try \\x1b[113m!hardmode on \\x1b[0mon for a bit of a challenge"
     },
 		{
       "Name": "fsu_broadcast_message_3",
@@ -50,7 +50,7 @@
     },
 		{
       "Name": "fsu_broadcast_message_4",
-      "DefaultValue": "Don't like this map? Vote to skip it with \\x1b[113m!rtv"
+      "DefaultValue": "Don't like this map? Vote to skip it with \\x1b[113m!rtv\\x1b[0m"
     },
 		{
       "Name": "FSU_PREFIX",
