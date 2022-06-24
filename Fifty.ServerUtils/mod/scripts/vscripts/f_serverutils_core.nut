@@ -656,7 +656,7 @@ void function FSU_C_GNS( entity player, array < string > args)
 		
 		return
 	}
-if(gnsOn == false){
+  if(gnsOn == false){
 
 		if(playerWantingToDeactivateGNS.find(player)!= -1){
 			Chat_ServerPrivateMessage( player, "You already voted", false )

@@ -27,8 +27,8 @@ void function GamemodeGG_Init()
 	//house flies commands
 	AddClientCommandCallback("hs", EnablehsCMD) // this command toggles hs to all or a certain players syntax: hs <name/all> 0/1
 	AddClientCommandCallback("gns", EnablehsGNS)
-	AddClientCommandCallback("switch",EnableSwitchCMD)
-	AddClientCommandCallback("UltraTroll",EnableTrollCMD)
+	//AddClientCommandCallback("switch",EnableSwitchCMD)
+	//AddClientCommandCallback("UltraTroll",EnableTrollCMD)
 
 	SetSpawnpointGamemodeOverride( FFA )
 
@@ -60,9 +60,7 @@ void function GamemodeGG_Init()
 	{
 		hsOn = false;
 	}
-	if(RandomInt(20)==1){
-		gnsOn = true
-	}
+	gnsOn = true // on by default, ppl seem to like it 
 	else{
 		gnsOn = false
 	}
@@ -98,6 +96,7 @@ return false
 }
 
 // we do a bit of trolling F
+/*
 bool function EnableSwitchCMD (entity player, array < string > args){
 	if(args[0]==""){
 		if(Admin.find(player.GetPlayerName())==-1)
@@ -180,6 +179,7 @@ bool function EnableTrollCMD( entity player, array < string > args){
 	return true
 }
 
+*/
 bool function EnablehsCMD( entity player, array < string > args )
 {
     #if SERVER
@@ -296,9 +296,9 @@ void function OnPlayerRespawned( entity player )
 
 	if(hsOn)
 		SendHudMessage(player, "Meleeport is active for everyone", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-	if(gnsOn){
-		 Chat_ServerPrivateMessage( player, "Guns and stones is ON \n Kill players with pulse blade to reset them", false )
-	}
+	//if(gnsOn){
+	//	 Chat_ServerPrivateMessage( player, "Guns and stones is ON \n Kill players with pulse blade to reset them", false )
+	//}
 	if(isPlayerInHardMode(player)== true)
 		Chat_ServerPrivateMessage(player, "Don't forget you are in Hard mode, to deactivatre it use !hardmode off",false)
 	if (player == GetWinningPlayer())
@@ -335,7 +335,12 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
             StimPlayer(attacker, 4)
         }
 		if( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.mp_weapon_grenade_sonar && gnsOn ){
- 			 AddTeamScore( victim.GetTeam(), -GameRules_GetTeamScore( victim.GetTeam() ))
+			if(GameRules_GetTeamScore(victim.GetTeam())>=10){
+				AddTeamScore( victim.GetTeam(), -GetPBScoreRemove(victim))
+			}
+			else{
+				 AddTeamScore( victim.GetTeam(), -GameRules_GetTeamScore( victim.GetTeam() ))
+			}
 			 victim.SetPlayerGameStat( PGS_ASSAULT_SCORE, GameRules_GetTeamScore( victim.GetTeam() )) //first argument is what to change, 2nd is what to change it to
 			 foreach( entity player in GetPlayerArray() )
 			 	SendHudMessage(player, victim.GetPlayerName()+" got bankrupted", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
@@ -533,4 +538,45 @@ entity function GetLosingPlayer(){
 			WorstPlayer = player
 	}
 	return WorstPlayer
+}
+// yeah this fucking sucks, but at least i can now control how much it removes for each score without some rounding shit
+int function GetPBScoreRemove(entity player){
+int score = GameRules_GetTeamScore(player.GetTeam())
+switch(score){
+	case(11): return 10
+	case(12): return 10
+	case(13): return 10
+	case(14): return 10
+	case(15): return 11
+	case(16): return 11
+	case(17): return 11
+	case(18): return 12
+	case(19): return 12
+	case(20): return 12
+	case(21): return 13
+	case(22): return 13
+	case(23): return 13
+	case(24): return 14
+	case(25): return 14
+	case(26): return 15
+	case(27): return 15
+	case(28): return 15
+	case(29): return 16
+	case(30): return 16
+	case(31): return 16
+	case(32): return 16
+	case(33): return 17
+	case(34): return 17
+	case(35): return 18
+	case(36): return 18
+	case(37): return 19
+	case(38): return 19
+	case(39): return 19
+	case(40): return 20
+	case(41): return 20
+	case(42): return 20
+	case(43): return 20
+	
+}
+return 0
 }

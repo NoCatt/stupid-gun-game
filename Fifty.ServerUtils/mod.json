@@ -14,7 +14,7 @@
     },
 		{
       "Name": "fsu_commands",
-      "DefaultValue": "!help,!usage,!rules,!name"
+      "DefaultValue": "!help,!usage,!rules,!name,!gns,!hardmode"
     },
 		{
       "Name": "fsu_mods",
@@ -22,7 +22,7 @@
     },
 		{
       "Name": "fsu_rules",
-      "DefaultValue": "Be cool,Dont cheat,No funny words"
+      "DefaultValue": "Be cool,Dont cheat,No funny words,Have fun"
     },
 		{
       "Name": "fsu_discord",
@@ -42,15 +42,15 @@
     },
 		{
       "Name": "fsu_broadcast_message_2",
-      "DefaultValue": ""
+      "DefaultValue": "Is the mode too easy for you? try \\x1b[113m!hardmode \\x1b[0mon for a bit of a challenge"
     },
 		{
       "Name": "fsu_broadcast_message_3",
-      "DefaultValue": ""
+      "DefaultValue": "Tired of getting killed by pulse blade? Vote to turn it off with \\x1b[113m!gns \\x1b[0moff"
     },
 		{
       "Name": "fsu_broadcast_message_4",
-      "DefaultValue": ""
+      "DefaultValue": "Don't like this map? Vote to skip it with \\x1b[113m!rtv"
     },
 		{
       "Name": "FSU_PREFIX",
@@ -106,11 +106,11 @@
     },
 		{
       "Name": "FSU_REPEAT_BROADCAST_TIME_MIN",
-      "DefaultValue": "240"
+      "DefaultValue": "120"
     },
 		{
       "Name": "FSU_REPEAT_BROADCAST_TIME_MAX",
-      "DefaultValue": "270"
+      "DefaultValue": "240"
     },
 		{
       "Name": "FSU_ENABLE_SPAM_FILTER",
@@ -118,7 +118,7 @@
     },
 		{
       "Name": "FSU_SPAM_MESSAGE_TIME_LIMIT",
-      "DefaultValue": "1.2"
+      "DefaultValue": "0.8"
     },
 		{
       "Name": "FSU_SPAM_SIMMILAR_MESSAGE_WEIGHT",
