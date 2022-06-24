@@ -19,6 +19,11 @@ struct commandStruct
   string group // Group, used for help
   bool functionref( entity ) visible // Should show to player ?
 }
+global struct HardModeStruct {
+  entity player 
+  int MaxHealth
+}
+global array < HardModeStruct > ArrayHardMode
 
 // List of registered commands
 table < string, commandStruct > commands
@@ -629,7 +634,7 @@ void function FSU_C_Report ( entity player, array < string > args )
 void function FSU_C_GNS( entity player, array < string > args)
 {
 	try{
-	if(gnsOn == true){
+	if(gnsOn == false){
 
 		if(playerWantingToActivateGNS.find(player)!= -1){
 			Chat_ServerPrivateMessage( player, "You already voted", false )
@@ -656,7 +661,7 @@ void function FSU_C_GNS( entity player, array < string > args)
 		
 		return
 	}
-  if(gnsOn == false){
+  if(gnsOn == true){
 
 		if(playerWantingToDeactivateGNS.find(player)!= -1){
 			Chat_ServerPrivateMessage( player, "You already voted", false )
@@ -693,7 +698,15 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
   }
   // removed check if player is in array, they can cut their health in half as much as they want, their problem not mine LOL
   if(args[0]=="on"||args[0]=="ON"||args[0]=="On"||args[0]=="1"){
-    HardModePlayers.append(player)
+    foreach(HardModeStruct hms in ArrayHardMode){
+      if( hms.player == player)
+        hms.MaxHealth=hms.MaxHealth/2
+      player.SetMaxHealth(player.GetMaxHealth()/2)
+      player.SetHealth(player.GetMaxHealth())
+      Chat_ServerPrivateMessage(player, "Your health is now at " + player.GetMaxHealth().tostring(), false)
+      return
+    }
+    ArrayHardMode.append({player, player.GetMaxHealth()/2})
     player.SetMaxHealth(player.GetMaxHealth()/2)
     player.SetHealth(player.GetMaxHealth())
     Chat_ServerPrivateMessage(player, "Your health is now at " + player.GetMaxHealth().tostring(), false)
