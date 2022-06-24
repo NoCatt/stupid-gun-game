@@ -61,9 +61,6 @@ void function GamemodeGG_Init()
 		hsOn = false;
 	}
 	gnsOn = true // on by default, ppl seem to like it 
-	else{
-		gnsOn = false
-	}
 	try
 	{
 		if ( GetCurrentPlaylistVarInt( "scorelimit", GetGunGameWeapons().len() ) != GetGunGameWeapons().len() )
@@ -530,7 +527,7 @@ entity function GetWinningPlayer()
 	return bestplayer
 }
 entity function GetLosingPlayer(){
-	enitiy WorstPlayer
+	entity WorstPlayer
 	foreach(entity player in GetPlayerArray()){
 		if(WorstPlayer == null)
 		WorstPlayer = player
