@@ -694,7 +694,7 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
   // removed check if player is in array, they can cut their health in half as much as they want, their problem not mine LOL
   if(args[0]=="on"||args[0]=="ON"||args[0]=="On"||args[0]=="1"){
     HardModePlayers.append(player)
-    player.SetMaxHealth(palyer.GetMaxHealth()/2)
+    player.SetMaxHealth(player.GetMaxHealth()/2)
     player.SetHealth(player.GetMaxHealth())
     Chat_ServerPrivateMessage(player, "Your health is now at " + player.GetMaxHealth().tostring(), false)
   }
