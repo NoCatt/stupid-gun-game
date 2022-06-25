@@ -670,7 +670,7 @@ void function FSU_C_GNS( entity player, array < string > args)
 
 		playerWantingToDeactivateGNS.append(player)
     foreach( entity playerMessage in GetPlayerArray())
-      Chat_ServerPrivateMessage( playerMessage, "Vote to deactivate Guns and Stones,["+ playerWantingToActivateGNS.len() + "/" + amoutOfVotesNedded() +"] have casted votes", false )
+      Chat_ServerPrivateMessage( playerMessage, "Vote to deactivate Guns and Stones,["+ playerWantingToActivateGNS.len() + "/" + amoutOfVotesNedded() +"] have casted votes, tye !gns off to vote ", false )
 		
     if(playerWantingToDeactivateGNS.len()< amoutOfVotesNedded())
       return 
