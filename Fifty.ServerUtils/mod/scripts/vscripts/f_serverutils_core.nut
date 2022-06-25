@@ -10,6 +10,7 @@ global function isPlayerInHardMode
 global array < entity > playerWantingToActivateGNS
 global array < entity > playerWantingToDeactivateGNS
 global array < entity > HardModePlayers
+global array < int > PlayerMaxHealth
 
 struct commandStruct
 {
@@ -19,8 +20,6 @@ struct commandStruct
   string group // Group, used for help
   bool functionref( entity ) visible // Should show to player ?
 }
-global array < entity> PlayersInHardMode
-global array < int> PlayerMaxHealth
 
 // List of registered commands
 table < string, commandStruct > commands
@@ -690,6 +689,7 @@ void function FSU_C_GNS( entity player, array < string > args)
 }
 //!hardmode
 void function FSU_C_Hard_Mode (entity player, array < string > args){
+try{
   if(args.len()==0){
     Chat_ServerPrivateMessage( player, "Invalid syntax \n use: !hardmode <on/off>", false)
   }
@@ -697,29 +697,43 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
   if(args[0]=="on"||args[0]=="ON"||args[0]=="On"||args[0]=="1"){
     if(HardModePlayers.find(player)==-1){
         HardModePlayers.append(player)
-        int index = HardModePlayers.find() 
-        PlayerMaxHealth[index] = player.GetMaxHealth/2
+		Chat_ServerPrivateMessage(player, "here 1", false)
+        int index = HardModePlayers.find(player)
+		Chat_ServerPrivateMessage(player, "here 1.5", false)
+		PlayerMaxHealth.append(100)
+		Chat_ServerPrivateMessage(player, "here 2", false)		
+		int NewMaxHealth = GetReducedHealth(player)
+		Chat_ServerPrivateMessage(player, "here 3", false)
+        PlayerMaxHealth[index] = NewMaxHealth
+		Chat_ServerPrivateMessage(player, "here 4", false)
         player.SetMaxHealth(PlayerMaxHealth[index])
+		Chat_ServerPrivateMessage(player, "here 5", false)
         player.SetHealth(player.GetMaxHealth())
+		Chat_ServerPrivateMessage(player, "Your health is now at "+player.GetMaxHealth(), false)
         return
     }
     int index = HardModePlayers.find(player)
-    PlayerMaxHealth[index] = PlayerMaxHealth[index]/2
+	int NewMaxHealth = player.GetMaxHealth()/2
+    PlayerMaxHealth[index] =NewMaxHealth
     player.SetMaxHealth(PlayerMaxHealth[index])
     return
   }
   if(args[0]=="off"||args[0]=="Off"||args[0]=="OFF"||args[0]=="0"){
-    if(HardModePlayers.find(player)==-1){
-      Chat_ServerPrivateMessage(player, "You need to be in hard mode to deactivate it",false)
-      return
-    }
-  int index HardModePlayers.find(player)
-  HardModePlayers.remove(index)
-  PlayerMaxHealth.remove(index)
-  player.SetMaxHealth(100)
-  player.SetHealth(player.GetMaxHealth())
-  Chat_ServerPrivateMessage(player,"Your health is now back to deafault at "+player.GetMaxHealth(),false)
-  return
+		if(HardModePlayers.find(player)==-1){
+		  Chat_ServerPrivateMessage(player, "You need to be in hard mode to deactivate it",false)
+		  return
+		}
+	  int index = HardModePlayers.find(player)
+	  HardModePlayers.remove(index)
+	  PlayerMaxHealth.remove(index)
+	  player.SetMaxHealth(100)
+	  player.SetHealth(player.GetMaxHealth())
+	  Chat_ServerPrivateMessage(player,"Your health is now back to deafault at "+player.GetMaxHealth(),false)
+	  return
+	}
+	}catch(ex){
+	Chat_ServerPrivateMessage(player, "lol you messed up", false)
+	}
 }
 
 bool function isPlayerInHardMode(entity player){
@@ -749,4 +763,17 @@ case(16): return 6
 
 }
 return 0
+}
+
+int function GetReducedHealth(entity player){
+int index = PlayerMaxHealth[HardModePlayers.find(player)]
+	switch(index){
+	case(100): return 50
+	case(50): return 25
+	case(25): return 12
+	case(12): return 6
+	case(3): return 1
+	case(1): return 1
+	}
+return 100
 }
