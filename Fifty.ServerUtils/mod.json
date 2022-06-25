@@ -42,11 +42,11 @@
     },
 		{
       "Name": "fsu_broadcast_message_2",
-      "DefaultValue": "Is the mode too easy for you? try \\x1b[113m!hardmode on \\x1b[0mon for a bit of a challenge"
+      "DefaultValue": "Is the mode too easy for you? try \\x1b[113m!hardmode on \\x1b[0m for a bit of a challenge"
     },
 		{
       "Name": "fsu_broadcast_message_3",
-      "DefaultValue": "Tired of getting killed by pulse blade? Vote to turn it off with \\x1b[113m!gns \\x1b[0moff"
+      "DefaultValue": "Tired of getting killed by pulse blade? Vote to turn it off with \\x1b[113m!gns \\x1b[0m off"
     },
 		{
       "Name": "fsu_broadcast_message_4",
