@@ -354,6 +354,9 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			float percentageReward = GetCurrentPlaylistVarFloat( "gg_kill_reward", 1.0 )
 			string scoreEvent = "KillPilot"
 
+			if(isPlayerInHardMode(attacker)){
+				PlayerHardModeKills[HardModePlayers.find(player)]++
+			}
 			if ( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.human_execution )
 			{
 				string message = victim.GetPlayerName() + " got executed."
@@ -489,6 +492,11 @@ void function UpdateLoadout( entity player )
 
 void function OnWinnerDetermined()
 {
+	if(HardModePlayers.find( GetWinningPlayer())!=-1){
+		foreach(entity player in GetPlayerArray()){
+			SendHudMessage( player,GetWinningPlayer().GetPlayerName+ "won in hard mode \n with "+PlayerHardModeKills[HardModePlayers.find(GetWinningPlayer())].tostring()+"kills in harad mode", -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
+		}
+	}
 	SetRespawnsEnabled( false )
 	SetKillcamsEnabled( false )
 
