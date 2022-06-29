@@ -11,7 +11,6 @@ global array < entity > playerWantingToActivateGNS
 global array < entity > playerWantingToDeactivateGNS
 global array < entity > HardModePlayers
 global array < int > PlayerMaxHealth
-global array < int > PlayerHardModeKills
 
 struct commandStruct
 {
@@ -699,8 +698,7 @@ try{
     if(HardModePlayers.find(player)==-1){
         HardModePlayers.append(player)
         int index = HardModePlayers.find(player)
-		PlayerMaxHealth.append(100)	
-    PlayerHardModeKills.append(0)
+		PlayerMaxHealth.append(100)		
 		int NewMaxHealth = GetReducedHealth(player)
         PlayerMaxHealth[index] = NewMaxHealth
         player.SetMaxHealth(PlayerMaxHealth[index])
@@ -712,6 +710,7 @@ try{
 	int NewMaxHealth = player.GetMaxHealth()/2
     PlayerMaxHealth[index] =NewMaxHealth
     player.SetMaxHealth(PlayerMaxHealth[index])
+		Chat_ServerPrivateMessage(player, "Your health is now at "+player.GetMaxHealth(), false)
     return
   }
   if(args[0]=="off"||args[0]=="Off"||args[0]=="OFF"||args[0]=="0"){
