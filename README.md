@@ -6,6 +6,9 @@ cool admin command to toggle houseflies for a certain person or for everyone (hs
 2 additional weapons (arc wave and thermal shield) <br />
 The order of guns is random, but the same for every player <br />
 melee will reset you one point, if you are not at the puls blade <br />
+Pulse blade will take score from the killed player depening on their score <br />
+The best player is highlighted for everyone so they can get focused better <br />
+with !hardmode <on/off> you can activate hardmode, it reduces your health by 50% everytime you use the command 
 #
 stupid-gun-game by [fvnkhead](https://github.com/fvnkhead)
 #
