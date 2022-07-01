@@ -46,7 +46,7 @@
     },
 		{
       "Name": "fsu_broadcast_message_3",
-      "DefaultValue": "Tired of getting killed by pulse blade? Vote to turn it off with \\x1b[113m!gns \\x1b[0m off"
+      "DefaultValue": "Tired of getting killed by pulse blade? Vote to turn it off with \\x1b[113m!gns off"
     },
 		{
       "Name": "fsu_broadcast_message_4",
@@ -106,11 +106,11 @@
     },
 		{
       "Name": "FSU_REPEAT_BROADCAST_TIME_MIN",
-      "DefaultValue": "120"
+      "DefaultValue": "50"
     },
 		{
       "Name": "FSU_REPEAT_BROADCAST_TIME_MAX",
-      "DefaultValue": "240"
+      "DefaultValue": "120"
     },
 		{
       "Name": "FSU_ENABLE_SPAM_FILTER",
