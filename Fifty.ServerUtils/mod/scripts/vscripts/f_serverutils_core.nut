@@ -727,9 +727,48 @@ try{
 	  return
 	}
 	}catch(ex){
-	Chat_ServerPrivateMessage(player, "lol you messed up", false)
 	}
 }
+
+/*
+void function FSU_C_EZMODE(entity player, array < string > args){
+if(isPlaserInBottomFive(player)== false)
+  return
+if(args[0]=="on"){
+
+}
+
+}
+
+bool function isPlaserInBottomFive(entity player){
+  if(GetPlayerArray().len()<5)
+    return true
+  array< entity > PlayersToSort = GetPlayerArray()
+  array< int > scoreOfPlayersToSort
+  foreach(entity player in GetPlayerArray)
+    scoreOfPlayersToSort.append( GameRules_GetTeamScore(player.getTeam()))
+  for(int a = 0; a<GetPlayerArray().len()-1 ; a++){
+    for(int b = 0 ; b<GetPlayerArray().len() ; b++){
+      if(scoreOfPlayersToSort[a]>scoreOfPlayersToSort[b]){
+        int placeholderScore
+        entity placeholderPlayer
+
+        placeholderScore = scoreOfPlayersToSort[a]
+        scoreOfPlayersToSort[a] = scoreOfPlayersToSort[b]
+        scoreOfPlayersToSort[b] = placeholderScore
+
+        placeholderPlayer = PlayersToSort[a]
+        PlayersToSort[a] = PlayersToSort[b]
+        PlayersToSort[b] = placeholderPlayer
+
+      }
+    }
+  }
+  if(PlayersToSort.find(player)>5)
+    return true
+  return false
+}
+*/
 
 bool function isPlayerInHardMode(entity player){
   if(HardModePlayers.find(player)==-1)
