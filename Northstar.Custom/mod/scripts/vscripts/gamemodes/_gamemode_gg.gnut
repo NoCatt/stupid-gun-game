@@ -206,15 +206,25 @@ void function OnPlayerRespawned( entity player )
 	UpdateLoadout( player )
 	thread OnPlayerRespawned_Threaded( player )
 
-	if(HardModePlayers.find(player)!=-1){
-		player.SetMaxHealth(PlayerMaxHealth[HardModePlayers.find(player)])
-		player.SetHealth(player.GetMaxHealth())
+	if(HMLightPlayers.find(player)!=-1){
+		player.SetMaxHealth(50)
+      	player.SetHealth(player.GetMaxHealth())
 	}
+	if(HMMediumPlayers.find(player)!=-1){
+		player.SetMaxHealth(25)
+      	player.SetHealth(player.GetMaxHealth())
+	}
+	if(HMExtremePlayers.find(player)!=-1){
+		player.SetMaxHealth(1)
+      	player.SetHealth(player.GetMaxHealth())
+	}
+
+	/*
 	if(EasyModePlayer.find(player)!=-1){
 		player.SetMaxHealth(125)
 		player.SetHealth(player.GetMaxHealth())
 	}
-
+	*/
 	if(hsOn)
 		SendHudMessage(player, "Meleeport is active for everyone", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
 	if (player == GetWinningPlayer())
@@ -462,6 +472,46 @@ entity function GetLosingPlayer(){
 // yeah this fucking sucks, but at least i can now control how much it removes for each score without some rounding shit
 int function GetPBScoreRemove(entity player){
 int score = GameRules_GetTeamScore(player.GetTeam())
+if(HSExtremePlayers.find(player)!=-1)
+	return score
+if(HSMediumPlayers.find(player)!=-1){
+	switch(score){
+		case(11): return 11
+		case(12): return 11
+		case(13): return 11
+		case(14): return 12
+		case(15): return 13
+		case(16): return 13
+		case(17): return 14
+		case(18): return 15
+		case(19): return 16
+		case(20): return 16
+		case(21): return 17
+		case(22): return 17
+		case(23): return 17
+		case(24): return 18
+		case(25): return 18
+		case(26): return 19
+		case(27): return 19
+		case(28): return 19
+		case(29): return 20
+		case(30): return 20
+		case(31): return 20
+		case(32): return 21
+		case(33): return 21
+		case(34): return 21
+		case(35): return 21
+		case(36): return 22
+		case(37): return 22
+		case(38): return 22
+		case(39): return 23
+		case(40): return 23
+		case(41): return 25
+		case(42): return 26
+		case(43): return 28
+		default: return 0
+}
+}
 switch(score){
 	case(11): return 10
 	case(12): return 10
@@ -496,7 +546,6 @@ switch(score){
 	case(41): return 20
 	case(42): return 20
 	case(43): return 20
-	
 }
 return 0
 }

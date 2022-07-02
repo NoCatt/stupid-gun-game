@@ -688,53 +688,54 @@ void function FSU_C_GNS( entity player, array < string > args)
    }
    catch(ex){}
 }
+global array < entity > HMLightPlayers
+global array < entity > HMMediumPlayers
+global array < entity > HMExtremePlayers
 //!hardmode
 void function FSU_C_Hard_Mode (entity player, array < string > args){
-try{
-  if(args.len()==0){
-    Chat_ServerPrivateMessage( player, "Invalid syntax \n use: !hardmode <on/off>", false)
-  }
-  if(EasyModePlayer.find(player)!=-1){
-     Chat_ServerPrivateMessage(player, "You are in easy mode, deactivate it to activate hardmode")
-     return
-  }
-  // removed check if player is in array, they can cut their health in half as much as they want, their problem not mine LOL
-  if(args[0]=="on"||args[0]=="ON"||args[0]=="On"||args[0]=="1"){
-    if(HardModePlayers.find(player)==-1){
-        HardModePlayers.append(player)
-        int index = HardModePlayers.find(player)
-		PlayerMaxHealth.append(100)		
-		int NewMaxHealth = GetReducedHealth(player)
-        PlayerMaxHealth[index] = NewMaxHealth
-        player.SetMaxHealth(PlayerMaxHealth[index])
-        player.SetHealth(player.GetMaxHealth())
-		Chat_ServerPrivateMessage(player, "Your health is now at "+player.GetMaxHealth(), false)
+  string Name1 = "Light"
+  string Desc1 = "Reduces your health by 50"
+  string Name2 = "Medium"
+  string Desc2 = "Reduces your health by 75 and pulse blade deaths remove more points"
+  string Name3 = "Extreme"
+  string Desc3 = "Reduces your healt by 99 and pulse blade deaths remove your enitre score"
+
+  try{
+    if(args.len()==0){
+      Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
+    }
+    if(isPlayerInHardMode(player)){
+        Chat_ServerPrivateMessage(player, "You are already in hard mode to change the difficulty turn it off and then turn it on with your desired difficulty",false)
         return
     }
-    int index = HardModePlayers.find(player)
-	int NewMaxHealth = player.GetMaxHealth()/2
-    PlayerMaxHealth[index] =NewMaxHealth
-    player.SetMaxHealth(PlayerMaxHealth[index])
-		Chat_ServerPrivateMessage(player, "Your health is now at "+player.GetMaxHealth(), false)
-    return
-  }
-  if(args[0]=="off"||args[0]=="Off"||args[0]=="OFF"||args[0]=="0"){
-		if(HardModePlayers.find(player)==-1){
-		  Chat_ServerPrivateMessage(player, "You need to be in hard mode to deactivate it",false)
-		  return
-		}
-	  int index = HardModePlayers.find(player)
-	  HardModePlayers.remove(index)
-	  PlayerMaxHealth.remove(index)
-	  player.SetMaxHealth(100)
-	  player.SetHealth(player.GetMaxHealth())
-	  Chat_ServerPrivateMessage(player,"Your health is now back to deafault at "+player.GetMaxHealth(),false)
-	  return
-	}
-	}catch(ex){
-	}
+    if(args[0]=="light"||args[0]=="Light"||args[0]=="LIGHT"){
+      HMLightPlayers.append(player)
+      player.SetMaxHealth(50)
+      player.SetHealth(player.GetMaxHealth())
+      Chat_ServerPrivateMessage(player, "You're now in light hard mode, your health is at"+player.GetMaxHealth())
+      return
+    }
+    if(args[0]=="Medium"){
+      HMLightPlayers.append(player)
+      player.SetMaxHealth(25)
+      player.SetHealth(player.GetMaxHealth())
+      Chat_ServerPrivateMessage(player, "You're now in medium hard mode, your health is at"+player.GetMaxHealth())
+      return
+    }
+    if(args[0]=="Extreme"){
+      HMLightPlayers.append(player)
+      player.SetMaxHealth(1)
+      player.SetHealth(player.GetMaxHealth())
+      Chat_ServerPrivateMessage(player, "You're now in extreme hard mode, your health is at"+player.GetMaxHealth())
+      return
+    }
+    else{
+      Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
+      return
+    }
+    }catch(ex){
+    }
 }
-
 
 void function FSU_C_EZMODE(entity player, array < string > args){
   try{
@@ -766,6 +767,7 @@ void function FSU_C_EZMODE(entity player, array < string > args){
 
 
 //jesus i hate this solution but, in order to get the player score sorted in an array i need to make 2 arrays and sort one of them and apply the same changes to the other array :(
+/*
 bool function isPlaserInBottomFive(entity player){
   if(GetPlayerArray().len()<5)
     return true
@@ -794,10 +796,10 @@ bool function isPlaserInBottomFive(entity player){
     return true
   return false
 }
-
+*/
 
 bool function isPlayerInHardMode(entity player){
-  if(HardModePlayers.find(player)==-1)
+  if(HMLightPlayers.find(player)==-1 && HMMediumPlayers.find(player)==-1 && HMExtremePlayers.find(player)==-1)
     return false
   return true
 }
@@ -823,17 +825,4 @@ case(16): return 6
 
 }
 return 0
-}
-
-int function GetReducedHealth(entity player){
-int index = PlayerMaxHealth[HardModePlayers.find(player)]
-	switch(index){
-	case(100): return 50
-	case(50): return 25
-	case(25): return 12
-	case(12): return 6
-	case(3): return 1
-	case(1): return 1
-	}
-return 100
 }
