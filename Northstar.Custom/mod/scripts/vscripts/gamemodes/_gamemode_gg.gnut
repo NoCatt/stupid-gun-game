@@ -406,7 +406,7 @@ void function UpdateLoadout( entity player )
 
 	if( gnsOn && weapon.offhandSlot == 0 && weapon.weapon != "mp_weapon_grenade_sonar" ){
   		player.GiveOffhandWeapon( "mp_ability_grapple", OFFHAND_LEFT )
-		player.GiveOffhandWeapon ("mp_weapon_grenade_sonar", OFFHAND_RIGHT, [])
+		player.GiveOffhandWeapon ("mp_weapon_grenade_sonar", OFFHAND_TITAN_CENTER, [])
 	}
 	else
   		player.GiveOffhandWeapon( "mp_ability_grapple", OFFHAND_LEFT )
@@ -459,22 +459,13 @@ entity function GetWinningPlayer()
 
 	return bestplayer
 }
-entity function GetLosingPlayer(){
-	entity WorstPlayer
-	foreach(entity player in GetPlayerArray()){
-		if(WorstPlayer == null)
-		WorstPlayer = player
-		if(GameRules_GetTeamScore(player.GetTeam()) < GameRules_GetTeamScore(WorstPlayer.GetTeam()))
-			WorstPlayer = player
-	}
-	return WorstPlayer
-}
+
 // yeah this fucking sucks, but at least i can now control how much it removes for each score without some rounding shit
 int function GetPBScoreRemove(entity player){
 int score = GameRules_GetTeamScore(player.GetTeam())
-if(HSExtremePlayers.find(player)!=-1)
+if(HMExtremePlayers.find(player)!=-1)
 	return score
-if(HSMediumPlayers.find(player)!=-1){
+if(HMMediumPlayers.find(player)!=-1){
 	switch(score){
 		case(11): return 11
 		case(12): return 11
