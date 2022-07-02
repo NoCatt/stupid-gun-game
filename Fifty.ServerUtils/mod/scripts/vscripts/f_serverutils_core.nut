@@ -9,9 +9,10 @@ global function FSU_IsDedicated
 global function isPlayerInHardMode
 global array < entity > playerWantingToActivateGNS
 global array < entity > playerWantingToDeactivateGNS
-global array < entity > HardModePlayers
-global array < int > PlayerMaxHealth
 global array < entity > EasyModePlayer
+global array < entity > HMLightPlayers
+global array < entity > HMMediumPlayers
+global array < entity > HMExtremePlayers
 
 struct commandStruct
 {
@@ -688,9 +689,7 @@ void function FSU_C_GNS( entity player, array < string > args)
    }
    catch(ex){}
 }
-global array < entity > HMLightPlayers
-global array < entity > HMMediumPlayers
-global array < entity > HMExtremePlayers
+
 //!hardmode
 void function FSU_C_Hard_Mode (entity player, array < string > args){
   string Name1 = "Light"
@@ -712,21 +711,21 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
       HMLightPlayers.append(player)
       player.SetMaxHealth(50)
       player.SetHealth(player.GetMaxHealth())
-      Chat_ServerPrivateMessage(player, "You're now in light hard mode, your health is at"+player.GetMaxHealth())
+      Chat_ServerPrivateMessage(player, "You're now in light hard mode, your health is at"+player.GetMaxHealth(),false)
       return
     }
     if(args[0]=="Medium"){
       HMLightPlayers.append(player)
       player.SetMaxHealth(25)
       player.SetHealth(player.GetMaxHealth())
-      Chat_ServerPrivateMessage(player, "You're now in medium hard mode, your health is at"+player.GetMaxHealth())
+      Chat_ServerPrivateMessage(player, "You're now in medium hard mode, your health is at"+player.GetMaxHealth(),false)
       return
     }
     if(args[0]=="Extreme"){
       HMLightPlayers.append(player)
       player.SetMaxHealth(1)
       player.SetHealth(player.GetMaxHealth())
-      Chat_ServerPrivateMessage(player, "You're now in extreme hard mode, your health is at"+player.GetMaxHealth())
+      Chat_ServerPrivateMessage(player, "You're now in extreme hard mode, your health is at"+player.GetMaxHealth(),false)
       return
     }
     else{
@@ -736,7 +735,7 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
     }catch(ex){
     }
 }
-
+/*
 void function FSU_C_EZMODE(entity player, array < string > args){
   try{
     if(isPlaserInBottomFive(player)== false){
@@ -764,7 +763,7 @@ void function FSU_C_EZMODE(entity player, array < string > args){
     
   }catch(ex){}
 }
-
+*/
 
 //jesus i hate this solution but, in order to get the player score sorted in an array i need to make 2 arrays and sort one of them and apply the same changes to the other array :(
 /*
