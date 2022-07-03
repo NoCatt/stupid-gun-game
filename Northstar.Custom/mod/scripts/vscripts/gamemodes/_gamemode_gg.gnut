@@ -258,8 +258,7 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
         // Heal & stim attacker after kill
         if (IsAlive(attacker)) {
             attacker.SetHealth(attacker.GetMaxHealth())
-			//StatusEffect_AddTimed( attacker, eStatusEffect.speed_boost, 0.4 , 4 , 4 )
-            StimPlayer(attacker, 4)
+			StatusEffect_AddTimed( player, eStatusEffect.speed_boost, 0.4, 4.25, 0.25) 
         }
 		if( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.mp_weapon_grenade_sonar && gnsOn ){
 			if(GameRules_GetTeamScore(victim.GetTeam())>=10){
