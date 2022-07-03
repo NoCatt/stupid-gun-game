@@ -50,7 +50,7 @@
     },
 		{
       "Name": "fsu_broadcast_message_3",
-      "DefaultValue": "Hacker or trouble maker? use \\x1b[113m!report \\x1b[0mto create a report in the console"
+      "DefaultValue": "Hacker or trouble maker? Use \\x1b[113m!report \\x1b[0mto create a report in the console"
     },
 		{
       "Name": "fsu_broadcast_message_4",

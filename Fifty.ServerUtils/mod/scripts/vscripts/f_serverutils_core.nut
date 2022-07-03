@@ -115,7 +115,7 @@ void function OnClientConnected ( entity player )
     
     Chat_ServerPrivateMessage( player, msg_rules, false )
   }
-  
+
   string msg_How_to_play
   if(FSU_GetBool("FSU_WELCOME_HOW_TO_PLAY"))
   {
@@ -717,9 +717,10 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
   try{
     if(args.len()==0){
       Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
+      return
     }
     if(isPlayerInHardMode(player)){
-        Chat_ServerPrivateMessage(player, "You are already in hard mode to change the difficulty turn it off and then turn it on with your desired difficulty",false)
+        Chat_ServerPrivateMessage(player, "You are already in hard mode you cant change the difficulty until the next match",false)
         return
     }
     if(args[0]=="light"||args[0]=="Light"||args[0]=="LIGHT"){
@@ -729,14 +730,14 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
       Chat_ServerPrivateMessage(player, "You're now in light hard mode, your health is at"+player.GetMaxHealth(),false)
       return
     }
-    if(args[0]=="Medium"){
+    if(args[0]=="Medium"||args[0]=="medium"){
       HMLightPlayers.append(player)
       player.SetMaxHealth(25)
       player.SetHealth(player.GetMaxHealth())
       Chat_ServerPrivateMessage(player, "You're now in medium hard mode, your health is at"+player.GetMaxHealth(),false)
       return
     }
-    if(args[0]=="Extreme"){
+    if(args[0]=="Extreme"||agrs[0]=0"etreme"){
       HMLightPlayers.append(player)
       player.SetMaxHealth(1)
       player.SetHealth(player.GetMaxHealth())
