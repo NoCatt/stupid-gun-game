@@ -116,6 +116,21 @@ void function OnClientConnected ( entity player )
     Chat_ServerPrivateMessage( player, msg_rules, false )
   }
   
+  string msg_How_to_play
+  if(FSU_GetBool("FSU_WELCOME_HOW_TO_PLAY"))
+  {
+    msg_How_to_play += "How to play:"
+    foreach(_index_, guide in FSU_GetStringArray("fsu_how_to_play"))
+    {
+     if( list_count > 4 )
+        break
+      msg_How_to_play += "\n    \x1b[113m" + ( _index_ + 1 ) + ".\x1b[0m " + guide
+
+      list_count++
+    }
+    Chat_ServerPrivateMessage( player, msg_How_to_play, false )
+  }
+  
   if ( FSU_GetBool( "FSU_WELCOME_ENABLE_MESSAGE_AFTER" ) )
     Chat_ServerPrivateMessage( player, FSU_GetString("fsu_welcome_message_after"), false )
   
