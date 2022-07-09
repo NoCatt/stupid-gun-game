@@ -744,10 +744,31 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
       Chat_ServerPrivateMessage(player, "You're now in extreme hard mode, your health is at"+player.GetMaxHealth(),false)
       return
     }
+    if(args[0]=="off"|| args[0]=="Off"){
+      int mode_player_is_in = isPlayerInHardModeInt(player)
+      if(mode_player_is_in==-1){
+        Chat_ServerPrivateMessage(player, "You need to be in hard mode to deactivate it",false)
+        return
+      }
+      if(mode_player_is_in==1){
+        HMLightPlayers.remove(HMLightPlayers.find(player))
+        return
+      }
+      if(mode_player_is_in==2){
+        HMMediumPlayers.remove(HMLMediumPlayers.find(player))
+        return
+      }
+      if(mode_player_is_in==3){
+        HMExtremePlayers.remove(HMExtremePlayers.find(player))
+        return
+      }
+      return
+    }
     else{
       Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
       return
     }
+    return
     }catch(ex){
     }
 }
@@ -817,6 +838,15 @@ bool function isPlayerInHardMode(entity player){
   if(HMLightPlayers.find(player)==-1 && HMMediumPlayers.find(player)==-1 && HMExtremePlayers.find(player)==-1)
     return false
   return true
+}
+int function isPlayerInHardModeInt(entity player){
+  if(HMLightPlayers.find(player)!=-1)
+    return 1
+  if(HMMediumPlayers.find(player)!=-1)
+    return 2
+  if(HMExtremePlayers.find(player)!=-1)
+    return 3
+  return -1
 }
 
 int function amoutOfVotesNedded(){
