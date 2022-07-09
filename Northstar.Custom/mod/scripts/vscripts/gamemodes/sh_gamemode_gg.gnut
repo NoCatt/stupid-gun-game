@@ -182,8 +182,8 @@ void function CreateGamemodeGG()
 		file.hardWeapons.append(ggP2016)
 		file.hardWeapons.append(ggSmr)
 		file.hardWeapons.append(ggKraber)
-		while(file.hardWeapons.find(file.weapon[0])!=-1){
-			file.weapon.randomize()
+		while(file.hardWeapons.find(file.weapons[0])!=-1){
+			file.weapons.randomize()
 		}
 		
 

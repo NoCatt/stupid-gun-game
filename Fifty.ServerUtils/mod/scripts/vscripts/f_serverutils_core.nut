@@ -737,7 +737,7 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
       Chat_ServerPrivateMessage(player, "You're now in medium hard mode, your health is at"+player.GetMaxHealth(),false)
       return
     }
-    if(args[0]=="Extreme"||agrs[0]=0"etreme"){
+    if(args[0]=="Extreme"||args[0]="etreme"){
       HMLightPlayers.append(player)
       player.SetMaxHealth(1)
       player.SetHealth(player.GetMaxHealth())
