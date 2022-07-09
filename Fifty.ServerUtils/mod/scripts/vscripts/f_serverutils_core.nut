@@ -752,14 +752,20 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
       }
       if(mode_player_is_in==1){
         HMLightPlayers.remove(HMLightPlayers.find(player))
+        player.SetMaxHealth(100)
+        player.SetHealth(player.GetMaxHealth())
         return
       }
       if(mode_player_is_in==2){
         HMMediumPlayers.remove(HMLMediumPlayers.find(player))
+        player.SetMaxHealth(100)
+        player.SetHealth(player.GetMaxHealth())
         return
       }
       if(mode_player_is_in==3){
         HMExtremePlayers.remove(HMExtremePlayers.find(player))
+        player.SetMaxHealth(100)
+        player.SetHealth(player.GetMaxHealth())
         return
       }
       return
