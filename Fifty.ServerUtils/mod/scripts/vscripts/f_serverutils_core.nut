@@ -7,6 +7,7 @@ global function FSU_CreatePoll
 global function FSU_GetPollResultIndex
 global function FSU_IsDedicated
 global function isPlayerInHardMode
+global function isPlayerInHardModeInt
 global array < entity > playerWantingToActivateGNS
 global array < entity > playerWantingToDeactivateGNS
 global array < entity > EasyModePlayer

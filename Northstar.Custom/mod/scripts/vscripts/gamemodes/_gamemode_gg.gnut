@@ -198,6 +198,15 @@ void function OnPlayerDisconnected(entity player)
 		playerWantingToActivateGNS.remove(playerWantingToActivateGNS.find(player))
 	if(playerWantingToDeactivateGNS.find(player)!=-1)
 		playerWantingToDeactivateGNS.remove(playerWantingToDeactivateGNS.find(player))
+
+	int is_player_in_hard_mode = isPlayerInHardModeInt()
+	if(is_player_in_hard_mode==-1)
+		return
+	switch(is_player_in_hard_mode){
+		case(1): HMLightPlayers.remove(HMLightPlayers.find(player))
+		case(2): HMMediumPlayers.remove(HMMediumPlayers.find(player))
+		case(3): HMExtremePlayers.remove(HMExtremePlayers.find(player))
+	}
 }
 
 void function OnPlayerRespawned( entity player )
