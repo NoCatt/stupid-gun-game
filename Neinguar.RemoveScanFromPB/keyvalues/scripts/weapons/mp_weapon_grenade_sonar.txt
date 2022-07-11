@@ -12,7 +12,7 @@ WeaponData
 	"weaponClass" 									"human"
 	"fire_mode"   									"offhand"
 	"offhand_toss"									"1"
-	"minimap_reveal_distance"						"32000"
+	"minimap_reveal_distance"						"0"
 	"leveled_pickup"								"1"
 	"dev_menu_type"									"offhand" // fire_mode isn't readable from script
 	"offhand_default_inventory_slot"				"1"
