@@ -891,6 +891,9 @@ bool function FSU_Health(entity player, array<string> args)
     foreach(entity SearchPlayers in GetPlayerArray()){
       if( SearchPlayers.GetPlayerName().tolower() == searchedPlayer)
       Chat_ServerPrivateMessage(player , SearchPlayers.GetPlayerName()"'s current max health is at "+SearchPlayers.GetMaxHealth()+"HP and their current health is at "+SearchPlayersGetHealth()+"HP",false)
+      return true
     }
+    Chat_ServerPrivateMessage(player , "Player name could not be found, check the spelling" ,false)
+  return true
   }
 }
