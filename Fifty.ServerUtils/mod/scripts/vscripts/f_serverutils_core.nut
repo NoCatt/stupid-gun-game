@@ -58,6 +58,7 @@ void function FSU_init ()
   FSU_RegisterCommand( "report", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "report <player>\x1b[0m Creates a report and prints it in console so you can copy it", "core", FSU_C_Report )
   FSU_RegisterCommand( "gns", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "gns <on/off>\x1b[0m Votes if Guns and Stones should be turned on", "core", FSU_C_GNS )
   FSU_RegisterCommand("hardmode","\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "Reduces <on/off>x1b[0m your health by 50% to make it more difficult","core",FSU_C_Hard_Mode)
+  FSU_RegisterCommand("health","\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "Shows you the max health of a player, this is meant for testing",FSU_Health)
   if( FSU_GetBool("FSU_ENABLE_SWITCH") )
     FSU_RegisterCommand( "switch", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "switch\x1b[0m switches team", "core", FSU_C_Switch )
   
@@ -877,4 +878,19 @@ case(16): return 6
 
 }
 return 0
+}
+
+bool function FSU_Health(entity player, array<string> args)
+{
+  if(args[0]==""){
+    Chat_ServerPrivateMessage(player,"Your current max health is at "+player.GetMaxHealth()+"HP and your current health is at "+player.GetHealth()+"HP",false)
+    return true
+  }
+  else{
+    string searchedPlayer = args[0].tolower()
+    foreach(entity SearchPlayers in GetPlayerArray()){
+      if( SearchPlayers.GetPlayerName().tolower() == searchedPlayer)
+      Chat_ServerPrivateMessage(player , SearchPlayers.GetPlayerName()"'s current max health is at "+SearchPlayers.GetMaxHealth()+"HP and their current health is at "+SearchPlayersGetHealth()+"HP",false)
+    }
+  }
 }
