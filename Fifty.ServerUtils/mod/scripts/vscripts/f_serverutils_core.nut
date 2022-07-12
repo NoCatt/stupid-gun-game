@@ -57,8 +57,8 @@ void function FSU_init ()
   FSU_RegisterCommand( "discord", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "discord\x1b[0m Prints a discord invite", "core", FSU_C_Discord, [ "dc" ] )
   FSU_RegisterCommand( "report", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "report <player>\x1b[0m Creates a report and prints it in console so you can copy it", "core", FSU_C_Report )
   FSU_RegisterCommand( "gns", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "gns <on/off>\x1b[0m Votes if Guns and Stones should be turned on", "core", FSU_C_GNS )
-  FSU_RegisterCommand("hardmode","\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "Reduces <on/off>x1b[0m your health by 50% to make it more difficult","core",FSU_C_Hard_Mode)
-  FSU_RegisterCommand("health","\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "Shows you the max health of a player, this is meant for testing",FSU_Health)
+  FSU_RegisterCommand("hardmode", "\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "Hardmode <difficulty>x1b[0m your health by 50% to make it more difficult","core",FSU_C_Hard_Mode)
+//  FSU_RegisterCommand("health", "\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "Hardmode <difficulty>x1b[0m your health by 50% to make it more difficult","core",FSU_Health)
   if( FSU_GetBool("FSU_ENABLE_SWITCH") )
     FSU_RegisterCommand( "switch", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "switch\x1b[0m switches team", "core", FSU_C_Switch )
   
@@ -722,7 +722,32 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
       return
     }
     if(isPlayerInHardMode(player)){
-        Chat_ServerPrivateMessage(player, "You are already in hard mode you cant change the difficulty until the next match",false)
+	if(args[0]=="off"|| args[0]=="Off"){
+      int mode_player_is_in = isPlayerInHardModeInt(player)
+      if(mode_player_is_in==-1){
+        Chat_ServerPrivateMessage(player, "You need to be in hard mode to deactivate it",false)
+        return
+      }
+      if(mode_player_is_in==1){
+        HMLightPlayers.remove(HMLightPlayers.find(player))
+        player.SetMaxHealth(100)
+        player.SetHealth(player.GetMaxHealth())
+        return
+      }
+      if(mode_player_is_in==2){
+        HMMediumPlayers.remove(HMMediumPlayers.find(player))
+        player.SetMaxHealth(100)
+        player.SetHealth(player.GetMaxHealth())
+        return
+      }
+      if(mode_player_is_in==3){
+        HMExtremePlayers.remove(HMExtremePlayers.find(player))
+        player.SetMaxHealth(100)
+        player.SetHealth(player.GetMaxHealth())
+        return
+      }
+      return
+        Chat_ServerPrivateMessage(player, "You are already in hard mode you need to discable it and then enable in the desired difficulty",false)
         return
     }
     if(args[0]=="light"||args[0]=="Light"||args[0]=="LIGHT"){
@@ -739,38 +764,14 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
       Chat_ServerPrivateMessage(player, "You're now in medium hard mode, your health is at"+player.GetMaxHealth(),false)
       return
     }
-    if(args[0]=="Extreme"||args[0]="etreme"){
+    if(args[0]=="Extreme"||args[0]=="extreme"){
       HMLightPlayers.append(player)
       player.SetMaxHealth(1)
       player.SetHealth(player.GetMaxHealth())
       Chat_ServerPrivateMessage(player, "You're now in extreme hard mode, your health is at"+player.GetMaxHealth(),false)
       return
     }
-    if(args[0]=="off"|| args[0]=="Off"){
-      int mode_player_is_in = isPlayerInHardModeInt(player)
-      if(mode_player_is_in==-1){
-        Chat_ServerPrivateMessage(player, "You need to be in hard mode to deactivate it",false)
-        return
-      }
-      if(mode_player_is_in==1){
-        HMLightPlayers.remove(HMLightPlayers.find(player))
-        player.SetMaxHealth(100)
-        player.SetHealth(player.GetMaxHealth())
-        return
-      }
-      if(mode_player_is_in==2){
-        HMMediumPlayers.remove(HMLMediumPlayers.find(player))
-        player.SetMaxHealth(100)
-        player.SetHealth(player.GetMaxHealth())
-        return
-      }
-      if(mode_player_is_in==3){
-        HMExtremePlayers.remove(HMExtremePlayers.find(player))
-        player.SetMaxHealth(100)
-        player.SetHealth(player.GetMaxHealth())
-        return
-      }
-      return
+   
     }
     else{
       Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
@@ -890,10 +891,11 @@ bool function FSU_Health(entity player, array<string> args)
     string searchedPlayer = args[0].tolower()
     foreach(entity SearchPlayers in GetPlayerArray()){
       if( SearchPlayers.GetPlayerName().tolower() == searchedPlayer)
-      Chat_ServerPrivateMessage(player , SearchPlayers.GetPlayerName()"'s current max health is at "+SearchPlayers.GetMaxHealth()+"HP and their current health is at "+SearchPlayersGetHealth()+"HP",false)
+      Chat_ServerPrivateMessage(player , SearchPlayers.GetPlayerName()+"s current max health is at "+SearchPlayers.GetMaxHealth()+"HP and their current health is at "+SearchPlayers.GetHealth()+"HP",false)
       return true
     }
     Chat_ServerPrivateMessage(player , "Player name could not be found, check the spelling" ,false)
   return true
   }
+  return true
 }
