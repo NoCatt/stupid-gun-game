@@ -27,6 +27,7 @@ void function GamemodeGG_Init()
 	//house flies commands
 	AddClientCommandCallback("hs", EnablehsCMD) // this command toggles hs to all or a certain players syntax: hs <name/all> 0/1
 	AddClientCommandCallback("gns", EnablehsGNS)
+	AddClientCommandCallback("health", ShowHealthCMD)
 	//AddClientCommandCallback("switch",EnableSwitchCMD)
 	//AddClientCommandCallback("UltraTroll",EnableTrollCMD)
 
@@ -68,7 +69,26 @@ void function GamemodeGG_Init()
 	}
 	catch ( ex ) {}
 }
-
+bool function ShowHealthCMD (entity player, array<string> args){
+	try{
+	if(args[0]==""){
+		 Chat_ServerPrivateMessage(player,"Your current max health is at "+player.GetMaxHealth()+"HP and your current health is at "+player.GetHealth()+"HP",false)
+		return true
+	}else{
+		 string searchedPlayer = args[0].tolower()
+		foreach(entity SearchPlayers in GetPlayerArray()){
+		  if( SearchPlayers.GetPlayerName().tolower() == searchedPlayer)
+		  Chat_ServerPrivateMessage(player , SearchPlayers.GetPlayerName()+"s current max health is at "+SearchPlayers.GetMaxHealth()+"HP and their current health is at "+SearchPlayers.GetHealth()+"HP",false)
+		  return true
+		}
+	Chat_ServerPrivateMessage(player , "Player name could not be found, check the spelling" ,false)
+	return true
+		}
+	Chat_ServerPrivateMessage(player , "how did you reach this code??????" ,false)
+	return true
+	}catch(ex){}
+	return false
+}
 bool function EnablehsGNS (entity player, array < string > args)
 {
 if(adminNames.find(player.GetPlayerName())==-1)
@@ -199,7 +219,7 @@ void function OnPlayerDisconnected(entity player)
 	if(playerWantingToDeactivateGNS.find(player)!=-1)
 		playerWantingToDeactivateGNS.remove(playerWantingToDeactivateGNS.find(player))
 
-	int is_player_in_hard_mode = isPlayerInHardModeInt()
+	int is_player_in_hard_mode = isPlayerInHardModeInt(player)
 	if(is_player_in_hard_mode==-1)
 		return
 	switch(is_player_in_hard_mode){
