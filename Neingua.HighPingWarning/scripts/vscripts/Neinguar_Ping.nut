@@ -1,6 +1,6 @@
 global function Neinguar_Ping_init
-int pingLimit = GetConVarInt("PingLimit")
-int TimeBeforeMessage = GetConVarInt("Time_Before_Messag")
+int pingLimit = GetConVarInt("Ping_Limit")
+int TimeBeforeMessage = GetConVarInt("Time_Before_Message")
 int AmountOfMessages = GetConVarInt("Amout_Of_Messages")
 
 void function Neinguar_Ping_init() {

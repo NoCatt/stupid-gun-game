@@ -774,6 +774,7 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
    
     }
     else{
+      Chat_ServerPrivateMessage(player, args[0]+"is your arg (for debugging)")
       Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
       return
     }
