@@ -715,72 +715,90 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
   string Desc2 = "Reduces your health by 75 and pulse blade deaths remove more points"
   string Name3 = "Extreme"
   string Desc3 = "Reduces your healt by 99 and pulse blade deaths remove your enitre score"
+  int lightInt = 1
+  int mediumInt = 2
+  int extremeInt = 3
 
   try{
-    if(args.len()==0){
+    if(args.len()==0)
+    {
       Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
       return
     }
-    if(isPlayerInHardMode(player)){
-	if(args[0]=="off"|| args[0]=="Off"){
-      int mode_player_is_in = isPlayerInHardModeInt(player)
-      if(mode_player_is_in==-1){
-        Chat_ServerPrivateMessage(player, "You need to be in hard mode to deactivate it",false)
+  
+    if(args[0]=="off"|| args[0]=="Off")
+    {
+      if(isPlayerInHardModeInt(player)==-1){
+        Chat_ServerPrivateMessage(player, "You are not in hard mode, you cant turn it off",false)
         return
       }
-      if(mode_player_is_in==1){
-        HMLightPlayers.remove(HMLightPlayers.find(player))
-        player.SetMaxHealth(100)
-        player.SetHealth(player.GetMaxHealth())
-        return
-      }
-      if(mode_player_is_in==2){
-        HMMediumPlayers.remove(HMMediumPlayers.find(player))
-        player.SetMaxHealth(100)
-        player.SetHealth(player.GetMaxHealth())
-        return
-      }
-      if(mode_player_is_in==3){
-        HMExtremePlayers.remove(HMExtremePlayers.find(player))
-        player.SetMaxHealth(100)
-        player.SetHealth(player.GetMaxHealth())
-        return
-      }
-      return
-        Chat_ServerPrivateMessage(player, "You are already in hard mode you need to discable it and then enable in the desired difficulty",false)
-        return
-    }
-    if(args[0]=="light"||args[0]=="Light"||args[0]=="LIGHT"){
-      HMLightPlayers.append(player)
-      player.SetMaxHealth(50)
-      player.SetHealth(player.GetMaxHealth())
-      Chat_ServerPrivateMessage(player, "You're now in light hard mode, your health is at"+player.GetMaxHealth(),false)
+      RemovePlayerFromHardMode(player, isPlayerInHardModeInt())
       return
     }
-    if(args[0]=="Medium"||args[0]=="medium"){
-      HMLightPlayers.append(player)
-      player.SetMaxHealth(25)
-      player.SetHealth(player.GetMaxHealth())
-      Chat_ServerPrivateMessage(player, "You're now in medium hard mode, your health is at"+player.GetMaxHealth(),false)
+    if(args[0]=="light"||args[0]=="Light"||args[0]=="LIGHT")
+    {
+      SetPlayerInHardMode(player, lightInt)
       return
     }
-    if(args[0]=="Extreme"||args[0]=="extreme"){
-      HMLightPlayers.append(player)
-      player.SetMaxHealth(1)
-      player.SetHealth(player.GetMaxHealth())
-      Chat_ServerPrivateMessage(player, "You're now in extreme hard mode, your health is at"+player.GetMaxHealth(),false)
+    if(args[0]=="Medium"||args[0]=="medium")
+    {
+      SetPlayerInHardMode(player, mediumInt)
       return
     }
-   
+    if(args[0]=="Extreme"||args[0]=="extreme")
+    {
+      SetPlayerInHardMode(player, extremeInt)
+      return
     }
-    else{
-      Chat_ServerPrivateMessage(player, args[0]+"is your arg (for debugging)")
+  
+    else
+    {
       Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
       return
     }
     return
-    }catch(ex){
-    }
+
+    }catch(ex){}
+}
+void function SetPlayerInHardMode(entity player, int level){
+  switch(level){
+    case(1): 
+        HMLightPlayers.append(player)
+        player.SetMaxHealth(50)
+        player.SetHealth(player.GetMaxHealth())
+        Chat_ServerPrivateMessage(player, "You're now in light hard mode, your health is at "+player.GetMaxHealth(),false)
+        return
+    case(2): 
+        HMLightPlayers.append(player)
+        player.SetMaxHealth(25)
+        player.SetHealth(player.GetMaxHealth())
+        Chat_ServerPrivateMessage(player, "You're now in medium hard mode, your health is at "+player.GetMaxHealth(),false)
+        return
+    case(3):
+         HMLightPlayers.append(player)
+        player.SetMaxHealth(1)
+        player.SetHealth(player.GetMaxHealth())
+        Chat_ServerPrivateMessage(player, "You're now in extreme hard mode, your health is at "+player.GetMaxHealth(),false)
+        return
+    default: 
+        Chat_ServerPrivateMessage(player,"I dont know what went wrong, please message me on discord if you see this (NoCatt#8128)",)
+        return
+
+    
+  }
+}
+void function RemovePlayerFromHardMode(entity player, int GetRemovedFrom) {
+  switch(GetRemovedFrom){
+    case(1):  HMLightPlayers.remove(HMLightPlayers.find(player))
+    case(2):  HMMediumPlayers.remove(HMMediumPlayers.find(player))
+    case(3):  HMExtremePlayers.remove(HMExtremePlayers.find(player))
+    default: return
+  }
+  player.SetMaxHealth(100)
+  player.SetHealth(player.GetMaxHealth())
+  Chat_ServerPrivateMessage(player, "What are you a chicken??? anyway your health is back at "+player.GetMaxHealth(),false)
+  return
+  
 }
 /*
 void function FSU_C_EZMODE(entity player, array < string > args){
