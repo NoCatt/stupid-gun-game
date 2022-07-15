@@ -58,7 +58,6 @@ void function FSU_init ()
   FSU_RegisterCommand( "report", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "report <player>\x1b[0m Creates a report and prints it in console so you can copy it", "core", FSU_C_Report )
   FSU_RegisterCommand( "gns", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "gns <on/off>\x1b[0m Votes if Guns and Stones should be turned on", "core", FSU_C_GNS )
   FSU_RegisterCommand("hardmode", "\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "Hardmode <difficulty>x1b[0m your health by 50% to make it more difficult","core",FSU_C_Hard_Mode)
-//  FSU_RegisterCommand("health", "\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "Hardmode <difficulty>x1b[0m your health by 50% to make it more difficult","core",FSU_Health)
   if( FSU_GetBool("FSU_ENABLE_SWITCH") )
     FSU_RegisterCommand( "switch", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "switch\x1b[0m switches team", "core", FSU_C_Switch )
   
@@ -800,67 +799,7 @@ void function RemovePlayerFromHardMode(entity player, int GetRemovedFrom) {
   return
   
 }
-/*
-void function FSU_C_EZMODE(entity player, array < string > args){
-  try{
-    if(isPlaserInBottomFive(player)== false){
-       Chat_ServerPrivateMessage(player, "You are too good to be allowed in easy mode",false )
-       return
-    }
-      
-    if(args[0]=="on"||args[0]=="On"||args[0]=="ON"||args[0]=="1"){
-      EasyModePlayer.append(player)
-      player.SetMaxHealth(125)
-      player.SetHealth(player.GetMaxHealth())
-       Chat_ServerPrivateMessage(player,"Your health is not at "+player.GetMaxHealth()+"hp to make it a bit easier for you ",false)
-       return
-    }
-    if(args[0]=="Off"||args[0]=="OFF"||args[0]=="off"||args[0]=="0"){
-      if(EasyModePlayer.find(player)==-1){
-         Chat_ServerPrivateMessage(player, "You need to be in esay mode to deactivate it",false)
-         return
-      }
-      EasyModePlayer.remove(EasyModePlayer.find(player))
-      player.SetMaxHealth(100)
-      player.SetHealth(player.GetMaxHealth())
-      Chat_ServerPrivateMessage(player,"Your health is not at "+player.GetMaxHealth()+"hp",false)
-    }
-    
-  }catch(ex){}
-}
-*/
 
-//jesus i hate this solution but, in order to get the player score sorted in an array i need to make 2 arrays and sort one of them and apply the same changes to the other array :(
-/*
-bool function isPlaserInBottomFive(entity player){
-  if(GetPlayerArray().len()<5)
-    return true
-  array< entity > PlayersToSort = GetPlayerArray()
-  array< int > scoreOfPlayersToSort
-  foreach(entity player in GetPlayerArray)
-    scoreOfPlayersToSort.append( GameRules_GetTeamScore(player.getTeam()))
-  for(int a = 0; a<GetPlayerArray().len()-1 ; a++){
-    for(int b = 0 ; b<GetPlayerArray().len() ; b++){
-      if(scoreOfPlayersToSort[a]>scoreOfPlayersToSort[b]){
-        int placeholderScore
-        entity placeholderPlayer
-
-        placeholderScore = scoreOfPlayersToSort[a]
-        scoreOfPlayersToSort[a] = scoreOfPlayersToSort[b]
-        scoreOfPlayersToSort[b] = placeholderScore
-
-        placeholderPlayer = PlayersToSort[a]
-        PlayersToSort[a] = PlayersToSort[b]
-        PlayersToSort[b] = placeholderPlayer
-
-      }
-    }
-  }
-  if(PlayersToSort.find(player)>5)
-    return true
-  return false
-}
-*/
 
 bool function isPlayerInHardMode(entity player){
   if(HMLightPlayers.find(player)==-1 && HMMediumPlayers.find(player)==-1 && HMExtremePlayers.find(player)==-1)
@@ -898,23 +837,4 @@ case(16): return 6
 
 }
 return 0
-}
-
-bool function FSU_Health(entity player, array<string> args)
-{
-  if(args[0]==""){
-    Chat_ServerPrivateMessage(player,"Your current max health is at "+player.GetMaxHealth()+"HP and your current health is at "+player.GetHealth()+"HP",false)
-    return true
-  }
-  else{
-    string searchedPlayer = args[0].tolower()
-    foreach(entity SearchPlayers in GetPlayerArray()){
-      if( SearchPlayers.GetPlayerName().tolower() == searchedPlayer)
-      Chat_ServerPrivateMessage(player , SearchPlayers.GetPlayerName()+"s current max health is at "+SearchPlayers.GetMaxHealth()+"HP and their current health is at "+SearchPlayers.GetHealth()+"HP",false)
-      return true
-    }
-    Chat_ServerPrivateMessage(player , "Player name could not be found, check the spelling" ,false)
-  return true
-  }
-  return true
 }

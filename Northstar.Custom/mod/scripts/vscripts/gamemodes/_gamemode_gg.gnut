@@ -231,7 +231,7 @@ void function OnPlayerDisconnected(entity player)
 
 void function OnPlayerRespawned( entity player )
 {
-    StimPlayer(player, 4)
+    StatusEffect_AddTimed( attacker, eStatusEffect.speed_boost, 0.4, 4.25, 0.25) 
 	UpdateLoadout( player )
 	thread OnPlayerRespawned_Threaded( player )
 
