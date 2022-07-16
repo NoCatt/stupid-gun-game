@@ -70,6 +70,7 @@ void function CreateGamemodeGG()
         GunGameWeapon gg40mm         = { weapon = "mp_titanweapon_sticky_40mm", ... }
         GunGameWeapon ggPredator     = { weapon = "mp_titanweapon_predator_cannon", ... }
         GunGameWeapon ggXo16         = { weapon = "mp_titanweapon_xo16_vanguard", ... }
+		GunGameWeapon ggTrippleThread= { weapon = "mp_titanweapon_triplethreat", ... }
         
         //titan abilities
         GunGameWeapon ggWeebWave     = { weapon = "mp_titanweapon_arc_wave",  mods = ["pas_ronin_arcwave", "burn_mod_titan_arc_wave", "dev_mod_low_recharge"],         offhandSlot = 0, ... }                        
@@ -169,6 +170,7 @@ void function CreateGamemodeGG()
 	    file.weapons.append(ggRe45)
 	    file.weapons.append(ggP2016)
 	    file.weapons.append(ggWingman)
+		file.weapons.append(ggTrippleThread)
          
        file.weapons.append(ggWeebWave)                  
 

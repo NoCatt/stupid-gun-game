@@ -528,6 +528,7 @@ if(HMMediumPlayers.find(player)!=-1){
 		case(41): return 25
 		case(42): return 26
 		case(43): return 28
+		case(44): return 28
 		default: return 0
 }
 }
@@ -565,6 +566,7 @@ switch(score){
 	case(41): return 20
 	case(42): return 20
 	case(43): return 20
+	case(44): return 21
 }
 return 0
 }
