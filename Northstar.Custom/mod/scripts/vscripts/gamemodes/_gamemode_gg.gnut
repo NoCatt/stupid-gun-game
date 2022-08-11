@@ -5,6 +5,7 @@ global function UpdateLoadout
 array<string> playerHSNames = [] //players that have HouseFlies enabled
 array<string> adminNames = ["admin1", "admin2","Neinguar"] // admins
 bool hsOn
+table<entity, int> SaveScore 
 
 // highlight best player
 // 50% hp for good player
@@ -207,7 +208,9 @@ bool function EnablehsCMD( entity player, array < string > args )
 }
 
 void function OnPlayerDisconnected(entity player)
-{
+{	
+	SaveScore[player] <- GameRules_GetTeamScore( player.GetTeam() )
+	
 	// this prevents a new player to get someone who's left's score
 	AddTeamScore( player.GetTeam(), -GameRules_GetTeamScore( player.GetTeam() ))
 
@@ -451,6 +454,10 @@ void function OnWinnerDetermined()
 
 // CUSTOM
 void function OnClientConnected(entity player) {
+	if(player in SaveScore){
+		AddTeamScore( player.GetTeam(), SaveScore[player] )
+		player.AddToPlayerGameStat( PGS_ASSAULT_SCORE, SaveScore[player] )
+	}
     printt("[GUN GAME] OnClientConnected", player, "team", player.GetTeam())
 	if(hsOn) // if house flies is enabled add player to hsplayers array
 		playerHSNames.append( player.GetPlayerName() )
