@@ -457,6 +457,8 @@ void function OnClientConnected(entity player) {
 	if(player in SaveScore){
 		AddTeamScore( player.GetTeam(), SaveScore[player] )
 		player.AddToPlayerGameStat( PGS_ASSAULT_SCORE, SaveScore[player] )
+		Chat_ServerPrivateMessage(player, "Your score has been restored", false)
+		printt("Score of "+player.GetPlayerName()+" has been restored")
 	}
     printt("[GUN GAME] OnClientConnected", player, "team", player.GetTeam())
 	if(hsOn) // if house flies is enabled add player to hsplayers array
