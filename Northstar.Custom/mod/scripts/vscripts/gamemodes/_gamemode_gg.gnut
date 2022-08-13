@@ -217,11 +217,6 @@ void function OnPlayerDisconnected(entity player)
 	if (GetWinningPlayer() == player)
 		thread CheckNewHighlight(player)
 
-	if(playerWantingToActivateGNS.find(player)!=-1)
-		playerWantingToActivateGNS.remove(playerWantingToActivateGNS.find(player))
-	if(playerWantingToDeactivateGNS.find(player)!=-1)
-		playerWantingToDeactivateGNS.remove(playerWantingToDeactivateGNS.find(player))
-
 	int is_player_in_hard_mode = isPlayerInHardModeInt(player)
 	if(is_player_in_hard_mode==-1)
 		return

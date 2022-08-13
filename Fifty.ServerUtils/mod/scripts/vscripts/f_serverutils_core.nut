@@ -647,63 +647,7 @@ void function FSU_C_Report ( entity player, array < string > args )
 //!gns
 void function FSU_C_GNS( entity player, array < string > args)
 {
-	try{
-	if(gnsOn == false){
-
-		if(playerWantingToActivateGNS.find(player)!= -1){
-			Chat_ServerPrivateMessage( player, "You already voted", false )
-			return
-		}
-		if(args[0]!="on"&&args[0]!="ON"&&args[0]!="On"&&args[0]!="1"){
-      Chat_ServerPrivateMessage(player,"Not a vali command \n Syntax is: !gns <on/off>",false	)
-      return
-    }
-
-		playerWantingToActivateGNS.append(player)
-    foreach( entity playerMessage in GetPlayerArray())
-      Chat_ServerPrivateMessage( playerMessage, "Vote to activate Guns and Stones,["+ playerWantingToActivateGNS.len() + "/" + amoutOfVotesNedded() +"] have casted votes", false )
-		
-    if(playerWantingToActivateGNS.len()< amoutOfVotesNedded())
-      return 
-
-		gnsOn = true
-		foreach(entity playerVote in GetPlayerArray() ){
-			Chat_ServerPrivateMessage( playerVote, "Guns and stones is now activated", false )
-      UpdateLoadout(playerVote)
-      playerWantingToActivateGNS.clear()
-    }
-		
-		return
-	}
-  if(gnsOn == true){
-
-		if(playerWantingToDeactivateGNS.find(player)!= -1){
-			Chat_ServerPrivateMessage( player, "You already voted", false )
-			return
-		}
-		if(args[0]!="off"&&args[0]!="OFF"&&args[0]!="Off"&&args[0]!="0"){
-      Chat_ServerPrivateMessage(player,"Not a vali command \n Syntax is: !gns <on/off>",false)
-      return
-    }
-
-		playerWantingToDeactivateGNS.append(player)
-    foreach( entity playerMessage in GetPlayerArray())
-      Chat_ServerPrivateMessage( playerMessage, "Vote to deactivate Guns and Stones,["+ playerWantingToActivateGNS.len() + "/" + amoutOfVotesNedded() +"] have casted votes, tye !gns off to vote ", false )
-		
-    if(playerWantingToDeactivateGNS.len()< amoutOfVotesNedded())
-      return 
-      
-		gnsOn = false
-		foreach(entity playerVote in GetPlayerArray() ){
-			Chat_ServerPrivateMessage( playerVote, "Guns and stones is now deactivated", false )
-      UpdateLoadout(playerVote)
-      playerWantingToDeactivateGNS.clear()
-    }
-		
-		return
-	}
-   }
-   catch(ex){}
+	Chat_ServerPrivateMessage(player, "The GNS command has been discontinued",false)
 }
 
 //!hardmode
