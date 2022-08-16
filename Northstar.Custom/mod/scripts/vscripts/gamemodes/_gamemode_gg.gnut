@@ -574,3 +574,44 @@ switch(score){
 }
 return 0
 }
+
+array<string> RandomEvents = ["meleeport","wingman","twokills","aa"]
+table<string, bool> RandomEventTable = MakeEventTable(RandomEvents)
+
+table<string,bool> function MakeEventTable(array<string> Events){
+	table<string,bool> pEvents
+	foreach(string event in Events){
+		pEvents[event] <- false
+	}
+return pEvents
+}
+void function RandomEventInit(){
+	
+	int RandomEvent = RandomInt( RandomEvents.len() )
+	int duration = 60 + RandomInt(30)
+	int strength = RandomInt(3)
+	thread SetNewEvent(RandomEvent, duration, strength)
+}
+
+void SetNewEvent(string event, int duration, int effectStrength){
+
+switch(event){
+
+case("meleeport"): 	RandomEventTable[event] = true
+					foreach(entitiy player in GetPlayerArray()){
+						playerHSNames.append(player.GetPlayerName())
+					}
+					wait duration 
+					RandomEventTable[event] = false
+					break
+}
+
+}
+
+string function GetCurrentEvent(){
+	for(string event in RandomEvents){
+		if(RandomEventTable[event] = true)
+			return event
+	}
+	return null
+}
