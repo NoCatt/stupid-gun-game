@@ -1,6 +1,16 @@
 global function GamemodeGG_Init
 global bool gnsOn
 global function UpdateLoadout
+global struct Event{
+	string EventName
+	bool EventActive
+	string EventDesc
+	int duration
+	void functionref(string) EventInit
+	void functionref(string) EventExit
+}
+global array<Event> RandomEventsArray // ["meleeport","wingman","twokills","aa"]
+
 
 array<string> playerHSNames = [] //players that have HouseFlies enabled
 array<string> adminNames = ["admin1", "admin2","Neinguar"] // admins
@@ -436,6 +446,15 @@ void function UpdateLoadout( entity player )
 	}
 	else
   		player.GiveOffhandWeapon( "mp_ability_grapple", OFFHAND_LEFT )
+
+
+	Event currentEvent = GetCurrentEvent()
+	if(currentEvent == null){
+		return
+	OnEventRespawn(currentEvent.EventName)
+	
+
+	}
 }
 
 void function OnWinnerDetermined()
@@ -575,43 +594,101 @@ switch(score){
 return 0
 }
 
-array<string> RandomEvents = ["meleeport","wingman","twokills","aa"]
-table<string, bool> RandomEventTable = MakeEventTable(RandomEvents)
 
-table<string,bool> function MakeEventTable(array<string> Events){
-	table<string,bool> pEvents
-	foreach(string event in Events){
-		pEvents[event] <- false
-	}
-return pEvents
-}
+
 void function RandomEventInit(){
+	Event meleeport = {Eventname = "Meleeport", EventActive = false, EventDesc = "Everyone gets meleeport for the duration of the event", duration = 40, EventInit = OnEventInit  ,EventExit = OnEventExit }
+	Event wingman 	= {Eventname = "Wingman", EventActive = false, EventDesc = "Everyone gets a wingman for the duration of the event", duration = 90, EventInit = OnEventInit ,EventExit = OnEventExit}
+	Event aa		= {Eventname = "AirAccel", EventActive = false, EventDesc = "The air acceleration changes for all players, but its still the same for everyone", int duration = 120,EventInit = OnEventInit ,EventExit = OnEventExit}
+	RandomEvents.append(meleeport)
+	RandomEvents.append(wingman)
+	RandomEvents.append(aa)
+
+	Event activeEvent = RandomEventsArray[ RandomInt( RandomEventsArray.len() ) ]
 	
-	int RandomEvent = RandomInt( RandomEvents.len() )
-	int duration = 60 + RandomInt(30)
-	int strength = RandomInt(3)
 	thread SetNewEvent(RandomEvent, duration, strength)
 }
 
-void SetNewEvent(string event, int duration, int effectStrength){
+void function OnEventInit(string event){
+	Event currentEvent = GetEventFromName(event)
+	if(currentEvent == null)
+		return
+	Chat_ServerBroadcast("A new event just started: "+currentEvent.EventName +"\n The event will last: "+ currentEvent.duration +"s \n"+ currentEvent.EventDesc )
+	switch(event){
+		case("Meleeport"): 	hsOn = true
+							return
+		case("Wingman"): 	foreach(entity player in GetPlayerArray()){
+								foreach ( entity weapon in player.GetMainWeapons() )
+										player.TakeWeaponNow( weapon.GetWeaponClassName() )
+										player.SetActiveWeaponByName("mp_weapon_wingman")
+										
+								}
+							return
+		case("AirAccel"): 	return
 
-switch(event){
-
-case("meleeport"): 	RandomEventTable[event] = true
-					foreach(entitiy player in GetPlayerArray()){
-						playerHSNames.append(player.GetPlayerName())
-					}
-					wait duration 
-					RandomEventTable[event] = false
-					break
+	}
 }
 
+void function OnEventExit(string event){
+	switch(event){
+		case("Meleeport"): 	hsOn = false
+							return
+		case("Wingman"): 	array<GunGameWeapon> weapons = GetGunGameWeapons()
+							GunGameWeapon weapon = weapons[ GameRules_GetTeamScore( player.GetTeam() )]
+							foreach(entity player in GetPlayerArray()){
+								foreach ( entity weapon in player.GetMainWeapons() ){
+										player.TakeWeaponNow("mp_weapon_wingman")
+										player.SetActiveWeaponByName( weapon.weapon, weapon.mods )
+									}
+								}
+							return
+		case("AirAccel"): 	return
+
+	}
+
 }
 
-string function GetCurrentEvent(){
-	for(string event in RandomEvents){
-		if(RandomEventTable[event] = true)
+void function OnEventRespawn(string event){
+	switch(event){
+		case("Meleeport"): 	return
+		case("Wingman"): 	foreach(entity player in GetPlayerArray()){
+								foreach ( entity weapon in player.GetMainWeapons() )
+										player.TakeWeaponNow("mp_weapon_wingman")
+										player.SetActiveWeaponByName("mp_weapon_wingman")
+										
+								}
+							return
+		case("AirAccel"): 	return
+
+	}
+
+}
+
+Event function GetEventFromName(string EventName){
+	foreach(Event event in RandomEventsArray){
+		if(event.EventName == EventName)
 			return event
 	}
 	return null
+}
+
+void SetNewEvent(Event activeEvent){
+
+	activeEvent.EventActive = true
+	activeEvent.EventInit(activeEvent.EventName)
+
+	wait activeEvent.duration
+
+	activeEvent.EventExit(activeEvent.EventName)
+	activeEvent.EventActive = false
+	return
+}
+
+
+
+Event function GetActiveEvent(){
+foreach(Event event in RandomEventsArray){
+	if(event.EventActive == true)
+		return event
+}
 }

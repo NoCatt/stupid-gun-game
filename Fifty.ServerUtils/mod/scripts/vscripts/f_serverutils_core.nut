@@ -658,75 +658,68 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
   string Desc2 = "Reduces your health by 75 and pulse blade deaths remove more points"
   string Name3 = "Extreme"
   string Desc3 = "Reduces your healt by 99 and pulse blade deaths remove your enitre score"
-  int lightInt = 1
-  int mediumInt = 2
-  int extremeInt = 3
-
+  int isPlayerInt = isPlayerInHardModeInt(player)
   try{
-    if(args.len()==0)
-    {
-      Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
-      return
-    }
-  
-    if(args[0]=="off"|| args[0]=="Off")
-    {
-      if(isPlayerInHardModeInt(player)==-1){
-        Chat_ServerPrivateMessage(player, "You are not in hard mode, you cant turn it off",false)
+    if(isPlayerInt > 0 && ( args[0]=="off"||args[0]=="Off"||args[0]=="0") ){
+      if(deactivateHardMode(player))
+        return
+      else{
+        printt("Unable to deactivate hard mode for "+player.GetPlayerName())
         return
       }
-      RemovePlayerFromHardMode(player, isPlayerInHardModeInt())
-      return
     }
-    if(args[0]=="light"||args[0]=="Light"||args[0]=="LIGHT")
-    {
-      SetPlayerInHardMode(player, lightInt)
-      return
+    if(args[0]=="Light"||args[0]=="light"||args[0]=="1"){
+      HMLightPlayers.append(player)
+      player.SetMaxHealth(50)
+      player.SetHealth(player.GetMaxHealth)
     }
-    if(args[0]=="Medium"||args[0]=="medium")
-    {
-      SetPlayerInHardMode(player, mediumInt)
-      return
-    }
-    if(args[0]=="Extreme"||args[0]=="extreme")
-    {
-      SetPlayerInHardMode(player, extremeInt)
-      return
-    }
-  
-    else
-    {
-      Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
-      return
-    }
-    return
-
+    if()
     }catch(ex){}
 }
-void function SetPlayerInHardMode(entity player, int level){
-  switch(level){
-    case(1): 
-        HMLightPlayers.append(player)
-        player.SetMaxHealth(50)
-        player.SetHealth(player.GetMaxHealth())
-        Chat_ServerPrivateMessage(player, "You're now in light hard mode, your health is at "+player.GetMaxHealth(),false)
-        return
-    case(2): 
-        HMLightPlayers.append(player)
-        player.SetMaxHealth(25)
-        player.SetHealth(player.GetMaxHealth())
-        Chat_ServerPrivateMessage(player, "You're now in medium hard mode, your health is at "+player.GetMaxHealth(),false)
-        return
-    case(3):
-         HMLightPlayers.append(player)
-        player.SetMaxHealth(1)
-        player.SetHealth(player.GetMaxHealth())
-        Chat_ServerPrivateMessage(player, "You're now in extreme hard mode, your health is at "+player.GetMaxHealth(),false)
-        return
-    default: 
-        Chat_ServerPrivateMessage(player,"I dont know what went wrong, please message me on discord if you see this (NoCatt#8128)",)
-        return
 
+bool function deactivateHardMode(entity player){
+  int GetPlayerDifficulty = isPlayerInHardModeInt(player)
+  try{
+  switch(GetPlayerDifficulty){
+    case(1): HMLightPlayers.remove(HMExtremePlayers.find(player)) 
+    case(2): HMMediumplayers.remove(HMMediumPlayers.find(player))
+    case(3): HMExtremePlayers.remove(HMExtremePlayers.find(player))
+  }
+  player.SetMaxHealth(100)
+  player.SetHealth(player.GetMaxHealth())
+  Chat_ServerPrivateMessage(player, "You turned hard mode off, your health is now back to "+player.GetMaxHealth(),false)
+  return true
+  }
+  catch(ex){
+    Chat_ServerPrivateMessage(player,"unable to remove you from hard mode, this is a bug please contact NoCatt#8128 with the details",false)
+    return false
+  }
+}
+
+void function FSU_C_EZMODE(entity player, array < string > args){
+  try{
+    if(isPlaserInBottomFive(player)== false){
+       Chat_ServerPrivateMessage(player, "You are too good to be allowed in easy mode",false )
+       return
+    }
+      
+    if(args[0]=="on"||args[0]=="On"||args[0]=="ON"||args[0]=="1"){
+      EasyModePlayer.append(player)
+      player.SetMaxHealth(125)
+      player.SetHealth(player.GetMaxHealth())
+       Chat_ServerPrivateMessage(player,"Your health is not at "+player.GetMaxHealth()+"hp to make it a bit easier for you ",false)
+       return
+    }
+    if(args[0]=="Off"||args[0]=="OFF"||args[0]=="off"||args[0]=="0"){
+      if(EasyModePlayer.find(player)==-1){
+         Chat_ServerPrivateMessage(player, "You need to be in esay mode to deactivate it",false)
+         return
+      }
+      EasyModePlayer.remove(EasyModePlayer.find(player))
+      player.SetMaxHealth(100)
+      player.SetHealth(player.GetMaxHealth())
+      Chat_ServerPrivateMessage(player,"Your health is not at "+player.GetMaxHealth()+"hp",false)
+    }
     
   }
 }
