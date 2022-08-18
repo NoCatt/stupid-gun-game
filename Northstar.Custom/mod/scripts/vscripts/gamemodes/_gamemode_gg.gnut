@@ -631,6 +631,7 @@ void function OnEventInit(string event){
 }
 
 void function OnEventExit(string event){
+	Chat_ServerBroadcast("The event has ended, a new one might start soon....")
 	switch(event){
 		case("Meleeport"): 	hsOn = false
 							return
@@ -650,6 +651,7 @@ void function OnEventExit(string event){
 }
 
 void function OnEventRespawn(string event){
+	Chat_ServerBroadcast("The event is still on going look out for any surprises")
 	switch(event){
 		case("Meleeport"): 	return
 		case("Wingman"): 	foreach(entity player in GetPlayerArray()){
