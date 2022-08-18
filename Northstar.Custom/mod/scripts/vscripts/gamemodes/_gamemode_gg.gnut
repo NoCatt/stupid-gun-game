@@ -80,6 +80,7 @@ void function GamemodeGG_Init()
 	}
 	catch ( ex ) {}
 
+	FlagInit()
 	thread ActivateEvent_Thread()
 }
 bool function ShowHealthCMD (entity player, array<string> args){
@@ -607,7 +608,7 @@ void function RandomEventInit(){
 
 	Event activeEvent = RandomEventsArray[ RandomInt( RandomEventsArray.len() ) ]
 	
-	thread SetNewEvent(RandomEvent, duration, strength)
+	thread SetNewEvent(activeEvent)
 }
 
 void function OnEventInit(string event){
@@ -696,12 +697,23 @@ Event function GetActiveEvent(){
 	}
 }
 
-bool function ActivateEvent_Thread(){
-	while(true){
-		WaitFrame()
-		if(RandomInt(600)==1){
-			RandomEventInit()
-			wait 120.0
-		}
-	}
+bool function ActivateEvent_Thread()
+{
+    // create our flag
+    FlagInit( "EventEnded" )
+    // delay before the first event happens
+    // wait between 2 mins and 3 mins randomly
+    wait 120 + RandomFloat() * 60
+    while( true )
+    {
+        // begin our event
+        RandomEventInit()
+        // wait for the event to end
+        FlagWait( "EventEnded" )
+        // set the flag back to being false
+        FlagClear( "EventEnded" )
+        // wait between 2 mins and 3 mins randomly
+        wait 120 + RandomFloat() * 60
+    }
 }
+//thanks @Spoon
