@@ -703,7 +703,7 @@ bool function ActivateEvent_Thread()
     FlagInit( "EventEnded" )
     // delay before the first event happens
     // wait between 2 mins and 3 mins randomly
-    wait 120 + RandomFloat() * 60
+    wait 120 + RandomFloat(1) * 60
     while( true )
     {
         // begin our event
