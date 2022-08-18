@@ -698,6 +698,7 @@ Event function GetActiveEvent(){
 
 bool function ActivateEvent_Thread(){
 	while(true){
+		WaitFrame()
 		if(RandomInt(2400)==1){
 			RandomEventInit()
 			wait 120.0
