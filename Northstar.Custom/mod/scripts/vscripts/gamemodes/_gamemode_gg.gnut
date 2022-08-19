@@ -632,6 +632,7 @@ void function OnEventInit(string event){
 }
 
 void function OnEventExit(string event){
+	FlagSet("EventEnded")
 	Chat_ServerBroadcast("The event has ended, a new one might start soon....")
 	switch(event){
 		case("Meleeport"): 	hsOn = false
@@ -713,7 +714,7 @@ bool function ActivateEvent_Thread()
         // set the flag back to being false
         FlagClear( "EventEnded" )
         // wait between 2 mins and 3 mins randomly
-        wait 120 + RandomFloat() * 60
+        wait 120 + RandomFloat(1) * 60
     }
 }
 //thanks @Spoon
