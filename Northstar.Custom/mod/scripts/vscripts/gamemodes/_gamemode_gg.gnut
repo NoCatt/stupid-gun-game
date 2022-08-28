@@ -16,6 +16,7 @@ array<string> playerHSNames = [] //players that have HouseFlies enabled
 array<string> adminNames = ["admin1", "admin2","Neinguar"] // admins
 bool hsOn
 table<string, int> SaveScore
+table<string, int> killStreak
 
 // highlight best player
 // 50% hp for good player
@@ -247,7 +248,7 @@ void function OnPlayerDisconnected(entity player)
 	
 	// this prevents a new player to get someone who's left's score
 	AddTeamScore( player.GetTeam(), -GameRules_GetTeamScore( player.GetTeam() ))
-
+	killStreak[player.GetPlayerName()] = 0
 	if (GetWinningPlayer() == player)
 		thread CheckNewHighlight(player)
 
@@ -354,7 +355,11 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 				playerHSNames.append( attacker.GetPlayerName() )
 			}
 			Reward( attacker, victim, scoreEvent, percentageReward )
-			
+			killStreak[attacker.GetPlayerName()]++
+			killStreak[victim.GetPlayerName()] = 0
+			if(killStreak[attacker.GetPlayerName()]%10 = 0 && killStreak[attacker.GetPlayerName()] != 0){
+				Chat_ServerBroadcast(attacker.GetPlayerName()+ " is on a "+ killStreak[attacker.GetPlayerName()]"-killstreak")
+			}
 			
 		}
 		else if( playerHSNames.find( attacker.GetPlayerName() ) == -1 ){
@@ -496,6 +501,9 @@ void function OnClientConnected(entity player) {
 		player.AddToPlayerGameStat( PGS_ASSAULT_SCORE, SaveScore[player.GetPlayerName()] )
 		Chat_ServerPrivateMessage(player, "Your score has been restored", false)
 		printt("Score of "+player.GetPlayerName()+" has been restored")
+	}
+	if(!( player.GetPlayerName() in killStreak )){
+		killStreak[player.GetPlayerName()] <- 0
 	}
     printt("[GUN GAME] OnClientConnected", player, "team", player.GetTeam())
 	if(hsOn) // if house flies is enabled add player to hsplayers array
