@@ -252,14 +252,6 @@ void function OnPlayerDisconnected(entity player)
 	if (GetWinningPlayer() == player)
 		thread CheckNewHighlight(player)
 
-	int is_player_in_hard_mode = isPlayerInHardModeInt(player)
-	if(is_player_in_hard_mode==-1)
-		return
-	switch(is_player_in_hard_mode){
-		case(1): HMLightPlayers.remove(HMLightPlayers.find(player))
-		case(2): HMMediumPlayers.remove(HMMediumPlayers.find(player))
-		case(3): HMExtremePlayers.remove(HMExtremePlayers.find(player))
-	}
 }
 
 void function OnPlayerRespawned( entity player )
@@ -268,25 +260,18 @@ void function OnPlayerRespawned( entity player )
 	UpdateLoadout( player )
 	thread OnPlayerRespawned_Threaded( player )
 
-	if(HMLightPlayers.find(player)!=-1){
-		player.SetMaxHealth(50)
-      	player.SetHealth(player.GetMaxHealth())
-	}
-	if(HMMediumPlayers.find(player)!=-1){
-		player.SetMaxHealth(25)
-      	player.SetHealth(player.GetMaxHealth())
-	}
-	if(HMExtremePlayers.find(player)!=-1){
-		player.SetMaxHealth(1)
-      	player.SetHealth(player.GetMaxHealth())
+	switch( PlayerInHardMode[player.GetPlayerName()] ){
+		case 1: player.SetMaxHealth(HARD_MODE_LIGHT_HEALTH)
+				player.SetHealth(player.GetMaxHealth())
+				break
+		case 2: player.SetMaxHealth(HARD_MODE_MEDIUM_HEALTH)
+				player.SetHealth(player.GetMaxHealth())
+				break
+		case 3: player.SetMaxHealth(HARD_MODE_HARD_HEALTH)
+				player.SetHealth(player.GetMaxHealth())
+				break
 	}
 
-	/*
-	if(EasyModePlayer.find(player)!=-1){
-		player.SetMaxHealth(125)
-		player.SetHealth(player.GetMaxHealth())
-	}
-	*/
 	if(hsOn)
 		SendHudMessage(player, "Meleeport is active for everyone", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
 	if (player == GetWinningPlayer())

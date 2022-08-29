@@ -7,13 +7,12 @@ global function FSU_CreatePoll
 global function FSU_GetPollResultIndex
 global function FSU_IsDedicated
 global function isPlayerInHardMode
-global function isPlayerInHardModeInt
 global array < entity > playerWantingToActivateGNS
 global array < entity > playerWantingToDeactivateGNS
-global array < entity > EasyModePlayer
-global array < entity > HMLightPlayers
-global array < entity > HMMediumPlayers
-global array < entity > HMExtremePlayers
+global table<string, int> PlayerInHardMode
+global const int HARD_MODE_LIGHT_HEALTH = 50
+global const int HARD_MODE_MEDIUM_HEALTH = 25
+global const int HARD_MODE_HARD_HEALTH = 1
 
 struct commandStruct
 {
@@ -45,7 +44,6 @@ void function FSU_init ()
 {
   AddCallback_OnClientConnected ( OnClientConnected )
   
-  
   // Register commands
   FSU_RegisterCommand( "help", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "help <page>\x1b[0m Lists registered commands", "core", FSU_C_Help, [ "h" ] )
   FSU_RegisterCommand( "name", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "name\x1b[0m Returns the name of the current server", "core", FSU_C_Name )
@@ -71,6 +69,8 @@ void function FSU_init ()
 // callbacks
 void function OnClientConnected ( entity player )
 {
+  PlayerInHardMode[player.GetPlayerName()]<- -1
+
   if( FSU_GetBool( "FSU_WELCOME_ENABLE_MESSAGE_BEFORE" ) )
     Chat_ServerPrivateMessage( player, FSU_GetString("fsu_welcome_message_before"), false )
   
@@ -658,120 +658,60 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
   string Desc2 = "Reduces your health by 75 and pulse blade deaths remove more points"
   string Name3 = "Extreme"
   string Desc3 = "Reduces your healt by 99 and pulse blade deaths remove your enitre score"
-  int isPlayerInt = isPlayerInHardModeInt(player)
-  try{
-    if(isPlayerInt > 0 && ( args[0]=="off"||args[0]=="Off"||args[0]=="0") ){
-      if(deactivateHardMode(player))
-        return
-      else{
-        printt("Unable to deactivate hard mode for "+player.GetPlayerName())
-        return
-      }
-    }
-    if(args[0]=="Light"||args[0]=="light"||args[0]=="1"){
-      HMLightPlayers.append(player)
-      player.SetMaxHealth(50)
-      player.SetHealth(player.GetMaxHealth)
-    }
-    if()
-    }catch(ex){}
-}
 
-bool function deactivateHardMode(entity player){
-  int GetPlayerDifficulty = isPlayerInHardModeInt(player)
-  try{
-  switch(GetPlayerDifficulty){
-    case(1): HMLightPlayers.remove(HMExtremePlayers.find(player)) 
-    case(2): HMMediumplayers.remove(HMMediumPlayers.find(player))
-    case(3): HMExtremePlayers.remove(HMExtremePlayers.find(player))
-  }
-  player.SetMaxHealth(100)
-  player.SetHealth(player.GetMaxHealth())
-  Chat_ServerPrivateMessage(player, "You turned hard mode off, your health is now back to "+player.GetMaxHealth(),false)
-  return true
-  }
-  catch(ex){
-    Chat_ServerPrivateMessage(player,"unable to remove you from hard mode, this is a bug please contact NoCatt#8128 with the details",false)
-    return false
-  }
-}
 
-void function FSU_C_EZMODE(entity player, array < string > args){
-  try{
-    if(isPlaserInBottomFive(player)== false){
-       Chat_ServerPrivateMessage(player, "You are too good to be allowed in easy mode",false )
-       return
-    }
-      
-    if(args[0]=="on"||args[0]=="On"||args[0]=="ON"||args[0]=="1"){
-      EasyModePlayer.append(player)
-      player.SetMaxHealth(125)
-      player.SetHealth(player.GetMaxHealth())
-       Chat_ServerPrivateMessage(player,"Your health is not at "+player.GetMaxHealth()+"hp to make it a bit easier for you ",false)
-       return
-    }
-    if(args[0]=="Off"||args[0]=="OFF"||args[0]=="off"||args[0]=="0"){
-      if(EasyModePlayer.find(player)==-1){
-         Chat_ServerPrivateMessage(player, "You need to be in esay mode to deactivate it",false)
-         return
-      }
-      EasyModePlayer.remove(EasyModePlayer.find(player))
-      player.SetMaxHealth(100)
-      player.SetHealth(player.GetMaxHealth())
-      Chat_ServerPrivateMessage(player,"Your health is not at "+player.GetMaxHealth()+"hp",false)
-    }
-    
+  if(args[0]==""){
+     Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
   }
-}
-void function RemovePlayerFromHardMode(entity player, int GetRemovedFrom) {
-  switch(GetRemovedFrom){
-    case(1):  HMLightPlayers.remove(HMLightPlayers.find(player))
-    case(2):  HMMediumPlayers.remove(HMMediumPlayers.find(player))
-    case(3):  HMExtremePlayers.remove(HMExtremePlayers.find(player))
-    default: return
+  if(args[0]=="light"||args[0]=="Light"||args[0]=="LIGHT"||args[0]=="1"){
+    PlayerInHardMode[player.GetPlayerName()] = 1
+    player.SetMaxHealth(HARD_MODE_LIGHT_HEALTH)
+    player.SetHealth(player.GetMaxHealth())
   }
-  player.SetMaxHealth(100)
-  player.SetHealth(player.GetMaxHealth())
-  Chat_ServerPrivateMessage(player, "What are you a chicken??? anyway your health is back at "+player.GetMaxHealth(),false)
-  return
-  
-}
+  if(args[0]=="medium"||args[0]=="Medium"||args[0]=="MEDIUM"||args[0]=="2"){
+    PlayerInHardMode[player.GetPlayerName()] = 2
+    player.SetMaxHealth(HARD_MODE_MEDIUM_HEALTH)
+    player.SetHealth(player.GetMaxHealth())
+  }
+  if(args[0]=="hard"||args[0]=="Hard"||args[0]=="HARD"||args[0]=="3"){
+    PlayerInHardMode[player.GetPlayerName()] = 3
+    player.SetMaxHealth(HARD_MODE_HARD_HEALTH)
+    player.SetHealth(player.GetMaxHealth())
+  }
+  if(args[0]=="off"||args[0]=="Hard"||args[0]=="HARD"){
+    deactivateHardMode(player)
+    player.SetMaxHealth(100)
+    please.SetHealth(player.GetMaxHealth())
+  }
 
+}
+void function deactivateHardMode(entity player){
+  PlayerInHardMode[player.GetPlayerName()] = -1
+}
 
 bool function isPlayerInHardMode(entity player){
-  if(HMLightPlayers.find(player)==-1 && HMMediumPlayers.find(player)==-1 && HMExtremePlayers.find(player)==-1)
-    return false
-  return true
-}
-int function isPlayerInHardModeInt(entity player){
-  if(HMLightPlayers.find(player)!=-1)
-    return 1
-  if(HMMediumPlayers.find(player)!=-1)
-    return 2
-  if(HMExtremePlayers.find(player)!=-1)
-    return 3
-  return -1
+  PlayerInHardMode[player.GetPlayerName()] == -1 ? return false : return true
 }
 
 int function amoutOfVotesNedded(){
-switch(GetPlayerArray().len()){
-case(1): return 1
-case(2): return 1
-case(3): return 1
-case(4): return 2
-case(5): return 2
-case(6): return 3
-case(7): return 3
-case(8): return 4
-case(9): return 4
-case(10): return 5
-case(11): return 5
-case(12): return 5
-case(13): return 5
-case(14): return 6
-case(15): return 6
-case(16): return 6
+  switch(GetPlayerArray().len()){
+  case(1): return 1
+  case(2): return 1
+  case(3): return 1
+  case(4): return 2
+  case(5): return 2
+  case(6): return 3
+  case(7): return 3
+  case(8): return 4
+  case(9): return 4
+  case(10): return 5
+  case(11): return 5
+  case(12): return 5
+  case(13): return 5
+  case(14): return 6
+  case(15): return 6
+  case(16): return 6
 
-}
-return 0
+  }
+  return 0
 }
