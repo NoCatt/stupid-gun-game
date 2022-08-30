@@ -7,8 +7,6 @@ global function FSU_CreatePoll
 global function FSU_GetPollResultIndex
 global function FSU_IsDedicated
 global function isPlayerInHardMode
-global array < entity > playerWantingToActivateGNS
-global array < entity > playerWantingToDeactivateGNS
 global table<string, int> PlayerInHardMode
 global const int HARD_MODE_LIGHT_HEALTH = 50
 global const int HARD_MODE_MEDIUM_HEALTH = 25
@@ -683,7 +681,7 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
     player.SetMaxHealth(100)
     please.SetHealth(player.GetMaxHealth())
   }
-
+  return
 }
 void function deactivateHardMode(entity player){
   PlayerInHardMode[player.GetPlayerName()] = -1

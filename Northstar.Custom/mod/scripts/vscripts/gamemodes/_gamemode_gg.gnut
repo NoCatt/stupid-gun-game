@@ -260,6 +260,9 @@ void function OnPlayerRespawned( entity player )
 	UpdateLoadout( player )
 	thread OnPlayerRespawned_Threaded( player )
 
+	if(!(player.GetPlayerName() in PlayerInHardMode))
+		PlayerInHardMode[player.GetPlayerName()]<- -1 //FAILSAFE should not be needed but I like to make sure
+
 	switch( PlayerInHardMode[player.GetPlayerName()] ){
 		case 1: player.SetMaxHealth(HARD_MODE_LIGHT_HEALTH)
 				player.SetHealth(player.GetMaxHealth())
@@ -530,9 +533,9 @@ entity function GetWinningPlayer()
 // yeah this fucking sucks, but at least i can now control how much it removes for each score without some rounding shit
 int function GetPBScoreRemove(entity player){
 	int score = GameRules_GetTeamScore(player.GetTeam())
-	if(HMExtremePlayers.find(player)!=-1)
+	if(PlayerInHardMode[player.GetPlayerName()] == 3)
 		return score
-	if(HMMediumPlayers.find(player)!=-1){
+	if(PlayerInHardMode[player.GetPlayerName()]==2){
 		switch(score){
 			case(11): return 11
 			case(12): return 11
@@ -569,7 +572,7 @@ int function GetPBScoreRemove(entity player){
 			case(43): return 28
 			case(44): return 28
 			default: return 0
-	}
+		}
 	}
 	switch(score){
 		case(11): return 10
