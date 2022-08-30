@@ -6,7 +6,6 @@ global function FSU_CanCreatePoll
 global function FSU_CreatePoll
 global function FSU_GetPollResultIndex
 global function FSU_IsDedicated
-global function isPlayerInHardMode
 global table<string, int> PlayerInHardMode
 global const int HARD_MODE_LIGHT_HEALTH = 50
 global const int HARD_MODE_MEDIUM_HEALTH = 25
@@ -52,7 +51,6 @@ void function FSU_init ()
   FSU_RegisterCommand( "usage", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "usage\x1b[0m <command> Prints usage of provided command", "core", FSU_C_Usage )
   FSU_RegisterCommand( "discord", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "discord\x1b[0m Prints a discord invite", "core", FSU_C_Discord, [ "dc" ] )
   FSU_RegisterCommand( "report", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "report <player>\x1b[0m Creates a report and prints it in console so you can copy it", "core", FSU_C_Report )
-  FSU_RegisterCommand( "gns", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "gns <on/off>\x1b[0m Votes if Guns and Stones should be turned on", "core", FSU_C_GNS )
   FSU_RegisterCommand("hardmode", "\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "Hardmode <difficulty>x1b[0m your health by 50% to make it more difficult","core",FSU_C_Hard_Mode)
   if( FSU_GetBool("FSU_ENABLE_SWITCH") )
     FSU_RegisterCommand( "switch", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "switch\x1b[0m switches team", "core", FSU_C_Switch )
@@ -642,11 +640,6 @@ void function FSU_C_Report ( entity player, array < string > args )
   
   Chat_ServerPrivateMessage( player, "Report created! Check your console.", false )
 }
-//!gns
-void function FSU_C_GNS( entity player, array < string > args)
-{
-	Chat_ServerPrivateMessage(player, "The GNS command has been discontinued",false)
-}
 
 //!hardmode
 void function FSU_C_Hard_Mode (entity player, array < string > args){
@@ -677,39 +670,9 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
     player.SetHealth(player.GetMaxHealth())
   }
   if(args[0]=="off"||args[0]=="Hard"||args[0]=="HARD"){
-    deactivateHardMode(player)
+    PlayerInHardMode[player.GetPlayerName()] = -1
     player.SetMaxHealth(100)
     please.SetHealth(player.GetMaxHealth())
   }
   return
-}
-void function deactivateHardMode(entity player){
-  PlayerInHardMode[player.GetPlayerName()] = -1
-}
-
-bool function isPlayerInHardMode(entity player){
-  PlayerInHardMode[player.GetPlayerName()] == -1 ? return false : return true
-}
-
-int function amoutOfVotesNedded(){
-  switch(GetPlayerArray().len()){
-  case(1): return 1
-  case(2): return 1
-  case(3): return 1
-  case(4): return 2
-  case(5): return 2
-  case(6): return 3
-  case(7): return 3
-  case(8): return 4
-  case(9): return 4
-  case(10): return 5
-  case(11): return 5
-  case(12): return 5
-  case(13): return 5
-  case(14): return 6
-  case(15): return 6
-  case(16): return 6
-
-  }
-  return 0
 }
