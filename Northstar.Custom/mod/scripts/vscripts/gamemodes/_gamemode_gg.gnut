@@ -19,6 +19,7 @@ bool hsOn
 table<string, int> SaveScore
 table<string, int> killStreak
 table<string, int> HMKills
+table<string, int> NoLifers // this is a table to store melee players to punish them even better :)
 
 // highlight best player
 // 50% hp for good player
@@ -294,7 +295,7 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 		foreach ( entity player in GetPlayerArray() )
 			SendHudMessage( player, message, -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
 
-		DeRank( victim )
+		DeRank( victim, 1 )
 	}
 	else
 	{
@@ -331,7 +332,7 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 				foreach ( entity player in GetPlayerArray() )
 					SendHudMessage( player, message, -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
 
-				DeRank( victim )
+				DeRank( victim, 1 )
 
 				percentageReward = GetCurrentPlaylistVarFloat( "gg_execution_reward", 1.0 )
 				scoreEvent = "Execution"
@@ -343,18 +344,20 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			Reward( attacker, victim, scoreEvent, percentageReward )
 			killStreak[attacker.GetPlayerName()]++
 			if(killStreak[victim.GetPlayerName()]>10){
-			   Chat_ServerBroadcast("\x1b[34m" + attacker.GetPlayerName() + "\x1b[0 Ended the \x1b[38;5;128m" + killStreak[victim.GetPlayerName()]+ "-kill streak \x1b[0of \x1b[34m" + victim.GetPlayerName())
+			   Chat_ServerBroadcast("\x1b[34m" + attacker.GetPlayerName() + "\x1b[0 Ended the \x1b[38;5;128m" + killStreak[victim.GetPlayerName()]+ "-kill streak \x1b[0of \x1b[34m" + victim.GetPlayerName()+"\x1b[0 with a \x1b[38;5;208m"+ DamageSourceIDToString( DamageInfo_GetDamageSourceIdentifier( damageInfo ) ) )
 			}
 			killStreak[victim.GetPlayerName()] = 0
-			if(killStreak[attacker.GetPlayerName()]%10 == 0 && killStreak[attacker.GetPlayerName()] != 0){
+			if(killStreak[attacker.GetPlayerName()]%5 == 0 && killStreak[attacker.GetPlayerName()] != 0){
 				Chat_ServerBroadcast("\x1b[34m"+ attacker.GetPlayerName() + " \x1b[0is on a \x1b[38;5;128m"+ killStreak[attacker.GetPlayerName()] + "-killstreak")
 			}
 			
 		}
 		else if( playerHSNames.find( attacker.GetPlayerName() ) == -1 ){
 			//Neinguars mod to punish melee users lol
-			DeRank( attacker )
-			SendHudMessage( attacker, "Don't melee other pilots, you'll get demoted!", -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
+			(attacker.GetPlayerName() in NoLifers) ? NoLifers[attacker.GetPlayerName()]++ : NoLifers[attacker.GetPlayerName()] <- 0
+			DeRank( attacker, NoLifers[attacker.GetPlayerName()] )
+			//SendHudMessage( attacker, "Don't melee other pilots, you'll get demoted!", -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
+			Chat_ServerPrivateMessage(attacker,"\x1b[38;5;196mDont melee other pilots, \x1b[0you will lose points for every melee, this time you lost \x1b[34m" +NoLifers[attacker.GetPlayerName()]+ "\x1b[0 but next time you will lose \x1b[34m"NoLifers[attacker.GetPlayerName()]+1 ,true)
 		}
 
 		if (attacker == GetWinningPlayer())
@@ -388,16 +391,20 @@ void function Reward( entity player, entity victim, string scoreEvent, float per
 	Remote_CallFunction_NonReplay( player, "ServerCallback_ScoreEvent", GetScoreEvent(scoreEvent).eventId, 0, eEventDisplayType.MEDAL, victim.GetEncodedEHandle(), 0.0, percentageReward)
 }
 
-void function DeRank( entity player )
+void function DeRank( entity player, int amount )
 {
 	Sv_GGEarnMeter_SetPercentage( player, 0.0 )
 
-	if ( GameRules_GetTeamScore( player.GetTeam() ) != 0 )
+	if ( GameRules_GetTeamScore( player.GetTeam() ) >= amount )
 	{
-		AddTeamScore( player.GetTeam(), -1 ) // get absolutely fucking destroyed lol
-		player.AddToPlayerGameStat( PGS_ASSAULT_SCORE, -1 )
-		UpdateLoadout( player )
+		AddTeamScore( player.GetTeam(), -amount ) // get absolutely fucking destroyed lol
+		player.AddToPlayerGameStat( PGS_ASSAULT_SCORE, -amount )
+		
+	}else{
+		AddTeamScore( player.GetTeam(), -GameRules_GetTeamScore( player.GetTeam() ) ) // get absolutely fucking destroyed lol
+		player.AddToPlayerGameStat( PGS_ASSAULT_SCORE, -GameRules_GetTeamScore( player.GetTeam() ) )
 	}
+	UpdateLoadout( player )
 }
 
 bool function OnGGEarnMeterFilled( entity player )
