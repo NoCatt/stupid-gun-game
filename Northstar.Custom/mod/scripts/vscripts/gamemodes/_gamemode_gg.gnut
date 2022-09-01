@@ -6,8 +6,8 @@ global struct Event{
 	bool EventActive
 	string EventDesc
 	int duration
-	void functionref(string) EventInit = OnEventInit
-	void functionref(string) EventExit = OnEventExit
+	void functionref(string) EventInit
+	void functionref(string) EventExit 
 }
 global array<Event> RandomEventsArray // ["meleeport","wingman","twokills","aa"]
 global bool eventOn
@@ -40,7 +40,6 @@ void function GamemodeGG_Init()
 	AddClientCommandCallback("hs", EnablehsCMD) // this command toggles hs to all or a certain players syntax: hs <name/all> 0/1
 	AddClientCommandCallback("gns", EnablehsGNS)
 	AddClientCommandCallback("health", ShowHealthCMD)
-	AddClientCommandCallback("event", eventCMD)
 
 	SetSpawnpointGamemodeOverride( FFA )
 
@@ -59,8 +58,8 @@ void function GamemodeGG_Init()
 
 	AddCallback_GGEarnMeterFull( OnGGEarnMeterFilled )
 
-    // CUSTOM
-    AddCallback_OnClientConnected(OnClientConnected)
+    	// CUSTOM
+    	AddCallback_OnClientConnected(OnClientConnected)
 
 	if( RandomInt( 100 ) == 1 ) // easter egg (enables house flies for everyone)
 	{
@@ -80,16 +79,8 @@ void function GamemodeGG_Init()
 	}
 	catch ( ex ) {}
 
-	eventOn = true
+	eventOn = false
 
-	Event meleeport = {Eventname = "Meleeport", EventActive = false, EventDesc = "Everyone gets meleeport for the duration of the event", duration = 40, ... }
-	Event wingman 	= {Eventname = "Wingman", EventActive = false, EventDesc = "Everyone gets a wingman for the duration of the event", duration = 90, ... }
-	Event aa		= {Eventname = "AirAccel", EventActive = false, EventDesc = "The air acceleration changes for all players, but its still the same for everyone", int duration = 120, ... }
-	RandomEvents.append(meleeport)
-	RandomEvents.append(wingman)
-	RandomEvents.append(aa)
-
-	thread ActivateEvent_Thread()
 }
 bool function ShowHealthCMD (entity player, array<string> args){
 	try{
@@ -230,7 +221,7 @@ bool function EnablehsCMD( entity player, array < string > args )
 
 bool function eventCMD (entity player, array < string > args ){
 
-	if (adminName.find( player.GetPlayerName() ) == -1 )
+	if (adminNames.find( player.GetPlayerName() ) == -1 )
 		return true
 	if(args[0]=="1"&& !eventOn)
 		eventOn = true; return true;
@@ -244,7 +235,7 @@ bool function eventCMD (entity player, array < string > args ){
 
 void function OnPlayerDisconnected(entity player)
 {	
-	SaveScore[player,GetPlayerName()] <- GameRules_GetTeamScore( player.GetTeam() )
+	SaveScore[player.GetPlayerName()] <- GameRules_GetTeamScore( player.GetTeam() )
 	
 	// this prevents a new player to get someone who's left's score
 	AddTeamScore( player.GetTeam(), -GameRules_GetTeamScore( player.GetTeam() ))
@@ -256,7 +247,7 @@ void function OnPlayerDisconnected(entity player)
 
 void function OnPlayerRespawned( entity player )
 {
-    StatusEffect_AddTimed( attacker, eStatusEffect.speed_boost, 0.4, 4.25, 0.25) 
+    StatusEffect_AddTimed( player, eStatusEffect.speed_boost, 0.4, 4.25, 0.25) 
 	UpdateLoadout( player )
 	thread OnPlayerRespawned_Threaded( player )
 
@@ -318,8 +309,9 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 				 AddTeamScore( victim.GetTeam(), -GameRules_GetTeamScore( victim.GetTeam() ))
 			}
 			 victim.SetPlayerGameStat( PGS_ASSAULT_SCORE, GameRules_GetTeamScore( victim.GetTeam() )) //first argument is what to change, 2nd is what to change it to
-			 foreach( entity player in GetPlayerArray() )
-			 	SendHudMessage(player, victim.GetPlayerName()+" got bankrupted by "+attacker.GetPlayerName(), -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
+			 Chat_ServerBroadcast("\x1b[34m" + attacker.GetPlayerName() + "\x1b[0 bankrupted \x1b[34m"+ victim.GetPlayerName())
+			 if(playerHSNames.find(victim.GetPlayerName())!=-1)
+			 	playerHSNames.remove( playerHSNames.find( victim.GetPlayerName() ) )
 		}
 
 		if ( DamageInfo_GetDamageSourceIdentifier( damageInfo ) != eDamageSourceId.melee_pilot_emptyhanded )
@@ -344,9 +336,12 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			}
 			Reward( attacker, victim, scoreEvent, percentageReward )
 			killStreak[attacker.GetPlayerName()]++
+			if(killStreak[victim.GetPlayerName()]>10){
+			   Chat_ServerBroadcast("\x1b[34m" + attacker.GetPlayerName() + "\x1b[0 Ended the \x1b[38;5;128m" + killStreak[victim.GetPlayerName()]+ "-kill streak \x1b[0of \x1b[34m" + victim.GetPlayerName())
+			}
 			killStreak[victim.GetPlayerName()] = 0
-			if(killStreak[attacker.GetPlayerName()]%10 = 0 && killStreak[attacker.GetPlayerName()] != 0){
-				Chat_ServerBroadcast(attacker.GetPlayerName()+ " is on a "+ killStreak[attacker.GetPlayerName()]"-killstreak")
+			if(killStreak[attacker.GetPlayerName()]%10 == 0 && killStreak[attacker.GetPlayerName()] != 0){
+				Chat_ServerBroadcast("\x1b[34m"+ attacker.GetPlayerName() + " \x1b[0is on a \x1b[38;5;128m"+ killStreak[attacker.GetPlayerName()] + "-killstreak")
 			}
 			
 		}
@@ -455,22 +450,15 @@ void function UpdateLoadout( entity player )
 
     // Grapple
 	if( gnsOn && weapon.offhandSlot != 0 )
- 		player.GiveOffhandWeapon ("mp_weapon_grenade_sonar", OFFHAND_TITAN_CENTER, [])
+ 		player.GiveOffhandWeapon ("mp_weapon_grenade_sonar", OFFHAND_RIGHT, [])
 
 	if( gnsOn && weapon.offhandSlot == 0 && weapon.weapon != "mp_weapon_grenade_sonar" ){
-  		player.GiveOffhandWeapon( "mp_ability_grapple", OFFHAND_LEFT )
-		player.GiveOffhandWeapon ("mp_weapon_grenade_sonar", OFFHAND_TITAN_CENTER, [])
+  		player.GiveOffhandWeapon( "mp_ability_shifter", OFFHAND_LEFT )
+		player.GiveOffhandWeapon ("mp_weapon_grenade_sonar", OFFHAND_INVENTORY, [])
 	}
 	else
-  		player.GiveOffhandWeapon( "mp_ability_grapple", OFFHAND_LEFT )
-
-	if(eventOn){
-		int currentEvent = GetCurrentEvent()
-		if(currentEvent == -1){
-			return
-		OnEventRespawn(player)
-	}
-	}
+  		player.GiveOffhandWeapon( "mp_ability_shifter", OFFHAND_LEFT )
+	
 }
 
 void function OnWinnerDetermined()
@@ -613,121 +601,3 @@ int function GetPBScoreRemove(entity player){
 	return 0
 }
 
-void function OnEventInit(string event){
-	Event currentEvent = GetEventFromName(event)
-	if(currentEvent == null)
-		return
-	Chat_ServerBroadcast("A new event just started: "+currentEvent.EventName +"\n The event will last: "+ currentEvent.duration +"s \n"+ currentEvent.EventDesc )
-	switch(event){
-		case("Meleeport"): 	hsOn = true
-							return
-		case("Wingman"): 	foreach(entity player in GetPlayerArray()){
-								foreach ( entity weapon in player.GetMainWeapons() )
-										player.TakeWeaponNow( weapon.GetWeaponClassName() )
-										player.SetActiveWeaponByName("mp_weapon_wingman")
-										
-								}
-							return
-		case("AirAccel"): 	return
-
-	}
-}
-
-void function OnEventExit(string event){
-	FlagSet("EventEnded")
-	Chat_ServerBroadcast("The event has ended, a new one might start soon....")
-	switch(event){
-		case("Meleeport"): 	hsOn = false
-							return
-		case("Wingman"): 	array<GunGameWeapon> weapons = GetGunGameWeapons()
-							GunGameWeapon weapon = weapons[ GameRules_GetTeamScore( player.GetTeam() )]
-							foreach(entity player in GetPlayerArray()){
-								foreach ( entity weapon in player.GetMainWeapons() ){
-										player.TakeWeaponNow("mp_weapon_wingman")
-										player.SetActiveWeaponByName( weapon.weapon, weapon.mods )
-									}
-								}
-							return
-		case("AirAccel"): 	return
-
-	}
-
-}
-
-void function OnEventRespawn(entity player){
-	try{
-		Event event = RadomEventArray[ GetActiveEvent() ]
-	}catch(ex){return}
-	Chat_ServerBroadcast("The event is still on going look out for any surprises")
-	switch(event){
-		case("Meleeport"): 	return
-		case("Wingman"): 	
-							foreach ( entity weapon in player.GetMainWeapons() )
-								player.TakeWeaponNow(weapon)
-							player.SetActiveWeaponByName("mp_weapon_wingman")
-							return
-		case("AirAccel"): 	return
-
-	}
-
-}
-
-Event function GetEventFromName(string EventName){
-	foreach(Event event in RandomEventsArray){
-		if(event.EventName == EventName)
-			return event
-	}
-	return null
-}
-
-void function RandomEventInit(){
-	if(!eventOn)
-		return -1 //YOU CAN NEVER BE SURE WHAT GETS CALLED
-
-	Event activeEvent = RandomEventsArray[ RandomInt( RandomEventsArray.len() ) ]
-
-	activeEvent.EventActive = true
-	activeEvent.EventInit(activeEvent.EventName)
-
-	wait activeEvent.duration
-
-	activeEvent.EventExit(activeEvent.EventName)
-	activeEvent.EventActive = false
-	FlagSet( "EventEnded" )
-	return
-}
-
-
-// this assumes that only 1 event can be active at each point in time
-int function GetActiveEvent(){
-	if(!eventOn)
-		return -1
-	foreach(index, Event event in RandomEventsArray){
-		if(event.EventActive == true)
-			return index
-	}
-	return -1
-}
-
-bool function ActivateEvent_Thread()
-{
-	while(!eventOn)
-		WaitFrame()
-    // create our flag
-    FlagInit( "EventEnded" )
-    // delay before the first event happens
-    // wait between 2 mins and 3 mins randomly
-    wait 120 + RandomFloat(1) * 60
-    while( true )
-    {
-        // begin our event
-        thread RandomEventInit()
-        // wait for the event to end
-        FlagWait( "EventEnded" )
-        // set the flag back to being false
-        FlagClear( "EventEnded" )
-        // wait between 2 mins and 3 mins randomly
-        wait 120 + RandomFloat(1) * 60
-    }
-}
-//thanks @Spoon
