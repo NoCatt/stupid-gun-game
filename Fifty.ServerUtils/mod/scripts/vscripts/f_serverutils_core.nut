@@ -651,20 +651,22 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
   string Desc3 = "Reduces your healt by 99 and pulse blade deaths remove your enitre score"
 
 
-  if(args[0]==""){
+  if(args.len()==0){
      Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
+     return
   }
   if(args[0]=="light"||args[0]=="Light"||args[0]=="LIGHT"||args[0]=="1"){
     PlayerInHardMode[player.GetPlayerName()] = 1
     player.SetMaxHealth(HARD_MODE_LIGHT_HEALTH)
     player.SetHealth(player.GetMaxHealth())
+    
   }
   if(args[0]=="medium"||args[0]=="Medium"||args[0]=="MEDIUM"||args[0]=="2"){
     PlayerInHardMode[player.GetPlayerName()] = 2
     player.SetMaxHealth(HARD_MODE_MEDIUM_HEALTH)
     player.SetHealth(player.GetMaxHealth())
   }
-  if(args[0]=="hard"||args[0]=="Hard"||args[0]=="HARD"||args[0]=="3"){
+  if(args[0]=="extreme"||args[0]=="Extreme"||args[0]=="EXTREME"||args[0]=="3"){
     PlayerInHardMode[player.GetPlayerName()] = 3
     player.SetMaxHealth(HARD_MODE_HARD_HEALTH)
     player.SetHealth(player.GetMaxHealth())
@@ -672,7 +674,8 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
   if(args[0]=="off"||args[0]=="Hard"||args[0]=="HARD"){
     PlayerInHardMode[player.GetPlayerName()] = -1
     player.SetMaxHealth(100)
-    please.SetHealth(player.GetMaxHealth())
+    player.SetHealth(player.GetMaxHealth())
   }
+  Chat_ServerPrivateMessage(player, "Your health is now at"+ player.GetMaxHealth(),false)
   return
 }
