@@ -34,12 +34,21 @@ string poll_before
 int poll_result
 bool poll_show_result
 
+bool chatFilter = true
 
+array<string> Banned_words = ["Fuck","Faggot","Retard"]
+bool shouldBlock = false
+bool shouldInform = true
+string ResponseOnBlock = "Your message contains offensive speach and was not send to the chat"
+bool ShouldShamePlayer = true
+string ShameMessage = "I am really bad at this Game but my mom doesnt buy me a new one"
+string ResponseOnReplace = "Your message contains offensive speach and was altered"
 
 // init
 void function FSU_init ()
 {
   AddCallback_OnClientConnected ( OnClientConnected )
+  if(chatFilter)AddCallback_OnReceivedSayTextMessage(MyChatFilter)
   
   // Register commands
   FSU_RegisterCommand( "help", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "help <page>\x1b[0m Lists registered commands", "core", FSU_C_Help, [ "h" ] )
@@ -655,27 +664,68 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
      Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
      return
   }
+  if(args[0]=="list"||args[0]=="List"||args[0]=="LIST"||args[0]=="li"){
+    showPlayersInHardmodeKills()
+    return
+  }
   if(args[0]=="light"||args[0]=="Light"||args[0]=="LIGHT"||args[0]=="1"){
     PlayerInHardMode[player.GetPlayerName()] = 1
     player.SetMaxHealth(HARD_MODE_LIGHT_HEALTH)
     player.SetHealth(player.GetMaxHealth())
+    Chat_ServerPrivateMessage(player, "Your health is now at "+ player.GetMaxHealth(),false)
     
   }
   if(args[0]=="medium"||args[0]=="Medium"||args[0]=="MEDIUM"||args[0]=="2"){
     PlayerInHardMode[player.GetPlayerName()] = 2
     player.SetMaxHealth(HARD_MODE_MEDIUM_HEALTH)
     player.SetHealth(player.GetMaxHealth())
+    Chat_ServerPrivateMessage(player, "Your health is now at "+ player.GetMaxHealth(),false)
   }
   if(args[0]=="extreme"||args[0]=="Extreme"||args[0]=="EXTREME"||args[0]=="3"){
     PlayerInHardMode[player.GetPlayerName()] = 3
     player.SetMaxHealth(HARD_MODE_HARD_HEALTH)
     player.SetHealth(player.GetMaxHealth())
+    Chat_ServerPrivateMessage(player, "Your health is now at "+ player.GetMaxHealth(),false)
   }
   if(args[0]=="off"||args[0]=="Hard"||args[0]=="HARD"){
     PlayerInHardMode[player.GetPlayerName()] = -1
     player.SetMaxHealth(100)
     player.SetHealth(player.GetMaxHealth())
+    Chat_ServerPrivateMessage(player, "Your health is now at "+ player.GetMaxHealth(),false)
   }
-  Chat_ServerPrivateMessage(player, "Your health is now at"+ player.GetMaxHealth(),false)
   return
 }
+
+string function GetAmoutOfStars(string word) {
+    string reply = ""
+    for (int a; a < word.len() ; a++ ) {
+     reply + "*"
+    }
+    return reply
+}
+
+ClClient_MessageStruct function MyChatFilter(ClClient_MessageStruct message) {
+    string LowerMessage  = message.message.tolower()
+    for(string word in Banned_words)
+    {
+        if( LowerMessage.find( word.tolower() ) == -1) 
+            return message
+        
+        if(shouldBlock){
+            message.shouldBlock = true
+            if(shouldInform)
+                Chat_ServerPrivateMessage(message.player , ResponseOnBlock , false)
+            if(ShouldShamePlayer)
+                Chat_Impersonate(message.player,ShameMessage,false)
+            return message
+        } else{
+            message.message = StringReplace(LowerMessage, word.tolower(), GetAmoutOfStars(word), true, true)
+            if(shouldInform)
+                Chat_ServerPrivateMessage(message.player ,ResponseOnReplace   , false)
+            if(ShouldShamePlayer)
+                Chat_Impersonate(message.player, ShameMessage, false)
+            return message
+        }
+    return message
+    }
+  }
