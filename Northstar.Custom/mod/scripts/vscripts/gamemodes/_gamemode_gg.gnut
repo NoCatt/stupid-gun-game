@@ -309,13 +309,13 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			}
 			else{
 				 AddTeamScore( victim.GetTeam(), -GameRules_GetTeamScore( victim.GetTeam() ))
-
+			}
 			if(attacker.GetPlayerName() in PlayerInHardMode ) 
 				(attacker.GetPlayerName() in HMKills ) ? HMKills[attacker.GetPlayerName()]++ : HMKills[attacker.GetPlayerName()] <- 1
-
-			}
+			
 			 victim.SetPlayerGameStat( PGS_ASSAULT_SCORE, GameRules_GetTeamScore( victim.GetTeam() )) //first argument is what to change, 2nd is what to change it to
 			 Chat_ServerBroadcast("\x1b[34m" + attacker.GetPlayerName() + "\x1b[0 bankrupted \x1b[34m"+ victim.GetPlayerName())
+
 			 if(playerHSNames.find(victim.GetPlayerName())!=-1)
 			 	playerHSNames.remove( playerHSNames.find( victim.GetPlayerName() ) )
 		}
