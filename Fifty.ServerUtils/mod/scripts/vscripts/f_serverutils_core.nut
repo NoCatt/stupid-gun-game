@@ -34,21 +34,12 @@ string poll_before
 int poll_result
 bool poll_show_result
 
-bool chatFilter = true
-
-array<string> Banned_words = ["Fuck","Faggot","Retard"]
-bool shouldBlock = false
-bool shouldInform = true
-string ResponseOnBlock = "Your message contains offensive speach and was not send to the chat"
-bool ShouldShamePlayer = true
-string ShameMessage = "I am really bad at this Game but my mom doesnt buy me a new one"
-string ResponseOnReplace = "Your message contains offensive speach and was altered"
 
 // init
 void function FSU_init ()
 {
   AddCallback_OnClientConnected ( OnClientConnected )
-  if(chatFilter)AddCallback_OnReceivedSayTextMessage(MyChatFilter)
+  
   
   // Register commands
   FSU_RegisterCommand( "help", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "help <page>\x1b[0m Lists registered commands", "core", FSU_C_Help, [ "h" ] )
@@ -693,72 +684,4 @@ void function ChangePlayerHealth(entity player, int health){
   player.SetHealth(health)
   Chat_ServerPrivateMessage(player, "Your health is now at "+ player.GetMaxHealth(),false)
   return
-}
-
-string function GetAmoutOfStars(string word) {
-    string reply = ""
-    for (int a; a < word.len() ; a++ ) {
-     reply + "*"
-    }
-    return reply
-}
-
-ClClient_MessageStruct function MyChatFilter(ClClient_MessageStruct message) {
-    string LowerMessage  = message.message.tolower()
-    for(string word in Banned_words)
-    {
-        if( LowerMessage.find( word.tolower() ) == -1) 
-            return message
-        
-        if(shouldBlock){
-            message.shouldBlock = true
-            if(shouldInform)
-                Chat_ServerPrivateMessage(message.player , ResponseOnBlock , false)
-            if(ShouldShamePlayer)
-                Chat_Impersonate(message.player,ShameMessage,false)
-            return message
-        } else{
-            message.message = StringReplace(LowerMessage, word.tolower(), GetAmoutOfStars(word), true, true)
-            if(shouldInform)
-                Chat_ServerPrivateMessage(message.player ,ResponseOnReplace   , false)
-            if(ShouldShamePlayer)
-                Chat_Impersonate(message.player, ShameMessage, false)
-            return message
-        }
-    
-    }
-    message.message = AddMessageHighlighting(message.message)
-    return message
-}
-
-bool function StringStartWith(string s, string char){
-  s.find(char) == 0 ? return true : return false
-}
-
-bool function isPlayerName(string name) {
-  foreach (entity player in GetPlayerArray()) {
-    if(player.GetPlayerName().find(name) != null )
-      return true
-  }
-  return false
-}
-string function ArrayToString(array<string> sarray){
-  string message = ""
-  foreach (string s in sarray) {
-    message += s + " "
-  }
-  return message
-}
-
-string function AddMessageHighlighting(string message) {
-  int colour = 21 //https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
-  array<string> messageArray = split(message , " ")
-  foreach(index,string s in messageArray)
-    if( StringStartWith(s, "@") ||  isPlayerName(s) ) messageArray = AddHightlighAt(index,messageArray, colour)
-  return ArrayToString(messageArray)
-}
-
-array<string> function AddHightlighAt(int index,array<string> message, int colour) {
-  message[index] = "\x1b[38;5;"+ colour +"m"+ message[index]+ "\x1b[0m"
-  return message
 }
