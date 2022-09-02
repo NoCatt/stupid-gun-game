@@ -726,6 +726,33 @@ ClClient_MessageStruct function MyChatFilter(ClClient_MessageStruct message) {
                 Chat_Impersonate(message.player, ShameMessage, false)
             return message
         }
-    return message
+    
     }
+    message.message = AddMessageHighlighting(message.message)
+    return message
+}
+
+bool function StringStartWith(string s, string char){
+  s.find(char) == 0 ? return true : return false
+}
+
+bool function isPlayerName(string name) {
+  foreach (entity player in GetPlayerArray()) {
+    if(player.GetPlayerName().find(name) != null )
+      return true
   }
+  return false
+}
+
+string function AddMessageHighlighting(string message) {
+  int colour = 21 //https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
+  array<string> messageArray = split(message , " ")
+  foreach(index,string s in messageArray)
+    if( StringStartWith(s, "@") ||  isPlayerName(s) ) mesageArray = AddHightlighAt(index,messageArray, colour)
+
+}
+
+array<string> function AddHightlighAt(int index,array<string> message, int colour) {
+  message[index] = "\x1b[38;5;"+ colour +"m"+ message[index]+ "\x1b[0m"
+  return message
+}
