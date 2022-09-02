@@ -305,18 +305,11 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			StatusEffect_AddTimed( attacker, eStatusEffect.speed_boost, 0.4, 4.25, 0.25) 
         }
 		if( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.mp_weapon_grenade_sonar && gnsOn ){
-			if(GameRules_GetTeamScore(victim.GetTeam())>=10){
+			if(GameRules_GetTeamScore(victim.GetTeam())>=10)
 				AddTeamScore( victim.GetTeam(), -GetPBScoreRemove(victim))
-			}
-			else{
+			else
 				 AddTeamScore( victim.GetTeam(), -GameRules_GetTeamScore( victim.GetTeam() ))
-			}
-			if(attacker.GetPlayerName() in PlayerInHardMode ) {
-				if(attacker.GetPlayerName() in HMKills )
-				   HMKills[attacker.GetPlayerName()]++ 
-				else 
-				  HMKills[attacker.GetPlayerName()] <- 1
-			}
+
 			 victim.SetPlayerGameStat( PGS_ASSAULT_SCORE, GameRules_GetTeamScore( victim.GetTeam() )) //first argument is what to change, 2nd is what to change it to
 			 Chat_ServerBroadcast("\x1b[34m" + attacker.GetPlayerName() + "\x1b[0 bankrupted \x1b[34m"+ victim.GetPlayerName())
 
@@ -325,7 +318,14 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 		}
 
 		if ( DamageInfo_GetDamageSourceIdentifier( damageInfo ) != eDamageSourceId.melee_pilot_emptyhanded )
-		{
+		{	
+			if(attacker.GetPlayerName() in PlayerInHardMode ) {
+				if(attacker.GetPlayerName() in HMKills )
+				   HMKills[attacker.GetPlayerName()] += 1
+				else 
+				  HMKills[attacker.GetPlayerName()] <- 1
+			}
+			
 			float percentageReward = GetCurrentPlaylistVarFloat( "gg_kill_reward", 1.0 )
 			string scoreEvent = "KillPilot"
 
@@ -346,11 +346,11 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			}
 			Reward( attacker, victim, scoreEvent, percentageReward )
 			killStreak[attacker.GetPlayerName()]++
-			if(killStreak[victim.GetPlayerName()]>5){
-			   Chat_ServerBroadcast("\x1b[34m" + attacker.GetPlayerName() + "\x1b[0 Ended the \x1b[38;5;128m" + killStreak[victim.GetPlayerName()]+ "-kill streak \x1b[0of \x1b[34m" + victim.GetPlayerName()+"\x1b[0 with a \x1b[38;5;208m"+ DamageSourceIDToString( DamageInfo_GetDamageSourceIdentifier( damageInfo ) ) )
+			if(killStreak[victim.GetPlayerName()]>10){
+			   Chat_ServerBroadcast("\x1b[34m" + attacker.GetPlayerName() + "\x1b[0 Ended the \x1b[38;5;128m" + killStreak[victim.GetPlayerName()]+ "-kill streak \x1b[0of \x1b[34m" + victim.GetPlayerName()+"\x1b[0 with a \x1b[38;5;208m"+ GetGunNameByID( DamageInfo_GetDamageSourceIdentifier( damageInfo ) ) )
 			}
 			killStreak[victim.GetPlayerName()] = 0
-			if(killStreak[attacker.GetPlayerName()]%5 == 0 && killStreak[attacker.GetPlayerName()] != 0){
+			if(killStreak[attacker.GetPlayerName()]%10 == 0 && killStreak[attacker.GetPlayerName()] != 0){
 				Chat_ServerBroadcast("\x1b[34m"+ attacker.GetPlayerName() + " \x1b[0is on a \x1b[38;5;128m"+ killStreak[attacker.GetPlayerName()] + "-killstreak")
 			}
 			
@@ -635,3 +635,63 @@ int function GetPBScoreRemove(entity player){
 	return 0
 }
 
+//Hi spoon you told me not to but HERE WE ARE
+string function GetGunNameByID(int ID) {
+	switch(ID){
+		case eDamageSourceId.mp_weapon_peacekraber : return "Peacekeeper"
+		case eDamageSourceId.mp_weapon_gunship_turret : return "Gunship Turret"
+		case eDamageSourceId.mp_weapon_arena2 : return "Arena 2"
+		case eDamageSourceId.mp_weapon_arena3: return "Arena 3"
+		case eDamageSourceId.mp_weapon_smart_pistol : return "Smart Pistol"
+		case eDamageSourceId.mp_titanweapon_flightcore_rockets : return "FLightcore Rocket"
+		case eDamageSourceId.melee_titan_sword : return "Ronin Sword"
+
+		case eDamageSourceId.mp_titanweapon_leadwall : return "Leadwall"
+		case eDamageSourceId.mp_titanweapon_sniper : return "Plasma"
+		case eDamageSourceId.mp_titanweapon_particle_accelerator : return "Particle accelerator"
+		case eDamageSourceId.mp_titanweapon_meteor : return "Thermite"
+		case eDamageSourceId.mp_titanweapon_sticky_40mm : return "40mm"
+		case eDamageSourceId.mp_titanweapon_predator_cannon : return "Predator Cannon"
+		case eDamageSourceId.mp_titanweapon_xo16_vanguard : return "XO-16"
+		case eDamageSourceId.mp_titanweapon_triplethreat : return "Tripple Thread"
+
+		case eDamageSourceId.mp_titanweapon_arc_wave : return "Arc Wave"
+		case eDamageSourceId.mp_titanweapon_heat_shield : return "Heat Shield"
+
+		case eDamageSourceId.mp_weapon_car : return "Car"
+		case eDamageSourceId.mp_weapon_alternator_smg : return "Alternator"
+		case eDamageSourceId.mp_weapon_hemlok_smg : return "Volt"
+		case eDamageSourceId.mp_weapon_r97 : return "R97"
+
+		case eDamageSourceId.mp_weapon_hemlok : return "Hemlock"
+		case eDamageSourceId.mp_weapon_vinson : return "Flatline"
+		case eDamageSourceId.mp_weapon_rspn101 : return "R201"
+		case eDamageSourceId.mp_weapon_g2 : return "G2"
+		case eDamageSourceId.mp_weapon_rspn101_og : return "R101"
+		case eDamageSourceId.mp_weapon_esaw : return "Devotion"
+		case eDamageSourceId.mp_weapon_lstar : return "L-Star"
+		case eDamageSourceId.mp_weapon_lmg : return "Spitfire"
+
+		case eDamageSourceId.mp_weapon_shotgun : return "Eva"
+		case eDamageSourceId.mp_weapon_mastiff : return "Mastiff"
+
+		case eDamageSourceId.mp_weapon_softball : return "Softball"
+		case eDamageSourceId.mp_weapon_epg : return "EPG"
+		case eDamageSourceId.mp_weapon_smr : return "SMR"
+		case eDamageSourceId.mp_weapon_pulse_lmg : return "Cold War"
+
+		case eDamageSourceId.mp_weapon_shotgun_pistol : return "Mozambique"
+		case eDamageSourceId.mp_weapon_wingman_n : return "Wingman Elite"
+
+		case eDamageSourceId.mp_weapon_doubletake : return "Doubletake"
+		case eDamageSourceId.mp_weapon_sniper : return "Kraber"
+		case eDamageSourceId.mp_weapon_dmr : return "DMR Longbow"
+
+		case eDamageSourceId.mp_weapon_autopistol : return "RE-45"
+		case eDamageSourceId.mp_weapon_semipistol : return "P2016"
+		case eDamageSourceId.mp_weapon_wingman : return "b3 Wingman"
+
+		case eDamageSourceId.mp_weapon_defender : return "Chargerifel"
+		case eDamageSourceId.mp_weapon_grenade_sonar : return "Pulse Blade"
+	}
+}
