@@ -476,7 +476,7 @@ void function UpdateLoadout( entity player )
 
 void function OnWinnerDetermined()
 {
-	showPlayersInHardmodeKills
+	showPlayersInHardmodeKills()
 	SetRespawnsEnabled( false )
 	SetKillcamsEnabled( false )
 
