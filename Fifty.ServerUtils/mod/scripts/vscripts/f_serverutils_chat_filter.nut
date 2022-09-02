@@ -35,6 +35,11 @@ void function FSU_ChatFilter_init ()
 {
   if ( FSU_GetBool("FSU_ENABLE_SPAM_FILTER") )
     AddCallback_OnReceivedSayTextMessage( RunChatFilter )
+  //Test
+  string testMessage = "#########################"
+  printt(testMessage)
+  print(StringStartWith("T","Test"))
+  printt(testMessage)
 }
 
 
@@ -53,7 +58,7 @@ ClServer_MessageStruct function RunChatFilter( ClServer_MessageStruct message )
   else
     AppendMessageToCache( message.player, message.message.tolower() )
   
-  
+  // Neinguar mod here 
   string LowerMessage  = message.message.tolower()
     foreach(string word in Banned_words)
     {
