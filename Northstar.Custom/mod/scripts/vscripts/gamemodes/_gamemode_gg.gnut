@@ -311,9 +311,12 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			else{
 				 AddTeamScore( victim.GetTeam(), -GameRules_GetTeamScore( victim.GetTeam() ))
 			}
-			if(attacker.GetPlayerName() in PlayerInHardMode ) 
-				(attacker.GetPlayerName() in HMKills ) ? HMKills[attacker.GetPlayerName()]++ : HMKills[attacker.GetPlayerName()] <- 1
-			
+			if(attacker.GetPlayerName() in PlayerInHardMode ) {
+				if(attacker.GetPlayerName() in HMKills )
+				   HMKills[attacker.GetPlayerName()]++ 
+				else 
+				  HMKills[attacker.GetPlayerName()] <- 1
+			}
 			 victim.SetPlayerGameStat( PGS_ASSAULT_SCORE, GameRules_GetTeamScore( victim.GetTeam() )) //first argument is what to change, 2nd is what to change it to
 			 Chat_ServerBroadcast("\x1b[34m" + attacker.GetPlayerName() + "\x1b[0 bankrupted \x1b[34m"+ victim.GetPlayerName())
 
@@ -343,7 +346,7 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			}
 			Reward( attacker, victim, scoreEvent, percentageReward )
 			killStreak[attacker.GetPlayerName()]++
-			if(killStreak[victim.GetPlayerName()]>10){
+			if(killStreak[victim.GetPlayerName()]>5){
 			   Chat_ServerBroadcast("\x1b[34m" + attacker.GetPlayerName() + "\x1b[0 Ended the \x1b[38;5;128m" + killStreak[victim.GetPlayerName()]+ "-kill streak \x1b[0of \x1b[34m" + victim.GetPlayerName()+"\x1b[0 with a \x1b[38;5;208m"+ DamageSourceIDToString( DamageInfo_GetDamageSourceIdentifier( damageInfo ) ) )
 			}
 			killStreak[victim.GetPlayerName()] = 0
@@ -354,10 +357,14 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 		}
 		else if( playerHSNames.find( attacker.GetPlayerName() ) == -1 ){
 			//Neinguars mod to punish melee users lol
-			(attacker.GetPlayerName() in NoLifers) ? NoLifers[attacker.GetPlayerName()]++ : NoLifers[attacker.GetPlayerName()] <- 1
+			if(attacker.GetPlayerName() in NoLifers)
+			   NoLifers[attacker.GetPlayerName()]++ 
+			else
+			   NoLifers[attacker.GetPlayerName()] <- 1
+			   
 			DeRank( attacker, NoLifers[attacker.GetPlayerName()] )
 			//SendHudMessage( attacker, "Don't melee other pilots, you'll get demoted!", -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
-			Chat_ServerPrivateMessage(attacker,"\x1b[38;5;196mDont melee other pilots, \x1b[0you will lose points for every melee, this time you lost \x1b[34m" +NoLifers[attacker.GetPlayerName()]+ "\x1b[0 but next time you will lose \x1b[34m"NoLifers[attacker.GetPlayerName()]+1 ,true)
+			Chat_ServerPrivateMessage(attacker,"\x1b[38;5;196mDont melee other pilots, \x1b[0you will lose points for every melee, this time you lost \x1b[34m" + NoLifers[attacker.GetPlayerName()] + "\x1b[0 but next time you will lose \x1b[34m" + NoLifers[attacker.GetPlayerName()]++ ,true)
 		}
 
 		if (attacker == GetWinningPlayer())
@@ -488,10 +495,13 @@ void function showPlayersInHardmodeKills() {
 	if(HMKills.len()!=0){
 		string announcement = "Kills the players in hardmode got: \n \n"
 		TopHMPlayers += announcement
-		foreach(string playerName in HMKills){
-			TopHMPlayers +"\x1b[38;5;128m"+ playerName + "\x1b[0 got \x1b[34m" + HMKills[playerName] + "-kills \x1b[0in hardmode \n"
+		foreach(entity player in GetPlayerArray()){
+		    if( player.GetPlayerName() in HMKills )
+				TopHMPlayers = TopHMPlayers +"\x1b[38;5;128m"+ player.GetPlayerName() + "\x1b[0 got \x1b[34m" + HMKills[player.GetPlayerName()] + "-kills \x1b[0in hardmode \n"
 		}
+		Chat_ServerBroadcast(TopHMPlayers)
 	}
+	
 }
 
 // CUSTOM
