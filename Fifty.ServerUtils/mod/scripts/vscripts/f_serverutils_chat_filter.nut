@@ -11,8 +11,8 @@ struct messageStruct
   float time
 }
 
-array<string> Banned_words = ["Faggot","Retard","Fag","Nigger"]
-bool shouldBlock = false
+array<string> Banned_words = ["Fuck"]
+bool shouldBlock = true
 bool shouldInform = true
 string ResponseOnBlock = "Your message contains offensive speach and was not send to the chat"
 bool ShouldShamePlayer = true
@@ -63,7 +63,7 @@ ClServer_MessageStruct function RunChatFilter( ClServer_MessageStruct message )
     foreach(string word in Banned_words)
     {
         if( LowerMessage.find( word.tolower() ) == null) 
-            return message
+            continue
         
         if(shouldBlock){
             message.shouldBlock = true
@@ -275,7 +275,7 @@ bool function StringStartWith(string s, string char){
 
 bool function isPlayerName(string name) {
   foreach (entity player in GetPlayerArray()) {
-    if(player.GetPlayerName().find(name) != null )
+    if(player.GetPlayerName().tolower() == name.tolower() )
       return true
   }
   return false
@@ -289,7 +289,7 @@ string function ArrayToString(array<string> sarray){
 }
 
 string function AddMessageHighlighting(string message) {
-  int colour = 21 //https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
+  int colour = 69 //https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
   array<string> messageArray = split(message , " ")
   foreach(index,string s in messageArray)
     if( StringStartWith(s, "@") ||  isPlayerName(s) ) messageArray = AddHightlighAt(index,messageArray, colour)

@@ -691,7 +691,8 @@ string function GetGunNameByID(int ID) {
 		case eDamageSourceId.mp_weapon_semipistol : return "P2016"
 		case eDamageSourceId.mp_weapon_wingman : return "b3 Wingman"
 
-		case eDamageSourceId.mp_weapon_defender : return "Chargerifel"
+		case eDamageSourceId.mp_weapon_defender : return "Chargerifle"
 		case eDamageSourceId.mp_weapon_grenade_sonar : return "Pulse Blade"
+		default: return "<Gun Not available>"
 	}
 }
