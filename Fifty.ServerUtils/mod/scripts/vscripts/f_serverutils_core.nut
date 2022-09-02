@@ -743,13 +743,20 @@ bool function isPlayerName(string name) {
   }
   return false
 }
+string function ArrayToString(array<string> sarray){
+  string message = ""
+  foreach (string s in sarray) {
+    message += s + " "
+  }
+  return message
+}
 
 string function AddMessageHighlighting(string message) {
   int colour = 21 //https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
   array<string> messageArray = split(message , " ")
   foreach(index,string s in messageArray)
-    if( StringStartWith(s, "@") ||  isPlayerName(s) ) mesageArray = AddHightlighAt(index,messageArray, colour)
-
+    if( StringStartWith(s, "@") ||  isPlayerName(s) ) messageArray = AddHightlighAt(index,messageArray, colour)
+  return ArrayToString(messageArray)
 }
 
 array<string> function AddHightlighAt(int index,array<string> message, int colour) {
