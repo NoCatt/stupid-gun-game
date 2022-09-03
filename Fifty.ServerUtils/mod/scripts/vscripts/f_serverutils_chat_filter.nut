@@ -19,13 +19,16 @@ bool ShouldShamePlayer = true
 string ShameMessage = "I am really bad at this game but my mom doesnt buy me a new one"
 string ResponseOnReplace = "Your message contains offensive speach and was altered"
 
+//https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
 int CIntgreen  = 82
 int CIntred    = 196
 int CIntblue   = 51
 int CIntpurple = 128
 int CIntgrey   = 7
 int CIntback   = 0
-int CIntwhite  = 255
+int CIntwhite  = 15
+int CIntorange = 208
+int CIntpink   = 207
 
 // FIFO style cache
 // table < player UID, messages >
@@ -287,7 +290,7 @@ string function ArrayToString(array<string> sarray){
   }
   return message
 }
- int colour = 69 //https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
+int colour = 69 //https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
 
 string function AddMessageHighlighting(string message) {
 
@@ -317,6 +320,8 @@ int function GetBeginning(string colour) {
   if(colour.find( "@grey"  ) == 0 ) return CIntgrey
   if(colour.find( "@black" ) == 0 ) return CIntback
   if(colour.find( "@white" ) == 0 ) return CIntwhite
+  if(colour.find( "@orange" ) == 0 ) return CIntorange
+  if(colour.find( "@pink" ) == 0 ) return CIntpink
   return 69 //not a joke thats a good colour
 }
 
@@ -328,7 +333,9 @@ array<string> colours = [
 "@purple",
 "@grey"  ,
 "@black" ,
-"@white"
+"@white",
+"@orange",
+"@pink"
 ]
 string function RemoveColourDeclaration(string s) {
   foreach (string c in colours) {

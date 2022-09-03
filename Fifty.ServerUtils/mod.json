@@ -6,7 +6,7 @@
 	"ConVars": [
     {
       "Name": "fsu_welcome_message_before",
-      "DefaultValue": "Welcome to my very cool \\x1b[31mS\\x1b[113mE\\x1b[32mR\\x1b[36mV\\x1b[34mE\\x1b[35mR\\x1b[0m"
+      "DefaultValue": "Welcome to \\x1b[38;5;128mNeingaurs \\x1b[0mStupid Gun Game"
     },
 		{
       "Name": "fsu_owner",
@@ -30,7 +30,7 @@
     },
 		{
       "Name": "fsu_discord",
-      "DefaultValue": "https://discord.gg/northstar"
+      "DefaultValue": "Feel free to message me NoCatt#8128"
     },
 		{
       "Name": "fsu_welcome_message_after",
@@ -62,7 +62,7 @@
     },
 		{
       "Name": "FSU_ADMIN_UIDS",
-      "DefaultValue": "1000574542451"
+      "DefaultValue": "1008806725370"
     },
 		{
       "Name": "FSU_ADMIN_PASSWORDS",
@@ -86,7 +86,7 @@
     },
 		{
       "Name": "FSU_WELCOME_ENABLE_MESSAGE_AFTER",
-      "DefaultValue": "1"
+      "DefaultValue": "0"
     },
 		{
       "Name": "FSU_WECLOME_ENABLE_OWNER",
@@ -115,7 +115,7 @@
     },
 		{
       "Name": "FSU_REPEAT_BROADCAST_TIME_MIN",
-      "DefaultValue": "50"
+      "DefaultValue": "100"
     },
 		{
       "Name": "FSU_REPEAT_BROADCAST_TIME_MAX",

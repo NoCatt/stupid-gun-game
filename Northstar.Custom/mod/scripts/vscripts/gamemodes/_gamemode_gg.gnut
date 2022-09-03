@@ -319,7 +319,7 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 
 		if ( DamageInfo_GetDamageSourceIdentifier( damageInfo ) != eDamageSourceId.melee_pilot_emptyhanded )
 		{
-			if(attacker.GetPlayerName() in PlayerInHardMode ) {
+			if(HMKills[attacker.GetPlayerName()]>0) {
 				if(attacker.GetPlayerName() in HMKills )
 				   HMKills[attacker.GetPlayerName()] += 1
 				else
@@ -364,7 +364,8 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 
 			DeRank( attacker, NoLifers[attacker.GetPlayerName()] )
 			//SendHudMessage( attacker, "Don't melee other pilots, you'll get demoted!", -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
-			Chat_ServerPrivateMessage(attacker,"\x1b[38;5;196mDon't melee other pilots, \x1b[0you will lose points for every melee, this time you lost \x1b[34m" + NoLifers[attacker.GetPlayerName()] + "\x1b[0 but next time you will lose \x1b[34m" + NoLifers[attacker.GetPlayerName()]++ ,true)
+			int next = NoLifers[attacker.GetPlayerName()]++
+			Chat_ServerPrivateMessage(attacker,"\x1b[38;5;196mDon't melee other pilots, \x1b[0you will lose points for every melee, this time you lost \x1b[34m" + NoLifers[attacker.GetPlayerName()] + "\x1b[0 but next time you will lose \x1b[34m" +next ,true)
 		}
 
 		if (attacker == GetWinningPlayer())
@@ -496,8 +497,7 @@ void function showPlayersInHardmodeKills() {
 		string announcement = "Kills the players in hardmode got: \n \n"
 		TopHMPlayers += announcement
 		foreach(entity player in GetPlayerArray()){
-		    if( player.GetPlayerName() in HMKills )
-				TopHMPlayers = TopHMPlayers +"\x1b[38;5;128m"+ player.GetPlayerName() + "\x1b[0 got \x1b[34m" + HMKills[player.GetPlayerName()] + "-kills \x1b[0in hardmode \n"
+				if(HMKills[player.GetPlayerName()]>0) TopHMPlayers = TopHMPlayers +"\x1b[38;5;128m"+ player.GetPlayerName() + "\x1b[0 got \x1b[34m" + HMKills[player.GetPlayerName()] + "-kills\n"
 		}
 		Chat_ServerBroadcast(TopHMPlayers)
 	}
@@ -637,62 +637,52 @@ int function GetPBScoreRemove(entity player){
 
 //Hi spoon you told me not to but HERE WE ARE
 string function GetGunNameByID(int ID) {
-	switch(ID){
-		case eDamageSourceId.mp_weapon_peacekraber : return "Peacekeeper"
-		case eDamageSourceId.mp_weapon_gunship_turret : return "Gunship Turret"
-		case eDamageSourceId.mp_weapon_arena2 : return "Arena 2"
-		case eDamageSourceId.mp_weapon_arena3: return "Arena 3"
-		case eDamageSourceId.mp_weapon_smart_pistol : return "Smart Pistol"
-		case eDamageSourceId.mp_titanweapon_flightcore_rockets : return "FLightcore Rocket"
-		case eDamageSourceId.melee_titan_sword : return "Ronin Sword"
-
-		case eDamageSourceId.mp_titanweapon_leadwall : return "Leadwall"
-		case eDamageSourceId.mp_titanweapon_sniper : return "Plasma"
-		case eDamageSourceId.mp_titanweapon_particle_accelerator : return "Particle accelerator"
-		case eDamageSourceId.mp_titanweapon_meteor : return "Thermite"
-		case eDamageSourceId.mp_titanweapon_sticky_40mm : return "40mm"
-		case eDamageSourceId.mp_titanweapon_predator_cannon : return "Predator Cannon"
-		case eDamageSourceId.mp_titanweapon_xo16_vanguard : return "XO-16"
-		case eDamageSourceId.mp_titanweapon_triplethreat : return "Tripple Thread"
-
-		case eDamageSourceId.mp_titanweapon_arc_wave : return "Arc Wave"
-		case eDamageSourceId.mp_titanweapon_heat_shield : return "Heat Shield"
-
-		case eDamageSourceId.mp_weapon_car : return "Car"
-		case eDamageSourceId.mp_weapon_alternator_smg : return "Alternator"
-		case eDamageSourceId.mp_weapon_hemlok_smg : return "Volt"
-		case eDamageSourceId.mp_weapon_r97 : return "R97"
-
-		case eDamageSourceId.mp_weapon_hemlok : return "Hemlock"
-		case eDamageSourceId.mp_weapon_vinson : return "Flatline"
-		case eDamageSourceId.mp_weapon_rspn101 : return "R201"
-		case eDamageSourceId.mp_weapon_g2 : return "G2"
-		case eDamageSourceId.mp_weapon_rspn101_og : return "R101"
-		case eDamageSourceId.mp_weapon_esaw : return "Devotion"
-		case eDamageSourceId.mp_weapon_lstar : return "L-Star"
-		case eDamageSourceId.mp_weapon_lmg : return "Spitfire"
-
-		case eDamageSourceId.mp_weapon_shotgun : return "Eva"
-		case eDamageSourceId.mp_weapon_mastiff : return "Mastiff"
-
-		case eDamageSourceId.mp_weapon_softball : return "Softball"
-		case eDamageSourceId.mp_weapon_epg : return "EPG"
-		case eDamageSourceId.mp_weapon_smr : return "SMR"
-		case eDamageSourceId.mp_weapon_pulse_lmg : return "Cold War"
-
-		case eDamageSourceId.mp_weapon_shotgun_pistol : return "Mozambique"
-		case eDamageSourceId.mp_weapon_wingman_n : return "Wingman Elite"
-
-		case eDamageSourceId.mp_weapon_doubletake : return "Doubletake"
-		case eDamageSourceId.mp_weapon_sniper : return "Kraber"
-		case eDamageSourceId.mp_weapon_dmr : return "DMR Longbow"
-
-		case eDamageSourceId.mp_weapon_autopistol : return "RE-45"
-		case eDamageSourceId.mp_weapon_semipistol : return "P2016"
-		case eDamageSourceId.mp_weapon_wingman : return "b3 Wingman"
-
-		case eDamageSourceId.mp_weapon_defender : return "Chargerifle"
-		case eDamageSourceId.mp_weapon_grenade_sonar : return "Pulse Blade"
+	switch(DamageSourceIDToString(ID)){
+		case "mp_weapon_peacekraber" : return "Peacekeeper"
+		case "mp_weapon_gunship_turret" : return "Gunship Turret"
+		case "mp_weapon_arena2" : return "Arena 2"
+		case "mp_weapon_arena3": return "Arena 3"
+		case "mp_weapon_smart_pistol" : return "Smart Pistol"
+		case "mp_titanweapon_flightcore_rockets" : return "FLightcore Rocket"
+		case "melee_titan_sword" : return "Ronin Sword"
+		case "mp_titanweapon_leadwall" : return "Leadwall"
+		case "mp_titanweapon_sniper" : return "Plasma"
+		case "mp_titanweapon_particle_accelerator" : return "Particle accelerator"
+		case "mp_titanweapon_meteor" : return "Thermite"
+		case "mp_titanweapon_sticky_40mm" : return "40mm"
+		case "mp_titanweapon_predator_cannon" : return "Predator Cannon"
+		case "mp_titanweapon_xo16_vanguard" : return "XO-16"
+		case "mp_titanweapon_triplethreat" : return "Tripple Thread"						
+		case "mp_titanweapon_arc_wave" : return "Arc Wave"
+		case "mp_titanweapon_heat_shield" : return "Heat Shield"
+		case "mp_weapon_car" : return "Car"
+		case "mp_weapon_alternator_smg" : return "Alternator"
+		case "mp_weapon_hemlok_smg" : return "Volt"
+		case "mp_weapon_r97" : return "R97"
+		case "mp_weapon_hemlok" : return "Hemlock"
+		case "mp_weapon_vinson" : return "Flatline"
+		case "mp_weapon_rspn101" : return "R201"
+		case "mp_weapon_g2" : return "G2"
+		case "mp_weapon_rspn101_og" : return "R101"
+		case "mp_weapon_esaw" : return "Devotion"
+		case "mp_weapon_lstar" : return "L-Star"
+		case "mp_weapon_lmg" : return "Spitfire"
+		case "mp_weapon_shotgun" : return "Eva"
+		case "mp_weapon_mastiff" : return "Mastiff"
+		case "mp_weapon_softball" : return "Softball"
+		case "mp_weapon_epg" : return "EPG"
+		case "mp_weapon_smr" : return "SMR"
+		case "mp_weapon_pulse_lmg" : return "Cold War"
+		case "mp_weapon_shotgun_pistol" : return "Mozambique"
+		case "mp_weapon_wingman_n" : return "Wingman Elite"
+		case "mp_weapon_doubletake" : return "Doubletake"
+		case "mp_weapon_sniper" : return "Kraber"
+		case "mp_weapon_dmr" : return "DMR Longbow"
+		case "mp_weapon_autopistol" : return "RE-45"
+		case "mp_weapon_semipistol" : return "P2016"
+		case "mp_weapon_wingman" : return "b3 Wingman"				
+		case "mp_weapon_defender" : return "Chargerifle"
+		case "mp_weapon_grenade_sonar" : return "Pulse Blade"
 		default: return "<Gun Not available>"
 	}
 	return "<Gun Not available>"
