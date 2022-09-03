@@ -19,6 +19,13 @@ bool ShouldShamePlayer = true
 string ShameMessage = "I am really bad at this game but my mom doesnt buy me a new one"
 string ResponseOnReplace = "Your message contains offensive speach and was altered"
 
+int CIntgreen  = 82
+int CIntred    = 196
+int CIntblue   = 51
+int CIntpurple = 128
+int CIntgrey   = 7
+int CIntback   = 0
+int CIntwhite  = 255
 
 // FIFO style cache
 // table < player UID, messages >
@@ -273,13 +280,6 @@ bool function StringStartWith(string s, string char){
   return false
 }
 
-bool function isPlayerName(string name) {
-  foreach (entity player in GetPlayerArray()) {
-    if(player.GetPlayerName().tolower() == name.tolower() )
-      return true
-  }
-  return false
-}
 string function ArrayToString(array<string> sarray){
   string message = ""
   foreach (string s in sarray) {
@@ -287,16 +287,52 @@ string function ArrayToString(array<string> sarray){
   }
   return message
 }
+ int colour = 69 //https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
 
 string function AddMessageHighlighting(string message) {
-  int colour = 69 //https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
+
   array<string> messageArray = split(message , " ")
   foreach(index,string s in messageArray)
-    if( StringStartWith(s, "@") ||  isPlayerName(s) ) messageArray = AddHightlighAt(index,messageArray, colour)
+    if( StringStartWith(s, "@")) messageArray[index] = AddHightlighAt(s)
   return ArrayToString(messageArray)
 }
 
-array<string> function AddHightlighAt(int index,array<string> message, int colour) {
-  message[index] = "\x1b[38;5;"+ colour +"m"+ message[index]+ "\x1b[0m"
+string AddHightlighAt(string s){
+  int colour = GetBeginning(s)
+  if(colour == 69)
+    string message = "\x1b[38;5;"+colour+"m"+s +"\x1b[38;5;"+CIntwhite+"m"
+  else
+    string message = "\x1b[38;5;"+colour+"m"+RemoveColourDeclaration(s)
   return message
+}
+
+int function GetBeginning(string colour) {
+  
+  if(colour.find( "@red"   ) == 0 ) return CIntred
+  if(colour.find( "@green" ) == 0 ) return CIntgreen 
+  if(colour.find( "@red"   ) == 0 ) return CIntred   
+  if(colour.find( "@blue"  ) == 0 ) return CIntblue  
+  if(colour.find( "@purple") == 0 ) return CIntpurple
+  if(colour.find( "@grey"  ) == 0 ) return CIntgrey  
+  if(colour.find( "@black" ) == 0 ) return CIntback  
+  if(colour.find( "@white" ) == 0 ) return CIntwhite 
+  return 69 //not a joke thats a good colour 
+}
+
+array<string> colours = [
+"@red"   ,
+"@green" ,
+"@red"   ,
+"@blue"  ,
+"@purple",
+"@grey"  ,
+"@black" ,
+"@white"
+] 
+string function RemoveColourDeclaration(string s) {
+  foreach (string c in colours) {
+    if(StringStartWith(s, c))
+      return StringReplace(s, c, "", true, true)
+  }
+  return s
 }

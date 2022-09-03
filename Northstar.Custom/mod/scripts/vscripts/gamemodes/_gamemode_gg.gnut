@@ -364,7 +364,7 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			   
 			DeRank( attacker, NoLifers[attacker.GetPlayerName()] )
 			//SendHudMessage( attacker, "Don't melee other pilots, you'll get demoted!", -1, 0.4, 255, 0, 0, 0, 0, 3, 0.15 )
-			Chat_ServerPrivateMessage(attacker,"\x1b[38;5;196mDont melee other pilots, \x1b[0you will lose points for every melee, this time you lost \x1b[34m" + NoLifers[attacker.GetPlayerName()] + "\x1b[0 but next time you will lose \x1b[34m" + NoLifers[attacker.GetPlayerName()]++ ,true)
+			Chat_ServerPrivateMessage(attacker,"\x1b[38;5;196mDon't melee other pilots, \x1b[0you will lose points for every melee, this time you lost \x1b[34m" + NoLifers[attacker.GetPlayerName()] + "\x1b[0 but next time you will lose \x1b[34m" + NoLifers[attacker.GetPlayerName()]++ ,true)
 		}
 
 		if (attacker == GetWinningPlayer())
