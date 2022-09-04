@@ -1,0 +1,19 @@
+{
+    "Name": "NeingaurFile",
+    "Description": "Saves playerdate to a file",
+    "Version": "0.0.0",
+    "LoadPriority": 2,
+    "Scripts": [
+        {
+            "Path": "NeingaurFile.nut",
+            "RunOn": "SERVER",
+            "ServerCallback":{
+                "After": "NeinguarFileInit"
+            }
+        }
+    ],
+    "SaveFiles":[
+        "savefile",
+        "saveLeaderboard"
+    ]
+}
