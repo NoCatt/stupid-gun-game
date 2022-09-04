@@ -637,7 +637,8 @@ int function GetPBScoreRemove(entity player){
 
 //Hi spoon you told me not to but HERE WE ARE
 string function GetGunNameByID(int ID) {
-	switch(DamageSourceIDToString(ID)){
+	try{
+	  switch(DamageSourceIDToString(ID)){
 		case "mp_weapon_peacekraber" : return "Peacekeeper"
 		case "mp_weapon_gunship_turret" : return "Gunship Turret"
 		case "mp_weapon_arena2" : return "Arena 2"
@@ -646,7 +647,7 @@ string function GetGunNameByID(int ID) {
 		case "mp_titanweapon_flightcore_rockets" : return "FLightcore Rocket"
 		case "melee_titan_sword" : return "Ronin Sword"
 		case "mp_titanweapon_leadwall" : return "Leadwall"
-		case "mp_titanweapon_sniper" : return "Plasma"
+		case "mp_titanweapon_sniper" : return "Railgun"
 		case "mp_titanweapon_particle_accelerator" : return "Particle accelerator"
 		case "mp_titanweapon_meteor" : return "Thermite"
 		case "mp_titanweapon_sticky_40mm" : return "40mm"
@@ -684,6 +685,7 @@ string function GetGunNameByID(int ID) {
 		case "mp_weapon_defender" : return "Chargerifle"
 		case "mp_weapon_grenade_sonar" : return "Pulse Blade"
 		default: return "<Gun Not available>"
-	}
+	  }
 	return "<Gun Not available>"
+}catch(ex){return "<Gun Not available>"}
 }
