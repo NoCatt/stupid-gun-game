@@ -59,7 +59,7 @@ void function GamemodeGG_Init()
 	{
 		hsOn = false;
 	}
-	gnsOn = GetConVarBool("SGG_GNS") // on by default, ppl seem to like it
+	gnsOn = GetConVarBool("SGG_GNS") && GetConVarBool("SGG_activate_sgg") // on by default, ppl seem to like it
 	try
 	{
 		if ( GetCurrentPlaylistVarInt( "scorelimit", GetGunGameWeapons().len() ) != GetGunGameWeapons().len() )
@@ -73,6 +73,8 @@ void function GamemodeGG_Init()
 
 bool function EnablehsGNS (entity player, array < string > args)
 {
+	if(!GetConVarBool("SGG_activate_sgg"))
+		return true
 	if(adminNames.find(player.GetPlayerName())==-1)
 		return true
 	try{
@@ -188,20 +190,6 @@ bool function EnablehsCMD( entity player, array < string > args )
     return true
 }
 
-bool function eventCMD (entity player, array < string > args ){
-
-	if (adminNames.find( player.GetPlayerName() ) == -1 )
-		return true
-	if(args[0]=="1"&& !eventOn)
-		eventOn = true; return true;
-	if(args[0]=="1"&& eventOn)
-		Chat_ServerPrivateMessage(player, "Events are already on", false); return true;
-	if(args[0]=="0"&& eventOn)
-		eventOn = false; return true;
-	if(args[0]=="0"&& !eventOn)
-		Chat_ServerPrivateMessage(player, "Events are already off", false); return true;
-}
-
 void function OnPlayerDisconnected(entity player)
 {
 	SaveScore[player.GetPlayerName()] <- GameRules_GetTeamScore( player.GetTeam() )
@@ -255,14 +243,14 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
             attacker.SetHealth(attacker.GetMaxHealth())
 			StatusEffect_AddTimed( attacker, eStatusEffect.speed_boost, 0.4, 4.25, 0.25)
         }
-		if( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.mp_weapon_grenade_sonar && gnsOn ){
+		if( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.mp_weapon_grenade_sonar && gnsOn ){ // since gnsOn can only be on if its sgg i dont need to check
 			AddTeamScore( victim.GetTeam(), -GetPBScoreRemove(victim))
 
 			victim.SetPlayerGameStat( PGS_ASSAULT_SCORE, GameRules_GetTeamScore( victim.GetTeam() )) //first argument is what to change, 2nd is what to change it to
 			Chat_ServerBroadcast("\x1b[34m" + attacker.GetPlayerName() + "\x1b[0 bankrupted \x1b[34m"+ victim.GetPlayerName())
 
 			if(playerHSNames.find(victim.GetPlayerName())!=-1)
-			playerHSNames.remove( playerHSNames.find( victim.GetPlayerName() ) )
+				playerHSNames.remove( playerHSNames.find( victim.GetPlayerName() ) )
 		}
 
 		if ( DamageInfo_GetDamageSourceIdentifier( damageInfo ) != eDamageSourceId.melee_pilot_emptyhanded )
@@ -281,7 +269,7 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 				percentageReward = GetCurrentPlaylistVarFloat( "gg_execution_reward", 1.0 )
 				scoreEvent = "Execution"
 			}
-			if( GameRules_GetTeamScore( attacker.GetTeam() ) == GetGunGameWeapons().len()-2 )
+			if( (GameRules_GetTeamScore( attacker.GetTeam() ) == GetGunGameWeapons().len()-2) && GetConVarBool("SGG_activate_sgg"))
 			{
 				playerHSNames.append( attacker.GetPlayerName() )
 			}
@@ -407,8 +395,10 @@ void function UpdateLoadout( entity player )
   		player.GiveOffhandWeapon( "mp_ability_shifter", OFFHAND_LEFT )
 		player.GiveOffhandWeapon ("mp_weapon_grenade_sonar", OFFHAND_INVENTORY, [])
 	}
-	else
+	if(GetConVarBool("SGG_activate_sgg"))
   		player.GiveOffhandWeapon( "mp_ability_shifter", OFFHAND_LEFT )
+	else
+		player.GiveOffhandWeapon("mp_ability_grapple", OFFHAND_LEFT)
 
 }
 
@@ -438,7 +428,7 @@ void function OnClientConnected(entity player) {
 
 //from the sns code lol
 void function SetHighlight(entity player) {
-	if(!GetConVarBool("SGG_best_player_highlight"))
+	if(!GetConVarBool("SGG_best_player_highlight")&& !GetConVarBool("SGG_activate_sgg"))
 		return
 	foreach ( entity player in GetPlayerArray() )
 		Highlight_ClearEnemyHighlight(player)

@@ -123,6 +123,8 @@ void function CreateGamemodeGG()
 	    GunGameWeapon ggPulse        = { weapon = "mp_weapon_grenade_sonar",   mods = [ "pas_power_cell", "amped_tacticals" ], offhandSlot = 0 }
 
         // add guns
+		if(GetConVarBool("SGG_activate_sgg"))
+		{
         file.weapons.append(ggPeacekraber)
         file.weapons.append(ggGunshipTurret)
         file.weapons.append(ggArena2)
@@ -172,7 +174,7 @@ void function CreateGamemodeGG()
 	    file.weapons.append(ggWingman)
 		file.weapons.append(ggTrippleThread)
          
-       file.weapons.append(ggWeebWave)                  
+        file.weapons.append(ggWeebWave)                  
 
         // Random order til now
         file.weapons.randomize()
@@ -188,11 +190,58 @@ void function CreateGamemodeGG()
 			file.weapons.randomize()
 		}
 		
+		file.weapons.append(ggChargerifle)
+		file.weapons.append(ggSword)
+		file.weapons.append(ggShield)
+		file.weapons.append(ggPulse)
 
+		}else
+		{
+		file.weapons.append(ggCar)
+	    file.weapons.append(ggAlternator)
+	    file.weapons.append(ggVolt)
+	    file.weapons.append(ggR97)
+
+        // ar
+	    file.weapons.append(ggHemlok)
+	    file.weapons.append(ggFlatline)
+	    file.weapons.append(ggR201)
+	    file.weapons.append(ggG2)
+	    file.weapons.append(ggR101)
+
+        // lmg
+	    file.weapons.append(ggDevotion)
+	    file.weapons.append(ggLstar)
+	    file.weapons.append(ggSpitfire)
+
+        // shotgun
+	    file.weapons.append(ggEva)
+	    file.weapons.append(ggMastiff)
+
+        // grenadier
+	    file.weapons.append(ggSoftball)
+	    file.weapons.append(ggEpg)
+	    file.weapons.append(ggSmr)
+	    file.weapons.append(ggColdwar)
+
+        // main pistol
+	    file.weapons.append(ggMozambique)
+	    file.weapons.append(ggWingmanElite)
+
+        // sniper
+	    file.weapons.append(ggDoubletake)
+	    file.weapons.append(ggKraber)
+	    file.weapons.append(ggLongbow)
+
+        // side pistol
+	    file.weapons.append(ggRe45)
+	    file.weapons.append(ggP2016)
+	    file.weapons.append(ggWingman)
+
+        // final
 	    file.weapons.append(ggChargerifle)
-      file.weapons.append(ggSword)
-      file.weapons.append(ggShield)
 	    file.weapons.append(ggPulse)
+		}
 	}
 
 

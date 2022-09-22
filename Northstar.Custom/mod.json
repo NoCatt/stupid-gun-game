@@ -40,6 +40,10 @@
     {
       "Name": "SGG_meleeport",
       "DefaultValue":"1"
+    },
+    {
+      "Name": "SGG_activate_sgg",
+      "DefaultValue":"1"
     }
   ],
   "Scripts": [
