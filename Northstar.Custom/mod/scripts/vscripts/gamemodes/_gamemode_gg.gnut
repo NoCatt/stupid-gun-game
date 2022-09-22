@@ -4,6 +4,7 @@ global function UpdateLoadout
 array<string> playerHSNames = [] //players that have HouseFlies enabled
 array<string> adminNames = ["admin1", "admin2","Neinguar"] // admins
 bool hsOn
+bool gnsOn
 table<string, int> SaveScore
 table<string, int> killStreak
 
