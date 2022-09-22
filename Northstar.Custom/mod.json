@@ -24,6 +24,22 @@
     {
       "Name": "ns_force_melee",
       "DefaultValue": ""
+    },
+    {
+      "Name": "SGG_GNS",
+      "DefaultValue":"1"
+    },
+    {
+      "Name": "SGG_base_bankrupt",
+      "DefaultValue": "5"
+    },
+    {
+      "Name": "SGG_best_player_highlight",
+      "DefaultValue":"1"
+    },
+    {
+      "Name": "SGG_meleeport",
+      "DefaultValue":"1"
     }
   ],
   "Scripts": [
