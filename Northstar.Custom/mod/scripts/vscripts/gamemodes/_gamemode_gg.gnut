@@ -84,15 +84,15 @@ void function GamemodeGG_Init()
 
 void function SetActiveWeapons(){
 	array<GunGameWeapon> weapons = GetGunGameWeapons()
-	CurrentWeapon =  weapons[CurrentGunIndex]
-	while(CurrentGunIndex <= GetGunGameWeapons().len()-1){
+	CurrentWeapon =  weapons[IndexCurrentWeapon]
+	while(IndexCurrentWeapon <= GetGunGameWeapons().len()-1){
 		wait weaponDuration - annouceNewWeaponSec
 		for(float a = annouceNewWeaponSec; a>0 ; a-- ){
 			HudBroadcast("New weapon in "+a)
 			wait 1
 		}
-		CurrentGunIndex++
-		CurrentGun = GetGunGameWeapons()[CurrentGunIndex]
+		IndexCurrentWeapon++
+		CurrentWeapon = GetGunGameWeapons()[IndexCurrentWeapon]
 		foreach(entity p in GetPlayerArray())
 			UpdateLoadout(p)
 		Chat_ServerBroadcast("New weapon given")
