@@ -35,7 +35,7 @@
     },
     {
       "Name": "SGG_best_player_highlight",
-      "DefaultValue":"1"
+      "DefaultValue":"0"
     },
     {
       "Name": "SGG_meleeport",
@@ -43,7 +43,7 @@
     },
     {
       "Name": "SGG_activate_sgg",
-      "DefaultValue":"1"
+      "DefaultValue":"0"
     },
     {
       "Name": "SGG_activate_round_based_gg",

@@ -13,6 +13,102 @@ bool gnsOn
 table<string, int> SaveScore
 table<string, int> killStreak
 
+/*
+struct modeVoteMode {
+    string localName // the name of your mode to be displayed to users. MUST BE UNIQUE.
+    string identifier // the actual id of your mode to be used when changing it.
+    int scoreLimit // the score limit for your mode.
+    int timeLimit // the time limit for your mode.
+    bool ffaMode // whether or not the mode is ffa. (..if it has more than two teams.)  
+    void functionref() applyModifiersRef // use this to apply any playlistvaroverrides etc, such as enabling / disabling randomisers or titans.
+    void functionref() disableModifiersRef // disable any modifiers you enabled in applyModifiersRef.
+    array<string> compatibleMaps // pass an empty list to use the vanilla checks. Alternatively, fill with map ids your mode is compatible with. Useful for the likes of Flipside.
+}
+*/
+
+modeVoteMode sgg = {
+	localName = "Stupid Guns And Stones"
+	identifier = "gg"
+	scoreLimit = 44 
+	timeLimit = 30
+	ffaMode = true
+	applyModifiersRef = GNS_SetConVarInit
+	disableModifiersRef = GNS_SetConVarExit
+	compatibleMaps = []
+}
+modeVoteMode sgg = {
+	localName = "Stupid Gun Game"
+	identifier = "gg"
+	scoreLimit = 44 
+	timeLimit = 30
+	ffaMode = true
+	applyModifiersRef = SGG_SetConVarInit
+	disableModifiersRef = SGG_SetConVarExit
+	compatibleMaps = []
+}
+modeVoteMode sgg = {
+	localName = "Vanilla Gun Game" // otherwise it will be confusing
+	identifier = "gg"
+	scoreLimit = 28
+	timeLimit = 10
+	ffaMode = true
+	applyModifiersRef =  VGG_SetConVarInit
+	disableModifiersRef = VGG_SetConVarExit
+	compatibleMaps = []
+}
+modeVoteMode sgg = {
+	localName = "Wave Gun Game"
+	identifier = "gg"
+	scoreLimit = 100 // should almost be impossible to get to 
+	timeLimit = 15
+	ffaMode = true
+	applyModifiersRef = RBGG_SetConVarInit
+	disableModifiersRef = RBGG_SetConVarExit
+	compatibleMaps = []
+}
+
+// for stupid gun game with pulse
+void function GNS_SetConVarInit(){
+	SetConVarBool("SGG_activate_sgg", "1")
+	SetConVarBool("SGG_GNS", "0")
+}
+
+void function GNS_SetConVarExit(){
+	SetConVarBool("SGG_activate_sgg", "0")
+}
+
+//for stupid gun game
+void function SGG_SetConVarInit(){
+	SetConVarBool("SGG_activate_sgg", "1")
+	SetConVarBool("SGG_GNS", "1")
+}
+void function GNS_SetConVarExit(){
+	SetConVarBool("SGG_activate_sgg", "0")
+	SetConVarBool("SGG_GNS", "0")
+}
+
+//for vanilla gun game
+void function VGG_SetConVarInit(){
+	SetConVarBool("SGG_activate_sgg","0")
+	SetConVarBool("SGG_meleeport","0")
+	SetConVarBool("SGG_best_player_highlight","0")
+}
+void function VGG_SetConVarExit(){
+	// filler function doesnt do anything but needs to be present
+	SetConVarBool("SGG_activate_sgg","0")
+	SetConVarBool("SGG_meleeport","0")
+	SetConVarBool("SGG_best_player_highlight","0")
+}
+
+//round based gun game
+void function RBGG_SetConVarInit(){
+	SetConVarBool("SGG_activate_round_based_gg","1")
+	SetConVarBool("SGG_best_player_highlight","1")
+}
+void function RBGG_SetConVarExit(){
+	SetConVarBool("SGG_activate_round_based_gg","0")
+	SetConVarBool("SGG_best_player_highlight","0")
+}
 // highlight best player
 // 50% hp for good player
 struct {
