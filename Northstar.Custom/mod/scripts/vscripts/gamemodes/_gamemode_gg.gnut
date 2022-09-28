@@ -26,7 +26,7 @@ struct modeVoteMode {
 }
 */
 
-modeVoteMode sgg = {
+modeVoteMode gns = {
 	localName = "Stupid Guns And Stones"
 	identifier = "gg"
 	scoreLimit = 44 
@@ -46,7 +46,7 @@ modeVoteMode sgg = {
 	disableModifiersRef = SGG_SetConVarExit
 	compatibleMaps = []
 }
-modeVoteMode sgg = {
+modeVoteMode gg = {
 	localName = "Vanilla Gun Game" // otherwise it will be confusing
 	identifier = "gg"
 	scoreLimit = 28
@@ -56,7 +56,7 @@ modeVoteMode sgg = {
 	disableModifiersRef = VGG_SetConVarExit
 	compatibleMaps = []
 }
-modeVoteMode sgg = {
+modeVoteMode rbgg = {
 	localName = "Wave Gun Game"
 	identifier = "gg"
 	scoreLimit = 100 // should almost be impossible to get to 
