@@ -44,6 +44,10 @@
     {
       "Name": "SGG_activate_sgg",
       "DefaultValue":"1"
+    },
+    {
+      "Name": "SGG_activate_round_based_gg",
+      "DefaultValue":"0"
     }
   ],
   "Scripts": [

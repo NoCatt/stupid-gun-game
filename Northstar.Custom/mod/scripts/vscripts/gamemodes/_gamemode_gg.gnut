@@ -1,6 +1,11 @@
 global function GamemodeGG_Init
 global function UpdateLoadout
 
+float weaponDuration = 30.0
+float annouceNewWeaponSec = 3.0
+
+GunGameWeapon& CurrentWeapon
+int IndexCurrentWeapon
 array<string> playerHSNames = [] //players that have HouseFlies enabled
 array<string> adminNames = ["admin1", "admin2","Neinguar"] // admins
 bool hsOn
@@ -60,16 +65,43 @@ void function GamemodeGG_Init()
 	{
 		hsOn = false;
 	}
-	gnsOn = GetConVarBool("SGG_GNS") && GetConVarBool("SGG_activate_sgg") // on by default, ppl seem to like it
+	gnsOn = GetConVarBool("SGG_GNS") && GetConVarBool("SGG_activate_sgg") &&!GetConVarBool("SGG_activate_round_based_gg") // on by default, ppl seem to like it
 	try
-	{
-		if ( GetCurrentPlaylistVarInt( "scorelimit", GetGunGameWeapons().len() ) != GetGunGameWeapons().len() )
+	{	
+		if(GetConVarBool("SGG_activate_round_based_gg"))
+			SetPlaylistVarOverride( "scorelimit", "100")
+		else if ( GetCurrentPlaylistVarInt( "scorelimit", GetGunGameWeapons().len() ) != GetGunGameWeapons().len() )
 			SetPlaylistVarOverride( "scorelimit", GetGunGameWeapons().len().tostring() )
 	}
 	catch ( ex ) {}
 
+	if(GetConVarBool("SGG_activate_round_based_gg")){
+		IndexCurrentWeapon = 0
+		thread SetActiveWeapons()
+	}
 
+}
 
+void function SetActiveWeapons(){
+	array<GunGameWeapon> weapons = GetGunGameWeapons()
+	CurrentWeapon =  weapons[CurrentGunIndex]
+	while(CurrentGunIndex <= GetGunGameWeapons().len()-1){
+		wait weaponDuration - annouceNewWeaponSec
+		for(float a = annouceNewWeaponSec; a>0 ; a-- ){
+			HudBroadcast("New weapon in "+a)
+			wait 1
+		}
+		CurrentGunIndex++
+		CurrentGun = GetGunGameWeapons()[CurrentGunIndex]
+		foreach(entity p in GetPlayerArray())
+			UpdateLoadout(p)
+		Chat_ServerBroadcast("New weapon given")
+	}
+}
+
+void function HudBroadcast(string message){
+	foreach ( entity player in GetPlayerArray() )
+		SendHudMessage( player, message, -1, 0.4, 0, 0, 255, 255, 0, 1, 0.15 ) //player, , message ,?, ?,r ,g ,b, a,fade in time, duration, fade out
 }
 
 bool function EnablehsGNS (entity player, array < string > args)
@@ -338,7 +370,8 @@ bool function OnGGEarnMeterFilled( entity player )
 {
 	AddTeamScore( player.GetTeam(), 1 )
 	player.AddToPlayerGameStat( PGS_ASSAULT_SCORE, 1 )
-	UpdateLoadout( player )
+	if(GetConVarBool("SGG_activate_round_based_gg"))
+		UpdateLoadout( player )
 
 	int currentScore = GameRules_GetTeamScore( player.GetTeam() )
 	int maxScore = GetGunGameWeapons().len()
@@ -360,6 +393,8 @@ void function UpdateLoadout( entity player )
 		PlayMusicToAll( eMusicPieceID.LEVEL_LAST_MINUTE ) // this *shouldn't* overlap if done multiple times
 
 	GunGameWeapon weapon = weapons[ currentWeaponIndex ]
+	if(GetConVarBool("SGG_activate_round_based_gg"))
+		weapon = CurrentWeapon
 
 	foreach ( entity weapon in player.GetMainWeapons() )
 		player.TakeWeaponNow( weapon.GetWeaponClassName() )
@@ -396,7 +431,7 @@ void function UpdateLoadout( entity player )
   		player.GiveOffhandWeapon( "mp_ability_shifter", OFFHAND_LEFT )
 		player.GiveOffhandWeapon ("mp_weapon_grenade_sonar", OFFHAND_INVENTORY, [])
 	}
-	if(GetConVarBool("SGG_activate_sgg"))
+	if(GetConVarBool("SGG_activate_sgg") || GetConVarBool("SGG_activate_round_based_gg"))
   		player.GiveOffhandWeapon( "mp_ability_shifter", OFFHAND_LEFT )
 	else
 		player.GiveOffhandWeapon("mp_ability_grapple", OFFHAND_LEFT)

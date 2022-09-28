@@ -123,7 +123,7 @@ void function CreateGamemodeGG()
 	    GunGameWeapon ggPulse        = { weapon = "mp_weapon_grenade_sonar",   mods = [ "pas_power_cell", "amped_tacticals" ], offhandSlot = 0 }
 
         // add guns
-		if(GetConVarBool("SGG_activate_sgg"))
+		if(GetConVarBool("SGG_activate_sgg")|| GetConVarBool("SGG_activate_round_based_gg"))
 		{
         file.weapons.append(ggPeacekraber)
         file.weapons.append(ggGunshipTurret)
