@@ -2,11 +2,11 @@
 	"Name" : "Fifty Server Utils",
 	"Description" : "A bunch of very cool server admin stuff",
 	"Version": "1.3.0",
-	"LoadPriority": 2,
+	"LoadPriority": 4,
 	"ConVars": [
     {
       "Name": "fsu_welcome_message_before",
-      "DefaultValue": "Welcome to \\x1b[38;5;128mNeingaurs \\x1b[0mStupid Gun Game"
+      "DefaultValue": "Welcome to Neinguars Stupid Gun Game"
     },
 		{
       "Name": "fsu_owner",
@@ -30,19 +30,19 @@
     },
 		{
       "Name": "fsu_discord",
-      "DefaultValue": "Feel free to message me NoCatt#8128"
+      "DefaultValue": "Feel free to DM me NoCatt#8128 or join the server at \\x1b[113mhttps://discord.gg/mQCACzvxW9\\x1b[0m"
     },
 		{
       "Name": "fsu_welcome_message_after",
-      "DefaultValue": "Run \\x1b[113m!help <page>\\x1b[0m to list avalible commands"
+      "DefaultValue": "Vote for the next map with \\x1b[113m!nextmap <map-name> \\x1b[0m"
     },
 		{
       "Name": "fsu_broadcast_message_0",
-      "DefaultValue": "Join the discord at \\x1b[113mhttps://discord.gg/northstar\\x1b[0m"
+      "DefaultValue": "Join the new discord at \\x1b[113mhttps://discord.gg/mQCACzvxW9\\x1b[0m"
     },
 		{
       "Name": "fsu_broadcast_message_1",
-      "DefaultValue": "Follow the rules! Run \\x1b[113m!rules\\x1b[0m and \\x1b[113m!help\\x1b[0m for more info!"
+      "DefaultValue": "Vote for the next map with \\x1b[113m!nextmap <map-name> \\x1b[0m"
     },
 		{
       "Name": "fsu_broadcast_message_2",
@@ -50,11 +50,23 @@
     },
 		{
       "Name": "fsu_broadcast_message_3",
-      "DefaultValue": "Hacker or trouble maker? Use \\x1b[113m!report \\x1b[0mto create a report in the console"
+      "DefaultValue": "Want to write in colours? use \\x1b[113m@<colour> <text>\\x1b[0m, for more information type ?colours"
     },
 		{
       "Name": "fsu_broadcast_message_4",
       "DefaultValue": "Don't like this map? Vote to skip it with \\x1b[113m!rtv\\x1b[0m"
+    },
+    {
+      "Name": "FSU_RGB_OPEN",
+      "DefaultValue": "("
+    },
+     {
+      "Name": "FSU_RGB_CLOSE",
+      "DefaultValue": ")"
+    },
+    {
+      "Name": "FSU_RGB_DIVIDE",
+      "DefaultValue": ","
     },
 		{
       "Name": "FSU_PREFIX",
@@ -62,15 +74,23 @@
     },
 		{
       "Name": "FSU_ADMIN_UIDS",
-      "DefaultValue": "1008806725370"
+      "DefaultValue": "1008806725370,1003235594865,1010693766776,1011192167545,1005829030626"
     },
 		{
       "Name": "FSU_ADMIN_PASSWORDS",
-      "DefaultValue": "1234"
+      "DefaultValue": "mylu5,zen7te,M63nt1,NeinguarHasAMommyKink1234,NeinguarIsAFemboy1234"
+    },
+    {
+      "Name": "FSU_ADMIN_LOGIN_ATTEMPTS",
+      "DefaultValue": "5"
     },
 		{
       "Name": "FSU_EXCLUDE_ADMINS_FROM_CHAT_FILTER",
       "DefaultValue": "1"
+    },
+    {
+      "Name": "FSU_CHAT_FILTER_TRIGGER_PUNISHMENT",
+      "DefaultValue": "mute"
     },
 		{
       "Name": "FSU_ALLOWED_CHAT_FILTER_TRIGGERS",
@@ -82,7 +102,7 @@
     },
 		{
       "Name": "FSU_WELCOME_ENABLE_MESSAGE_BEFORE",
-      "DefaultValue": "1"
+      "DefaultValue": "0"
     },
 		{
       "Name": "FSU_WELCOME_ENABLE_MESSAGE_AFTER",
@@ -103,7 +123,7 @@
     },
 		{
       "Name": "FSU_WELCOME_ENABLE_RULES",
-      "DefaultValue": "1"
+      "DefaultValue": "0"
     },
 		{
       "Name": "FSU_ENABLE_REPEAT_BROADCAST",
@@ -123,11 +143,11 @@
     },
 		{
       "Name": "FSU_ENABLE_SPAM_FILTER",
-      "DefaultValue": "1"
+      "DefaultValue": "0"
     },
 		{
       "Name": "FSU_SPAM_MESSAGE_TIME_LIMIT",
-      "DefaultValue": "0.8"
+      "DefaultValue": "0.1"
     },
 		{
       "Name": "FSU_SPAM_SIMMILAR_MESSAGE_WEIGHT",
@@ -159,7 +179,7 @@
     },
     {
       "Name": "FSU_ENABLE_MAP_VOTE_BEFORE_MATCH_END",
-      "DefaultValue": "1"
+      "DefaultValue": "0"
     },
     {
       "Name": "FSU_ENABLE_RTV",
@@ -167,6 +187,10 @@
     },
     {
       "Name": "FSU_ENABLE_SKIP",
+      "DefaultValue": "1"
+    },
+    {
+      "Name": "FSU_ENABLE_NEXT_MAP",
       "DefaultValue": "1"
     },
     {
@@ -191,7 +215,7 @@
     },
     {
       "Name": "FSU_MAP_ARRAY_0",
-      "DefaultValue": "mp_angel_city,mp_black_water_canal,mp_grave,mp_colony02,mp_crashsite3"
+      "DefaultValue": "mp_angel_city,mp_black_water_canal,mp_grave,mp_colony02"
     },
     {
       "Name": "FSU_MAP_ARRAY_1",
