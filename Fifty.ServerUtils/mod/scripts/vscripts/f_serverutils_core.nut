@@ -6,12 +6,14 @@ global function FSU_CanCreatePoll
 global function FSU_CreatePoll
 global function FSU_GetPollResultIndex
 global function FSU_IsDedicated
+global function GetCommands
 global table<string, int> PlayerInHardMode
+global table<string, int> HardModeKills
 global const int HARD_MODE_LIGHT_HEALTH = 50
 global const int HARD_MODE_MEDIUM_HEALTH = 25
 global const int HARD_MODE_HARD_HEALTH = 1
 
-struct commandStruct
+global struct commandStruct
 {
   string usage
   void functionref( entity, array < string > ) callback // Callback when it's called
@@ -22,6 +24,9 @@ struct commandStruct
 
 // List of registered commands
 table < string, commandStruct > commands
+
+//table for vote on kicks
+table < string, int> StartedKickVotes
 
 // Poll stuff
 // Used to check if a poll is on
@@ -39,8 +44,8 @@ bool poll_show_result
 void function FSU_init ()
 {
   AddCallback_OnClientConnected ( OnClientConnected )
-  
-  
+
+
   // Register commands
   FSU_RegisterCommand( "help", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "help <page>\x1b[0m Lists registered commands", "core", FSU_C_Help, [ "h" ] )
   FSU_RegisterCommand( "name", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "name\x1b[0m Returns the name of the current server", "core", FSU_C_Name )
@@ -51,13 +56,17 @@ void function FSU_init ()
   FSU_RegisterCommand( "usage", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "usage\x1b[0m <command> Prints usage of provided command", "core", FSU_C_Usage )
   FSU_RegisterCommand( "discord", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "discord\x1b[0m Prints a discord invite", "core", FSU_C_Discord, [ "dc" ] )
   FSU_RegisterCommand( "report", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "report <player>\x1b[0m Creates a report and prints it in console so you can copy it", "core", FSU_C_Report )
-  FSU_RegisterCommand("hardmode", "\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "Hardmode <difficulty>x1b[0m your health by 50% to make it more difficult","core",FSU_C_Hard_Mode)
+  FSU_RegisterCommand("hardmode", "\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "Hardmode <difficulty>x1b[0m your health by 50% to make it more difficult","core",FSU_C_Hard_Mode,["hm"])
+  FSU_RegisterCommand("whisper", "\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "whisper <player name> <message content>x1b[0m to private message a player","core", FSU_C_Whisper, ["msg"])
+  FSU_RegisterCommand("reset","\x1b[113m" + FSU_GetString("FSU_PREFIX")+"reset to go back to score 0","core", FSU_C_Reset)
+  FSU_RegisterCommand("kick","\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "kick <player name>x1b[0m to start a vote if a player should be kicked","core", FSU_C_Kick)
+
   if( FSU_GetBool("FSU_ENABLE_SWITCH") )
     FSU_RegisterCommand( "switch", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "switch\x1b[0m switches team", "core", FSU_C_Switch )
-  
+
   AddCallback_OnReceivedSayTextMessage( CheckForCommand )
-  
-  
+
+
   if ( FSU_GetBool( "FSU_ENABLE_REPEAT_BROADCAST" ) && GetMapName() != "mp_lobby" )
     thread RepeatBroadcastMessages_Threaded ()
 }
@@ -69,16 +78,16 @@ void function OnClientConnected ( entity player )
 
   if( FSU_GetBool( "FSU_WELCOME_ENABLE_MESSAGE_BEFORE" ) )
     Chat_ServerPrivateMessage( player, FSU_GetString("fsu_welcome_message_before"), false )
-  
+
   string msg_hosted_by
   if( FSU_GetBool( "FSU_WECLOME_ENABLE_OWNER" ) )
   {
     msg_hosted_by += "Hosted by: \x1b[113m\"" + FSU_GetString("fsu_owner") + "\"\x1b[0m"
     Chat_ServerPrivateMessage( player, msg_hosted_by, false )
   }
-  
+
   int list_count
-  
+
   string msg_commands
   if( FSU_GetBool( "FSU_WELCOME_ENABLE_COMMANDS" ) )
   {
@@ -87,15 +96,15 @@ void function OnClientConnected ( entity player )
     {
       if( list_count > 4 )
         break
-      
+
       msg_commands += "\n    \x1b[113m-\x1b[0m " + cmd
-      
+
       list_count++
     }
-    
+
     Chat_ServerPrivateMessage( player, msg_commands, false )
   }
-  
+
   string msg_rules
   if( FSU_GetBool( "FSU_WELCOME_ENABLE_RULES" ) )
   {
@@ -104,12 +113,12 @@ void function OnClientConnected ( entity player )
     {
       if( list_count > 4 )
         break
-      
+
       msg_rules += "\n    \x1b[113m" + ( _index + 1 ) + ".\x1b[0m " + rule
-      
+
       list_count++
     }
-    
+
     Chat_ServerPrivateMessage( player, msg_rules, false )
   }
 
@@ -127,20 +136,20 @@ void function OnClientConnected ( entity player )
     }
     Chat_ServerPrivateMessage( player, msg_How_to_play, false )
   }
-  
+
   if ( FSU_GetBool( "FSU_WELCOME_ENABLE_MESSAGE_AFTER" ) )
     Chat_ServerPrivateMessage( player, FSU_GetString("fsu_welcome_message_after"), false )
-  
-  
+
+
   // If a poll is active try to show it to late joiners
   // This means we need to calc new length
   if ( FSU_CanCreatePoll() )
     return
-  
+
   string poll_text
   foreach ( _index, line in poll_options )
     poll_text += _index + 1 + ". " + line + "\n"
-  
+
   // Show poll to late joiners, we need to calculate new_length so it ends at the same time for all players
   // This is just visual
   SendHudMessage( player, poll_before + "\n" + poll_text , 0.005, 0.3, 240, 180, 40, 230, 0.2, poll_time - ( Time() - poll_start ), 0.2)
@@ -151,32 +160,32 @@ ClServer_MessageStruct function CheckForCommand( ClServer_MessageStruct message 
   // Unsure if needed, better to check before we do anything funny
   if ( message.message.len() == 0)
     return message
-  
+
   // Check if message starts wit prefix
   if ( message.message.find( FSU_GetString("FSU_PREFIX") ) != 0 )
     return message
-  
+
   // We now confirmed the user is trying to run a command
   array < string > splitMsg = split( message.message, " " )
-  
+
   // Get args from message
   string command = splitMsg[0].tolower()
   array < string > args
   foreach ( _index, string arg in splitMsg )
     if ( _index != 0 )
       args.append( arg )
-  
-  
+
+
   // Log
   printt("[FSU]", message.player.GetPlayerName(), message.player.GetUID(), "ran command \"" + message.message +"\"")
-  
-  
+
+
   // Dont show their message to anyone
   // Also null out as many things as we can
   // This is to protect info such as passwords and such
   message.shouldBlock = true
   message.message = ""
-  
+
   // Try to execute cammand
   if( command in commands )
   {
@@ -208,35 +217,35 @@ ClServer_MessageStruct function CheckForCommand( ClServer_MessageStruct message 
         }
     Chat_ServerPrivateMessage( message.player, "Unknown command: \x1b[113m\"" + command + "\"\x1b[0m", false )
   }
-  
-  
+
+
   return message
 }
 
 void function RepeatBroadcastMessages_Threaded ()
 {
   int index
-  
+
   array<string> messages
-  
+
   for ( int i = 0; i < 5; i++ )
   {
     if ( FSU_GetString( "fsu_broadcast_message_" + i ) == "" )
       continue
-    
+
     messages.append( FSU_GetString( "fsu_broadcast_message_" + i ) )
   }
-  
+
   while ( true )
   {
     wait RandomIntRange( FSU_GetFloat( "FSU_REPEAT_BROADCAST_TIME_MIN" ), FSU_GetFloat( "FSU_REPEAT_BROADCAST_TIME_MAX" ) )
-    
-    
+
+
     if( FSU_GetBool( "FSU_REPEAT_BROADCAST_RANDOMISE" ) )
       index = RandomInt( messages.len() )
-    
+
     Chat_ServerBroadcast( messages[ index ] )
-    
+
     index++
     if ( index >= messages.len() )
       index = 0
@@ -248,15 +257,15 @@ void function FSU_RegisterCommand ( string command, string usage, string group, 
 {
   foreach( _index, abbv in abbreviations )
     abbreviations[ _index ] = abbv.tolower()
-  
+
   commandStruct _command
   _command.usage = usage
   _command.group = group
   _command.callback = callbackFunc
   _command.abbreviations = abbreviations
   _command.visible = visibilityFunc
-  
-  
+
+
   commands[ FSU_GetString("FSU_PREFIX") + command.tolower() ] <- _command
   printt( "[FSU] Registered command:", command )
 }
@@ -272,23 +281,23 @@ void function FSU_CreatePoll ( array < string > options, string before, float du
 {
   if ( options.len() > 7 )
     printt("[FSU] Polls larger than 7 may interfere with chat box!")
-  
+
   poll_start = Time()
   poll_time = duration
   poll_before = before
   poll_show_result = show_result
-  
+
   foreach( option in options )
     poll_options.append( option )
-  
+
   string poll_text
   foreach ( _index, line in poll_options )
     poll_text += _index + 1 + ". " + line + "\n"
-  
-  
+
+
   foreach( player in GetPlayerArray() )
     SendHudMessage( player, poll_before + "\n" + poll_text , 0.005, 0.3, 240, 180, 40, 230, 0.2, poll_time, 0.2)
-  
+
   thread FSU_PollEndTimeWatcher_Threaded ()
 }
 
@@ -301,7 +310,7 @@ int function FSU_GetPollResultIndex ()
 void function FSU_PollEndTimeWatcher_Threaded ()
 {
   wait poll_time
-  
+
   // Count votes
   if ( votes.len() == 0 )
   {
@@ -309,15 +318,15 @@ void function FSU_PollEndTimeWatcher_Threaded ()
     poll_result = -1
     return
   }
-  
+
   array < int > votes_counted
   foreach ( option in poll_options )
     votes_counted.append(0)
-  
-  
+
+
   foreach ( player, index in votes )
     votes_counted[ index - 1 ]++
-  
+
   int poll_result_votes
   // Could sort but this is prob shorter
   foreach ( _index, count in votes_counted )
@@ -328,10 +337,10 @@ void function FSU_PollEndTimeWatcher_Threaded ()
       poll_result = _index
     }
   }
-  
+
   if ( poll_show_result )
     Chat_ServerBroadcast( "Poll ended! \x1b[113m" + poll_options[ FSU_GetPollResultIndex() ] + "\x1b[0m won!"  )
-  
+
   poll_options.clear()
   votes.clear()
 }
@@ -342,15 +351,15 @@ bool function FSU_IsDedicated()
   {
     if( GetPlayerArray().len() == 0 )
       return true
-    
+
     if( !IsValid(GetPlayerArray()[0]) )
       return true
-    
-    if ( NSIsPlayerIndexLocalPlayer(0) )
+
+    if ( NSIsPlayerLocalPlayer(GetPlayerArray()[0]) )
       return false
   }
   catch(ex){}
-  
+
   return true
 }
 
@@ -359,43 +368,43 @@ void function FSU_C_Help ( entity player, array < string > args )
 {
   string returnMessage
   int page
-  
-  
+
+
   array < string > allowedCommands
   foreach ( cmd, cmdStruct in commands )
     if ( cmdStruct.visible == null || cmdStruct.visible( player ) )
       allowedCommands.append( cmd )
-  
-  
+
+
   int pages = allowedCommands.len() % 5 == 0 ? ( allowedCommands.len() / 5 ) : ( allowedCommands.len() / 5 + 1 )
-  
+
   if ( args.len() != 0 )
     page = args[0].tointeger() - 1
-  
+
   if ( args.len() != 0 && args[0].tointeger() > pages )
   {
     Chat_ServerPrivateMessage( player, "Maximum number of pages is \x1b[113m" + pages + "\x1b[0m!", false )
     return
   }
-  
+
   if ( args.len() != 0 && !IsValidVoteInt( args[0], pages ) )
   {
     Chat_ServerPrivateMessage( player, "Invalid argument!", false )
     return
   }
-  
-  
+
+
   int _index = 0
   foreach ( cmd in allowedCommands )
   {
     if ( _index >= page * 5 && _index < ( page + 1 ) * 5 )
       returnMessage += "\n    \x1b[113m-\x1b[0m " + cmd
-      
+
     _index++
   }
-  
+
   returnMessage += "\nShowing page \x1b[113m[" + ( page + 1 ) + "/" + pages + "]\x1b[0m"
-  
+
   Chat_ServerPrivateMessage( player, "Commands: " + returnMessage, false )
 }
 
@@ -404,37 +413,37 @@ void function FSU_C_Rules ( entity player, array < string > args )
 {
   string returnMessage
   int page
-  
-  
+
+
   int pages = FSU_GetStringArray("fsu_rules").len() % 5 == 0 ? ( FSU_GetStringArray("fsu_rules").len() / 5 ) : ( FSU_GetStringArray("fsu_rules").len() / 5 + 1 )
-  
+
   if ( args.len() != 0 )
     page = args[0].tointeger() - 1
-  
+
   if ( args.len() != 0 && args[0].tointeger() > pages )
   {
     Chat_ServerPrivateMessage( player, "Maximum number of pages is \x1b[113m" + pages + "\x1b[0m!", false )
     return
   }
-  
+
   if ( args.len() != 0 && !IsValidVoteInt( args[0], pages ) )
   {
     Chat_ServerPrivateMessage( player, "Invalid argument!", false )
     return
   }
-  
-  
+
+
   int _index = 0
   foreach ( cmd in FSU_GetStringArray("fsu_rules") )
   {
     if ( _index >= page * 5 && _index < ( page + 1 ) * 5 )
       returnMessage += "\n    \x1b[113m-\x1b[0m " + cmd
-      
+
     _index++
   }
-  
+
   returnMessage += "\nShowing page \x1b[113m[" + ( page + 1 ) + "/" + pages + "]\x1b[0m"
-  
+
   Chat_ServerPrivateMessage( player, "Rules: " + returnMessage, false )
 }
 
@@ -455,37 +464,37 @@ void function FSU_C_Mods ( entity player, array < string > args )
 {
   string returnMessage
   int page
-  
-  
+
+
   int pages = FSU_GetStringArray("fsu_mods").len() % 5 == 0 ? ( FSU_GetStringArray("fsu_mods").len() / 5 ) : ( FSU_GetStringArray("fsu_mods").len() / 5 + 1 )
-  
+
   if ( args.len() != 0 )
     page = args[0].tointeger() - 1
-  
+
   if ( args.len() != 0 && args[0].tointeger() > pages )
   {
     Chat_ServerPrivateMessage( player, "Maximum number of pages is \x1b[113m" + pages + "\x1b[0m!", false )
     return
   }
-  
+
   if ( args.len() != 0 && !IsValidVoteInt( args[0], pages ) )
   {
     Chat_ServerPrivateMessage( player, "Invalid argument!", false )
     return
   }
-  
-  
+
+
   int _index = 0
   foreach ( cmd in FSU_GetStringArray("fsu_mods") )
   {
     if ( _index >= page * 5 && _index < ( page + 1 ) * 5 )
       returnMessage += "\n    \x1b[113m-\x1b[0m " + cmd
-      
+
     _index++
   }
-  
+
   returnMessage += "\nShowing page \x1b[113m[" + ( page + 1 ) + "/" + pages + "]\x1b[0m"
-  
+
   Chat_ServerPrivateMessage( player, "Mods: " + returnMessage, false )
 }
 
@@ -503,13 +512,13 @@ void function FSU_C_Vote ( entity player, array < string > args )
     Chat_ServerPrivateMessage( player, "No vote currently open!", false )
     return
   }
-  
+
   if ( player in votes )
   {
     Chat_ServerPrivateMessage( player, "You have already voted!", false )
     return
   }
-  
+
   if ( args.len() == 0 )
   {
     string message = "Vote options:\n"
@@ -518,18 +527,18 @@ void function FSU_C_Vote ( entity player, array < string > args )
     Chat_ServerPrivateMessage( player, message, false )
     return
   }
-  
+
   if ( !IsValidVoteInt( args[0], poll_options.len() ) )
   {
     Chat_ServerPrivateMessage( player, "Invalid argument!", false )
     return
   }
-  
+
   int index = args[0].tointeger()
-  
+
   votes[ player ] <- index
   Chat_ServerBroadcast( "\x1b[113m[" + votes.len() + "/" + GetPlayerArray().len() + "]\x1b[0m players have voted!" )
-  
+
   Chat_ServerPrivateMessage( player, "You have voted for \x1b[113m" + poll_options[ index - 1 ] + "\x1b[0m", false )
 }
 
@@ -541,9 +550,9 @@ void function FSU_C_Usage ( entity player, array < string > args )
     Chat_ServerPrivateMessage( player, "Usage: !usage <command>", false )
     return
   }
-  
+
   string cmd = args[0].find( FSU_GetString("FSU_PREFIX") ) == 0 ? args[0].tolower() : FSU_GetString("FSU_PREFIX") + args[0].tolower()
-  
+
   if ( cmd in commands )
     Chat_ServerPrivateMessage( player, "Usage: " + commands[ cmd ].usage, false )
   else
@@ -551,17 +560,17 @@ void function FSU_C_Usage ( entity player, array < string > args )
     Chat_ServerPrivateMessage( player, "Unknown command passed in!", false )
     return
   }
-  
+
   if ( commands[ cmd ].visible != null && commands[ cmd ].visible( player ) )
   {
     Chat_ServerPrivateMessage( player, "Unknown command passed in!", false ) // Dont have rights
     return
   }
-  
+
   if ( commands[ cmd ].abbreviations.len() == 0 )
     return
-  
-  
+
+
   string abbFinal
   foreach ( _index, abb in commands[ cmd ].abbreviations )
     abbFinal += _index == 0 ? "\x1b[113m" + FSU_GetString("FSU_PREFIX") + abb + "\x1b[0m" : ", \x1b[113m" + FSU_GetString("FSU_PREFIX") + abb + "\x1b[0m"
@@ -572,13 +581,13 @@ void function FSU_C_Usage ( entity player, array < string > args )
 bool function IsValidVoteInt( string arg, int max )
 {
   int _index = arg.tointeger()
-  
+
   if ( _index < 1 )
     return false
-  
+
   if ( _index > max )
     return false
-  
+
   return true
 }
 
@@ -590,15 +599,15 @@ void function FSU_C_Switch ( entity player, array < string > args )
     Chat_ServerPrivateMessage( player, "Can't switch in this game state", false )
     return
   }
-  
+
   int maxTeamSize = GetPlayerArray().len() / 2
-  
+
   if( GetPlayerArrayOfTeam( GetOtherTeam( player.GetTeam() ) ).len() > maxTeamSize )
   {
     Chat_ServerPrivateMessage( player, "Other team has too many players!", false )
     return
   }
-  
+
   SetTeam( player, GetOtherTeam( player.GetTeam() ) )
   Chat_ServerPrivateMessage( player, "Switched teams!", false )
 }
@@ -611,11 +620,11 @@ void function FSU_C_Report ( entity player, array < string > args )
     Chat_ServerPrivateMessage( player, "Usage: \x1b[113m!report <player>\x1b[0m", false )
     return
   }
-  
+
   string message = "\\n\\n////////PLAYER REPORT////////"
   string name = ""
   string uid = ""
-  
+
   foreach ( p in GetPlayerArray() )
   {
     if( p.GetPlayerName().tolower().find( args[0].tolower() ) != null )
@@ -625,20 +634,21 @@ void function FSU_C_Report ( entity player, array < string > args )
       break
     }
   }
-  
+
   if ( name == "" )
   {
     Chat_ServerPrivateMessage( player, "Player not found!", false )
     return
   }
-  
-  
-  
+
+
+
   string msg = "script_client print(\"" + message + "\\n" + name + "\\nServer: " + GetConVarString( "ns_server_name" ) + "\\n" + uid + "\\n\")"
   print( msg )
-  ClientCommand( player, msg )
-  
-  Chat_ServerPrivateMessage( player, "Report created! Check your console.", false )
+  Chat_ServerPrivateMessage(player,msg,false)
+
+  Chat_ServerPrivateMessage( player, "Report created! Copy it from your console", false )
+
 }
 
 //!hardmode
@@ -646,35 +656,38 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
   string Name1 = "Light"
   string Desc1 = "Reduces your health by 50"
   string Name2 = "Medium"
-  string Desc2 = "Reduces your health by 75 and pulse blade deaths remove more points"
+  string Desc2 = "Reduces your health by 75 "
   string Name3 = "Extreme"
-  string Desc3 = "Reduces your healt by 99 and pulse blade deaths remove your enitre score"
+  string Desc3 = "Reduces your healt by 99, each gun now takes 2 kills"
 
 
   if(args.len()==0){
      Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
      return
   }
-  if(args[0]=="list"||args[0]=="List"||args[0]=="LIST"||args[0]=="li"){
-    showPlayersInHardmodeKills()
-    return
-  }
   if(args[0]=="light"||args[0]=="Light"||args[0]=="LIGHT"||args[0]=="1"){
     PlayerInHardMode[player.GetPlayerName()] = 1
     ChangePlayerHealth(player, HARD_MODE_LIGHT_HEALTH)
-    
+    Chat_ServerBroadcast("\x1b[38;5;51m"+player.GetPlayerName()+ " \x1b[0is now playing in hardmode light")
   }
   if(args[0]=="medium"||args[0]=="Medium"||args[0]=="MEDIUM"||args[0]=="2"){
     PlayerInHardMode[player.GetPlayerName()] = 2
     ChangePlayerHealth(player, HARD_MODE_MEDIUM_HEALTH)
+    Chat_ServerBroadcast("\x1b[38;5;51m"+player.GetPlayerName()+ " \x1b[0is now playing in hardmode medium")
   }
   if(args[0]=="extreme"||args[0]=="Extreme"||args[0]=="EXTREME"||args[0]=="3"){
     PlayerInHardMode[player.GetPlayerName()] = 3
     ChangePlayerHealth(player, HARD_MODE_HARD_HEALTH)
+    Chat_ServerBroadcast("\x1b[38;5;51m"+player.GetPlayerName()+ " \x1b[0is now playing in hardmode extreme")
   }
-  if(args[0]=="off"||args[0]=="Hard"||args[0]=="HARD"){
+  if(args[0]=="off"||args[0]=="Off"||args[0]=="OFF"||args[0]=="-1"){
     PlayerInHardMode[player.GetPlayerName()] = -1
     ChangePlayerHealth(player, 100)
+    Chat_ServerBroadcast("\x1b[38;5;51m"+player.GetPlayerName()+ " \x1b[0is no longer playing in hardmode")
+  }
+  if(PlayerInHardMode[player.GetPlayerName()]>0){
+    if( !(player.GetPlayerName() in HardModeKills ))
+      HardModeKills[player.GetPlayerName()] <- 0
   }
   return
 }
@@ -682,6 +695,94 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
 void function ChangePlayerHealth(entity player, int health){
   player.SetMaxHealth(health)
   player.SetHealth(health)
-  Chat_ServerPrivateMessage(player, "Your health is now at "+ player.GetMaxHealth(),false)
-  return
+  NSSendPopUpMessageToPlayer(player, "Your health is now at "+ player.GetMaxHealth())
+}
+
+table < string, commandStruct > function GetCommands(){
+  return commands
+}
+
+//!msg
+void function FSU_C_Whisper(entity player, array<string> args){
+  if(args.len()<2){
+    Chat_ServerPrivateMessage(player, "Missing arguments: !msg <player name> <message>",false)
+    return 
+  }
+  entity foundPlayer = GetEntityByName(args[0])
+  if(foundPlayer== null){
+    Chat_ServerPrivateMessage(player, "Player not found",false)
+    return
+  }
+  Chat_PrivateMessage(player, foundPlayer, ArrayToString( args.slice(1)), true)
+}
+
+//!reset
+void function FSU_C_Reset(entity player, array<string> args){
+  if(!IsValid(player))
+    return
+  player.AddToPlayerGameStat( PGS_ASSAULT_SCORE, -GameRules_GetTeamScore( player.GetTeam() ) )
+  AddTeamScore( player.GetTeam(), -GameRules_GetTeamScore( player.GetTeam() ) ) // get absolutely fucking destroyed lol
+  UpdateLoadout( player )
+  NSSendInfoMessageToPlayer(player,"Score sucessfully reset")
+}
+
+//!kick
+void function FSU_C_Kick(entity player, array<string> args)
+{
+  if(args.len()==0)
+  {
+    Chat_ServerPrivateMessage(player,"Wrong format, do \x1b[113m!kick <player name>\x1b[0m",false)
+    return
+  }
+  if(!CanPlayerStartKick(player))
+  {
+    Chat_ServerPrivateMessage(player,"You started too many votes, to protect against spam you can no longer start votes",false)
+    return
+  }
+  entity playerToBeKicked = GetEntityByName(args[0])
+  if(playerToBeKicked == null)
+  {
+    Chat_ServerPrivateMessage(player,"Player was not found", false)
+    return
+  }
+  thread PlayerKickVote(playerToBeKicked)
+}
+
+void function PlayerKickVote(entity player)
+{
+  array<string> options = ["Yes, kick", "No, stay", "No opinion"]
+  foreach(entity p in GetPlayerArray())
+    NSCreatePollOnPlayer(p, "Should "+player.GetPlayerName() + " be kicked?", options, 30)
+  wait 30
+  int YesVotes = 0
+  int NoVotes = 0
+  foreach(entity p in GetPlayerArray())
+  {
+    if(NSGetPlayerResponse(p) == 0)
+      YesVotes++
+    if(NSGetPlayerResponse(p) == 1)
+      NoVotes++
+  }
+  if(YesVotes > NoVotes)
+  {
+    ServerCommand("kick "+player.GetPlayerName())
+    foreach(entity p in GetPlayerArray())
+    {
+      NSSendInfoMessageToPlayer(p, "Player "+player.GetPlayerName()+ " was kicked from the match")
+    }
+  }
+  else
+  {
+    foreach(entity p in GetPlayerArray())
+    {
+      NSSendInfoMessageToPlayer(p, "Player "+player.GetPlayerName()+ " was NOT kicked from the match")
+    }
+  }
+}
+
+bool function CanPlayerStartKick(entity player) //if a player is in the table and has too many votes then he cant vote anymor
+{
+  if(player.GetPlayerName() in StartedKickVotes && StartedKickVotes[player.GetPlayerName()]>3)
+    return false
+  return true
 }
