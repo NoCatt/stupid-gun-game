@@ -7,7 +7,17 @@ global function FSU_CreatePoll
 global function FSU_GetPollResultIndex
 global function FSU_IsDedicated
 global function GetCommands
-global table<string, int> PlayerInHardMode
+global struct hardmodeStruct{
+  int HMpreset = 0
+  bool inHardmode = false
+  int health = 100
+  int lossOnDeath = 1
+  float GainOnKill = 1
+  float damageScale = 1.0
+  float assist
+}
+
+global table<string, hardmodeStruct> PlayerInHardMode
 global table<string, int> HardModeKills
 global const int HARD_MODE_LIGHT_HEALTH = 50
 global const int HARD_MODE_MEDIUM_HEALTH = 25
@@ -22,10 +32,10 @@ global struct commandStruct
   bool functionref( entity ) visible // Should show to player ?
 }
 
+
 // List of registered commands
 table < string, commandStruct > commands
 
-//table for vote on kicks
 table < string, int> StartedKickVotes
 
 // Poll stuff
@@ -38,7 +48,7 @@ float poll_start
 string poll_before
 int poll_result
 bool poll_show_result
-
+bool hardmode_activated = false
 
 // init
 void function FSU_init ()
@@ -56,11 +66,9 @@ void function FSU_init ()
   FSU_RegisterCommand( "usage", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "usage\x1b[0m <command> Prints usage of provided command", "core", FSU_C_Usage )
   FSU_RegisterCommand( "discord", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "discord\x1b[0m Prints a discord invite", "core", FSU_C_Discord, [ "dc" ] )
   FSU_RegisterCommand( "report", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "report <player>\x1b[0m Creates a report and prints it in console so you can copy it", "core", FSU_C_Report )
-  FSU_RegisterCommand("hardmode", "\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "Hardmode <difficulty>x1b[0m your health by 50% to make it more difficult","core",FSU_C_Hard_Mode,["hm"])
-  FSU_RegisterCommand("whisper", "\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "whisper <player name> <message content>x1b[0m to private message a player","core", FSU_C_Whisper, ["msg"])
+  FSU_RegisterCommand("hardmode", "\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "Hardmode <difficulty>x1b[0m your health by 50% to make it more difficult","core", FSU_C_Hard_Mode, ["hm"])
+  FSU_RegisterCommand("kickPlayer","\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "kick <player name>x1b[0m to start a vote if a player should be kicked","core", FSU_C_Kick)
   FSU_RegisterCommand("reset","\x1b[113m" + FSU_GetString("FSU_PREFIX")+"reset to go back to score 0","core", FSU_C_Reset)
-  FSU_RegisterCommand("kick","\x1b[113m" + FSU_GetString("FSU_PREFIX")+ "kick <player name>x1b[0m to start a vote if a player should be kicked","core", FSU_C_Kick)
-
   if( FSU_GetBool("FSU_ENABLE_SWITCH") )
     FSU_RegisterCommand( "switch", "\x1b[113m" + FSU_GetString("FSU_PREFIX") + "switch\x1b[0m switches team", "core", FSU_C_Switch )
 
@@ -74,7 +82,8 @@ void function FSU_init ()
 // callbacks
 void function OnClientConnected ( entity player )
 {
-  PlayerInHardMode[player.GetPlayerName()]<- -1
+  hardmodeStruct hs = {...}
+  PlayerInHardMode[player.GetUID()] <- hs
 
   if( FSU_GetBool( "FSU_WELCOME_ENABLE_MESSAGE_BEFORE" ) )
     Chat_ServerPrivateMessage( player, FSU_GetString("fsu_welcome_message_before"), false )
@@ -648,11 +657,17 @@ void function FSU_C_Report ( entity player, array < string > args )
   Chat_ServerPrivateMessage(player,msg,false)
 
   Chat_ServerPrivateMessage( player, "Report created! Copy it from your console", false )
-
 }
 
 //!hardmode
 void function FSU_C_Hard_Mode (entity player, array < string > args){
+  /*
+    //soonTM 
+    if(!hardmode_activated){
+      AddServerScoreboardColumnAtRunntime("Hardmode kills", PGS_DISTANCE_SCORE, 2)
+      hardmode_activated = true
+    }
+  */
   string Name1 = "Light"
   string Desc1 = "Reduces your health by 50"
   string Name2 = "Medium"
@@ -660,73 +675,107 @@ void function FSU_C_Hard_Mode (entity player, array < string > args){
   string Name3 = "Extreme"
   string Desc3 = "Reduces your healt by 99, each gun now takes 2 kills"
 
+  array<string>AllArguments = ["health", "gain","loss","damage"]
 
-  if(args.len()==0){
-     Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
-     return
+  if(args.len()==0)
+  {
+    Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
+    return
   }
-  if(args[0]=="light"||args[0]=="Light"||args[0]=="LIGHT"||args[0]=="1"){
-    PlayerInHardMode[player.GetPlayerName()] = 1
-    ChangePlayerHealth(player, HARD_MODE_LIGHT_HEALTH)
-    Chat_ServerBroadcast("\x1b[38;5;51m"+player.GetPlayerName()+ " \x1b[0is now playing in hardmode light")
+  if(args[0]=="args")
+  {
+    //list of arguments that are usable 
+    return
   }
-  if(args[0]=="medium"||args[0]=="Medium"||args[0]=="MEDIUM"||args[0]=="2"){
-    PlayerInHardMode[player.GetPlayerName()] = 2
-    ChangePlayerHealth(player, HARD_MODE_MEDIUM_HEALTH)
-    Chat_ServerBroadcast("\x1b[38;5;51m"+player.GetPlayerName()+ " \x1b[0is now playing in hardmode medium")
+  if( args.len()%2 !=0)
+  {
+    Chat_ServerPrivateMessage(player, "You are missing an argument, make sure you formatted it correctly",false)
+    return
   }
-  if(args[0]=="extreme"||args[0]=="Extreme"||args[0]=="EXTREME"||args[0]=="3"){
-    PlayerInHardMode[player.GetPlayerName()] = 3
-    ChangePlayerHealth(player, HARD_MODE_HARD_HEALTH)
-    Chat_ServerBroadcast("\x1b[38;5;51m"+player.GetPlayerName()+ " \x1b[0is now playing in hardmode extreme")
+  foreach(index,string arg in args){
+    if(index % 2 == 1) // ignore the values
+      continue
+    IsValidHardmodeArg(arg , args[index+1],player)
   }
-  if(args[0]=="off"||args[0]=="Off"||args[0]=="OFF"||args[0]=="-1"){
-    PlayerInHardMode[player.GetPlayerName()] = -1
-    ChangePlayerHealth(player, 100)
-    Chat_ServerBroadcast("\x1b[38;5;51m"+player.GetPlayerName()+ " \x1b[0is no longer playing in hardmode")
+}
+
+void function IsValidHardmodeArg(string arg, string value, entity player){
+  if(arg == "health")
+  {
+    if(value.tointeger()>100){
+      Chat_ServerPrivateMessage(player,"Invalid argument for health",false)
+      return 
+    }
+    PlayerInHardMode[player.GetUID()].health = value.tointeger()
+    player.SetMaxHealth(PlayerInHardMode[player.GetUID()].health)
+    player.SetHealth(player.GetMaxHealth())
   }
-  if(PlayerInHardMode[player.GetPlayerName()]>0){
-    if( !(player.GetPlayerName() in HardModeKills ))
-      HardModeKills[player.GetPlayerName()] <- 0
+  if(arg == "gain")
+  {
+    if(value.tointeger() > 1){
+      Chat_ServerPrivateMessage(player,"Invalid argument for gain",false)
+      return
+    }
+    PlayerInHardMode[player.GetUID()].GainOnKill = value.tofloat()
   }
-  return
+  if(arg == "loss")
+  {
+    if(value.tointeger() < 0){
+      Chat_ServerPrivateMessage(player,"Invalid argument for loss",false)
+      return
+    }
+    PlayerInHardMode[player.GetUID()].lossOnDeath = value.tointeger()
+  }
+  if(arg == "damage")
+  {
+    if(value.tofloat() > 1.0){
+      Chat_ServerPrivateMessage(player,"Invalid argument for damage",false)
+      return
+    }
+    PlayerInHardMode[player.GetUID()].damageScale = value.tofloat()
+  }
+  if(arg == "assist")
+  {
+    if(value.find("/")== null )
+    {
+      if(value.tofloat() > 1.0)
+      {
+        Chat_ServerPrivateMessage(player,"Invail value for assits",false)
+        return
+      }     
+
+      PlayerInHardMode[player.GetUID()].assist = value.tofloat()
+    }
+    else{
+      array<string> numbers = split(value, "/")
+
+      if(numbers.len()<2)
+      {
+        Chat_ServerPrivateMessage(player,"Invalid syntax for assists",false)
+        return
+      }
+      if(numbers[0].tofloat()/numbers[1].tofloat() > 1.0)
+      {
+        Chat_ServerPrivateMessage(player,"Invail value for assits",false)
+        return
+      } 
+      PlayerInHardMode[player.GetUID()].assist = numbers[0].tofloat()/numbers[1].tofloat()
+    }
+  }
+  Chat_ServerPrivateMessage(player,"Sucessfully added to hardmode",false)
 }
 
 void function ChangePlayerHealth(entity player, int health){
   player.SetMaxHealth(health)
   player.SetHealth(health)
   NSSendPopUpMessageToPlayer(player, "Your health is now at "+ player.GetMaxHealth())
+  return
 }
 
 table < string, commandStruct > function GetCommands(){
   return commands
 }
 
-//!msg
-void function FSU_C_Whisper(entity player, array<string> args){
-  if(args.len()<2){
-    Chat_ServerPrivateMessage(player, "Missing arguments: !msg <player name> <message>",false)
-    return 
-  }
-  entity foundPlayer = GetEntityByName(args[0])
-  if(foundPlayer== null){
-    Chat_ServerPrivateMessage(player, "Player not found",false)
-    return
-  }
-  Chat_PrivateMessage(player, foundPlayer, ArrayToString( args.slice(1)), true)
-}
-
-//!reset
-void function FSU_C_Reset(entity player, array<string> args){
-  if(!IsValid(player))
-    return
-  player.AddToPlayerGameStat( PGS_ASSAULT_SCORE, -GameRules_GetTeamScore( player.GetTeam() ) )
-  AddTeamScore( player.GetTeam(), -GameRules_GetTeamScore( player.GetTeam() ) ) // get absolutely fucking destroyed lol
-  UpdateLoadout( player )
-  NSSendInfoMessageToPlayer(player,"Score sucessfully reset")
-}
-
-//!kick
 void function FSU_C_Kick(entity player, array<string> args)
 {
   if(args.len()==0)
@@ -785,4 +834,11 @@ bool function CanPlayerStartKick(entity player) //if a player is in the table an
   if(player.GetPlayerName() in StartedKickVotes && StartedKickVotes[player.GetPlayerName()]>3)
     return false
   return true
+}
+
+void function FSU_C_Reset(entity player, array<string> args){
+  player.AddToPlayerGameStat( PGS_ASSAULT_SCORE, -GameRules_GetTeamScore( player.GetTeam() ) )
+  AddTeamScore( player.GetTeam(), -GameRules_GetTeamScore( player.GetTeam() ) ) // get absolutely fucking destroyed lol
+  UpdateLoadout( player )
+  NSSendInfoMessageToPlayer(player,"Score sucessfully reset")
 }
