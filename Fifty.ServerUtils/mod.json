@@ -74,11 +74,11 @@
     },
 		{
       "Name": "FSU_ADMIN_UIDS",
-      "DefaultValue": "1008806725370,1003235594865,1010693766776,1011192167545,1005829030626"
+      "DefaultValue": ""
     },
 		{
       "Name": "FSU_ADMIN_PASSWORDS",
-      "DefaultValue": "mylu5,zen7te,M63nt1,NeinguarHasAMommyKink1234,NeinguarIsAFemboy1234"
+      "DefaultValue": ""
     },
     {
       "Name": "FSU_ADMIN_LOGIN_ATTEMPTS",
