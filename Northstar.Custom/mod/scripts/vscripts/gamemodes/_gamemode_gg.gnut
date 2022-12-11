@@ -255,6 +255,69 @@ void function OnPlayerRespawned_Threaded( entity player )
 		PlayerEarnMeter_SetMode( player, eEarnMeterMode.DISABLED )
 }
 
+void      function     BankruptPlayer ( entity attacker,     entity victim ){
+
+	if(victim == GetWinningPlayer())
+				thread sendAnnoucementToAll("Score leader bankrupt",  attacker.GetPlayerName() + " bankrupted the score leader: " + victim.GetPlayerName(),1)
+			
+	//removes the score from the victim
+	int bankruptValue = GetPBScoreRemove(victim)
+	AddTeamScore( victim.GetTeam(), -bankruptValue)
+	victim.SetPlayerGameStat( PGS_ASSAULT_SCORE, GameRules_GetTeamScore( victim.GetTeam() )) //first argument is what to change, 2nd is what to change it to
+	
+	//messages for attacker and victim
+	string victimMessage = attacker.GetPlayerName()+" bankrupted you."
+	string victimDescription =  "You lost:  " + bankruptValue +" points."
+	string attackerMessage = "You bankrupted " + victim.GetPlayerName() +"."
+	string attackerDescription = "They lost " + bankruptValue +" points."
+	
+	//send those messages
+	NSSendAnnouncementMessageToPlayer( victim,victimMessage , victimDescription, <254,0,0>, 3, 7)
+	NSSendAnnouncementMessageToPlayer( attacker,attackerMessage , attackerDescription, <254,0,0>, 3, 7)
+	
+	// remove
+	if(playerHSNames.find(victim.GetPlayerName())!=-1)
+		playerHSNames.remove( playerHSNames.find( victim.GetPlayerName() ) )
+}
+
+void function HandleKillstreak(entity attacker, entity victim) {
+	killStreak[attacker.GetPlayerName()]++
+	if(killStreak[victim.GetPlayerName()]>=10)
+		foreach(entity p in GetPlayerArray())
+			NSSendAnnouncementMessageToPlayer(p,attacker.GetPlayerName()+ " ended "+ victim.GetPlayerName()+"s kill streak", "The "+ killStreak[victim.GetPlayerName()]+ "-kill streak was ended with the "+  GetGunNameByID( DamageInfo_GetDamageSourceIdentifier( damageInfo ) ), <0,0,0>,1,1 )
+
+	killStreak[victim.GetPlayerName()] = 0
+	if(killStreak[attacker.GetPlayerName()]%10 == 0 && killStreak[attacker.GetPlayerName()] != 0)
+		foreach(entity p in GetPlayerArray())
+			NSSendAnnouncementMessageToPlayer(p,attacker.GetPlayerName()+ " is on a "+killStreak[attacker.GetPlayerName()]+"-kill streak","", <0,0,0>,1,1 )
+}
+
+void function MeleeportAbusePrevention(entity player){
+	if(attacker.GetPlayerName() in MeleeportKills)
+		MeleeportKills[attacker.GetPlayerName()]+=1
+	else
+		MeleeportKills[attacker.GetPlayerName()] <- 1
+	
+	if(MeleeportKills[attacker.GetPlayerName()]==10)
+		NSSendPopUpMessageToPlayer(attacker, "If you keep abusing meleeport it will be removed from you")
+
+	if(MeleeportKills[attacker.GetPlayerName()]>= 20){
+		playerHSNames.remove( playerHSNames.find( attacker.GetPlayerName() ) )
+		UpdateLoadout(attacker)
+		NSSendPopUpMessageToPlayer(attacker, "Meleeport has been removed from you")
+	}
+}
+
+void function MeleePunishment(entity player){
+	if(attacker.GetPlayerName() in NoLifers)
+		NoLifers[attacker.GetPlayerName()]++
+	else
+		NoLifers[attacker.GetPlayerName()] <- 1
+
+	DeRank( attacker, NoLifers[attacker.GetPlayerName()] )
+	Chat_ServerPrivateMessage(attacker,"\x1b[38;5;196mDon't melee other pilots, \x1b[0you will lose points for every melee, this time you lost \x1b[34m" + NoLifers[attacker.GetPlayerName()] ,true)
+}
+
 void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 {
 	if ( !victim.IsPlayer() || !attacker.IsPlayer() || GetGameState() != eGameState.Playing )
@@ -277,27 +340,8 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
         }
 		if( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.mp_weapon_grenade_sonar && gnsOn ){
 			// to check if the best player got killed, for an sns like experience
-			if(victim == GetWinningPlayer())
-				thread sendAnnoucementToAll("Score leader bankrupt",  attacker.GetPlayerName() + " bankrupted the score leader: " + victim.GetPlayerName(),1)
-			
-			//removes the score from the victim
-			int bankruptValue = GetPBScoreRemove(victim)
-			AddTeamScore( victim.GetTeam(), -bankruptValue)
-			victim.SetPlayerGameStat( PGS_ASSAULT_SCORE, GameRules_GetTeamScore( victim.GetTeam() )) //first argument is what to change, 2nd is what to change it to
-			
-			//messages for attacker and victim
-			string victimMessage = attacker.GetPlayerName()+" bankrupted you."
-			string victimDescription =  "You lost:  " + bankruptValue +" points."
-			string attackerMessage = "You bankrupted " + victim.GetPlayerName() +"."
-			string attackerDescription = "They lost " + bankruptValue +" points."
-			
-			//send those messages
-			NSSendAnnouncementMessageToPlayer( victim,victimMessage , victimDescription, <254,0,0>, 3, 7)
-			NSSendAnnouncementMessageToPlayer( attacker,attackerMessage , attackerDescription, <254,0,0>, 3, 7)
-			
-			// remove
-			if(playerHSNames.find(victim.GetPlayerName())!=-1)
-				playerHSNames.remove( playerHSNames.find( victim.GetPlayerName() ) )
+			BankruptPlayer(attacker, victim)
+
 		}
 
 		if ( DamageInfo_GetDamageSourceIdentifier( damageInfo ) != eDamageSourceId.melee_pilot_emptyhanded )
@@ -305,10 +349,10 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			float percentageReward = GetCurrentPlaylistVarFloat( "gg_kill_reward", 1.0 )
 			string scoreEvent = "KillPilot"
 
-			if(PlayerInHardMode[victim.GetPlayerName()] == 3)
+			if( PlayerInHardMode[victim.GetPlayerName()] == 3)
 				DeRank(victim, 1)
 				
-			if ( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.human_execution )
+			if( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.human_execution )
 			{
 				string message = victim.GetPlayerName() + " got executed."
 				foreach ( entity player in GetPlayerArray() )
@@ -320,49 +364,25 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 				scoreEvent = "Execution"
 			}
 			//hard mode player kills
-			if(attacker.GetPlayerName() in HardModeKills && PlayerInHardMode[attacker.GetPlayerName()]>0)
+			if( attacker.GetPlayerName() in HardModeKills && PlayerInHardMode[attacker.GetPlayerName()] > 0 )
 				HardModeKills[attacker.GetPlayerName()] += 1
 
 			if( GameRules_GetTeamScore( attacker.GetTeam() ) == GetGunGameWeapons().len()-2 ) // meleeport
 				playerHSNames.append( attacker.GetPlayerName() )
-			if(PlayerInHardMode[attacker.GetPlayerName()] == 3) //hard mode extreme
+			if( PlayerInHardMode[attacker.GetPlayerName()] == 3) //hard mode extreme
 				percentageReward = 0.5
 			Reward( attacker, victim, scoreEvent, percentageReward )
-			//killstreak handler
-			killStreak[attacker.GetPlayerName()]++
-			if(killStreak[victim.GetPlayerName()]>=10)
-			   	foreach(entity p in GetPlayerArray())
-					NSSendAnnouncementMessageToPlayer(p,attacker.GetPlayerName()+ " ended "+ victim.GetPlayerName()+"s kill streak", "The "+ killStreak[victim.GetPlayerName()]+ "-kill streak was ended with the "+  GetGunNameByID( DamageInfo_GetDamageSourceIdentifier( damageInfo ) ), <0,0,0>,1,1 )
 
-			killStreak[victim.GetPlayerName()] = 0
-			if(killStreak[attacker.GetPlayerName()]%10 == 0 && killStreak[attacker.GetPlayerName()] != 0)
-			   	foreach(entity p in GetPlayerArray())
-			   		NSSendAnnouncementMessageToPlayer(p,attacker.GetPlayerName()+ " is on a "+killStreak[attacker.GetPlayerName()]+"-kill streak","", <0,0,0>,1,1 )
+			//killstreak handler
+			HandleKillstreak(attacker, victim)
 
 		}
 		else if( playerHSNames.find( attacker.GetPlayerName() ) == -1 ){ // melee but no meleeport
 			//Neinguars mod to punish melee users lol
-			if(attacker.GetPlayerName() in NoLifers)
-			   NoLifers[attacker.GetPlayerName()]++
-			else
-			   NoLifers[attacker.GetPlayerName()] <- 1
-
-			DeRank( attacker, NoLifers[attacker.GetPlayerName()] )
-			Chat_ServerPrivateMessage(attacker,"\x1b[38;5;196mDon't melee other pilots, \x1b[0you will lose points for every melee, this time you lost \x1b[34m" + NoLifers[attacker.GetPlayerName()] ,true)
+			MeleePunishment(attacker)
 		}
 		else if( playerHSNames.find( attacker.GetPlayerName() ) != -1){ // meleeport anti abuse system
-			if(attacker.GetPlayerName() in MeleeportKills)
-				MeleeportKills[attacker.GetPlayerName()]+=1
-			else
-				MeleeportKills[attacker.GetPlayerName()] <- 1
-			if(MeleeportKills[attacker.GetPlayerName()]==10)
-				NSSendPopUpMessageToPlayer(attacker, "If you keep abusing meleeport it will be removed from you")
-			if(MeleeportKills[attacker.GetPlayerName()]>= 20){
-				playerHSNames.remove( playerHSNames.find(attacker.GetPlayerName() ) )
-				UpdateLoadout(attacker)
-				NSSendPopUpMessageToPlayer(attacker, "Meleeport has been removed from you")
-			}
-
+			MeleeportAbusePrevention(player)
 		}
 
 		if (attacker == GetWinningPlayer())
@@ -384,6 +404,8 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 					assistReward = 0.0 
 				else 
 					assistReward = 0.5
+
+				NSSendPopUpMessageToPlayer(attackerInfo.attacker, "ASSISTED " + attackerInfo.victim.GetPlayerName() )
 				Reward( attackerInfo.attacker, victim, "PilotAssist", GetCurrentPlaylistVarFloat( "gg_assist_reward", assistReward ) )
 			}
 		}
