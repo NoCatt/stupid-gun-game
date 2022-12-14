@@ -11,9 +11,5 @@
                 "After": "NeinguarFileInit"
             }
         }
-    ],
-    "SaveFiles":[
-        "savefile",
-        "saveLeaderboard"
     ]
 }

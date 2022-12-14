@@ -13,9 +13,16 @@ global struct PlayerData{
 
 void function NeinguarFileInit()
 {
-    AddClientCommandCallback("GetData", GetDataCMD)
-    SavePlayerData = NSLoadfile("Neinguar.File" , "savefile")
-    //PlayerLeaderboard = NSLoadfile("Neinguar.File" , "saveLeaderboard")
+    HttpRequest request = {
+        method = 0
+        url = "localhost/readAll"
+            headers = {
+                
+            }
+    }
+    NSHttpRequest(request,void function(HttpRequestResponse resp)  {
+        printt("Successfully got response from server, YOU FUCKING DID IT")
+    })
     PrintDataDEBUG()
 	AddCallback_OnPlayerKilled( OnPlayerKilled )
     AddCallback_OnClientConnected(OnClientConnected)
@@ -23,10 +30,15 @@ void function NeinguarFileInit()
 }
 
 bool function GetDataCMD(entity player, array<string> args){
-    if(args[].len()==0)
-        PrintDataDEBUG(player); return true
+    if(args.len() == 0){
+        PrintDataDEBUG(player);
+        return true
+    }
     
-    if(GetPlayerEntityByName(args[0])==null) Chat_ServerPrivateMessage(player, "No player found",false); return true;
+    if(GetPlayerEntityByName(args[0])){
+        Chat_ServerPrivateMessage(player, "No player found",false);
+        return true;
+    }
     
     Chat_ServerBroadcast(PrintDataDEBUG(GetPlayerEntityByName(args[0])))
     return true
@@ -75,7 +87,7 @@ void function PrintDataDEBUG(entity player){
 }
 
 entity function GetPlayerEntityByName(string name){
-    foreach(entity player in GetPlayerArray()
+    foreach(entity player in GetPlayerArray())
         if(player.GetPlayerName() == name) return player
     return null
 }
