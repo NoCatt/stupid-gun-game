@@ -13,16 +13,8 @@ global struct PlayerData{
 
 void function NeinguarFileInit()
 {
-    HttpRequest request = {
-        method = 0
-        url = "localhost/readAll"
-            headers = {
-                
-            }
-    }
-    NSHttpRequest(request,void function(HttpRequestResponse resp)  {
-        printt("Successfully got response from server, YOU FUCKING DID IT")
-    })
+    
+    SavePlayerData = NSHttpGet("localhost/readAll")
     PrintDataDEBUG()
 	AddCallback_OnPlayerKilled( OnPlayerKilled )
     AddCallback_OnClientConnected(OnClientConnected)
@@ -49,22 +41,21 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo ){
     SavePlayerData[attacker.GetUID()].kills += 1
     SavePlayerData[victim.GetUID()].deahts += 1
 
-    NSSaveFile("Neinguar.File" , "savefile", SavePlayerData)
 }   
 
 void function OnClientConnected(entity player){
     if(player.GetUID() in SavePlayerData)
         SavePlayerData[player.GetUID()].connects += 1
     else
-        SavePlayerData[player.GetUID()] <- PlayerData p ={Name=player.GetPlayerName()}
+        SavePlayerData[player.GetUID()] <- PlayerData p = {Name=player.GetPlayerName()}
 
-    NSSaveFile("Neinguar.File" , "savefile", SavePlayerData)
+
 }
 
 void function OnWinnerDetermined(){
     SavePlayerData[GetWinningPlayer().GetUID()].winns += 1
 
-    NSSaveFile("Neinguar.File" , "savefile", SavePlayerData)
+    NSHttpPostBody("localhost/updateData", EncodeJSON(SavePlayerData) )
 }
 
 entity function GetWinningPlayer()
