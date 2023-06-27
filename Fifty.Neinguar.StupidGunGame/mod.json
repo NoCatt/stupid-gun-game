@@ -1,0 +1,24 @@
+{
+    "Name" : "FiftyNeinguar.SGG [FGG]",
+	"Description" : "Part of FSU [ Fifty Server Utilities ]\nImplements voting functionality\n\nDependencies:\n  - Northstar\n  - Fifty.ServerUtilities\n  - Fifty.ServerChatCommands",
+	"Version": "2.2.1",
+	"LoadPriority": 1,
+	"Dependencies": {
+		"FSCC_ENABLED": "Fifty.ServerChatCommands [FSCC]",
+		"FSU_ENABLED": "Fifty.ServerUtilities [FSU]",
+		"NETLIB": "fvnkhead.NetLib"
+
+	},
+	"ConVars": [
+
+	],
+    "Scripts": [
+		{
+			"Path": "fsgg_core.nut",
+			"RunOn": "SERVER",
+			"ServerCallback": {
+				"After": "FSGG_Init"
+			}
+		}
+	]
+}
