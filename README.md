@@ -1,5 +1,6 @@
 stupid gun game but stupider <br />
 
+YOU NEED [SGG ADD ON](https://northstar.thunderstore.io/package/Neinguar/StupidGunGameClientAddOn/) to run this
 cool features that aren't present in fvnk's version: <br />
 Dinotick's houseflies mod on last weapon <br />
 cool admin command to toggle houseflies for a certain person or for everyone (hs name/all 0/1) <br />
