@@ -17,14 +17,16 @@ global function showPlayersInHardmodeKills
 global array<string> playerHSNames = [] //players that have HouseFlies enabled
 global bool hsOn
 array<string> adminNames = ["admin1", "admin2","Neinguar"] // admins
+
 table<string, int> SaveScore
-table<string, table<string, var> > killStreak
+table<string, int> killStreak
 table<string, int> NoLifers // this is a table to store melee players to punish them even better :)
 
 table<string, int > MeleeportKills
 
 int bankrupt_base_value
-
+// highlight best player
+// 50% hp for good player
 struct {
 	string score_leader_highlight = "enemy_boss_bounty" // highlight effect applied to person in 1st place
 	string offhand_weapon = "mp_weapon_thermite_grenade" // offhand weapon
@@ -41,11 +43,11 @@ struct {
 
 void function GamemodeGG_Init()
 {
-	//house flies commands
+	
 	AddClientCommandCallback("hs", EnablehsCMD) // this command toggles hs to all or a certain players syntax: hs <name/all> 0/1
 	AddClientCommandCallback("gns", EnablehsGNS)
 	Server_AddCustomScoreboardColumn("Pulse Kills", PGS_NPC_KILLS , 2 )
-	printt("ADDED CUSTOM COLUM ##################### \n\n ###### \n\n")
+	
 	SetSpawnpointGamemodeOverride( FFA )
 
 	SetShouldUseRoundWinningKillReplay( true )
@@ -57,7 +59,6 @@ void function GamemodeGG_Init()
 
 	AddCallback_OnPlayerRespawned( OnPlayerRespawned )
 	AddCallback_OnPlayerKilled( OnPlayerKilled )
-	AddCallback_OnPlayerKilled( AddHUDKillstreak )
 	AddCallback_OnClientDisconnected(OnPlayerDisconnected)
 
 	AddCallback_GameStateEnter( eGameState.WinnerDetermined, OnWinnerDetermined )
@@ -65,9 +66,7 @@ void function GamemodeGG_Init()
 	AddCallback_GGEarnMeterFull( OnGGEarnMeterFilled )
 
     	// CUSTOM
-    AddCallback_OnClientConnected(OnClientConnected)
-	//
-	AddDamageCallback( "player", ReduceDMGHardmode )
+    	AddCallback_OnClientConnected(OnClientConnected)
 
 	if( RandomInt( 100 ) == 1 ) // easter egg (enables house flies for everyone)
 	{
@@ -92,20 +91,6 @@ void function GamemodeGG_Init()
 	bankrupt_base_value = 5
 }
 
-//scale down dmg from hardmode players if needed
-void function ReduceDMGHardmode(entity player, var damageInfo){
-
-	entity attacker = DamageInfo_GetAttacker( damageInfo )
-
-    if ( !IsValid( attacker ) )
-        return
-
-    string uid = attacker.GetUID()
-    if ( !( uid in PlayerInHardMode ) )
-        return
-
-    DamageInfo_ScaleDamage( damageInfo, PlayerInHardMode[ uid ].damageScale )
-}
 bool function EnablehsGNS (entity player, array < string > args)
 {
 	if(adminNames.find(player.GetPlayerName())==-1)
@@ -229,7 +214,7 @@ void function OnPlayerDisconnected(entity player)
 
 	// this prevents a new player to get someone who's left's score
 	AddTeamScore( player.GetTeam(), -GameRules_GetTeamScore( player.GetTeam() ))
-	killStreak[player.GetPlayerName()]["kills"] = 0
+	killStreak[player.GetPlayerName()] = 0
 	if (GetWinningPlayer() == player)
 		thread CheckNewHighlight(player)
 
@@ -240,19 +225,21 @@ void function OnPlayerRespawned( entity player )
     StatusEffect_AddTimed( player, eStatusEffect.speed_boost, 0.4, 4.25, 0.25)
 	UpdateLoadout( player )
 	thread OnPlayerRespawned_Threaded( player )
-	if(PlayerInHardMode[player.GetUID()].inHardmode)
-	{
-		player.SetMaxHealth(PlayerInHardMode[player.GetUID()].health)
-		player.SetHealth(player.GetMaxHealth())
+
+	if(!(player.GetPlayerName() in PlayerInHardMode))
+		PlayerInHardMode[player.GetPlayerName()]<- -1 //FAILSAFE should not be needed but I like to make sure
+
+	switch( PlayerInHardMode[player.GetPlayerName()] ){
+		case 1: player.SetMaxHealth(HARD_MODE_LIGHT_HEALTH)
+				player.SetHealth(player.GetMaxHealth())
+				break
+		case 2: player.SetMaxHealth(HARD_MODE_MEDIUM_HEALTH)
+				player.SetHealth(player.GetMaxHealth())
+				break
+		case 3: player.SetMaxHealth(HARD_MODE_HARD_HEALTH)
+				player.SetHealth(player.GetMaxHealth())
+				break
 	}
-	
-	foreach(key, value in killStreak){
-		if(key == player.GetPlayerName())
-			continue
-		string playerID = expect string(value["id"])
-		NSDeleteStatusMessageOnPlayer(player, playerID)
-	}
-	
 
 	if(hsOn)
 		SendHudMessage(player, "Meleeport is active for everyone", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
@@ -269,46 +256,6 @@ void function OnPlayerRespawned_Threaded( entity player )
 		PlayerEarnMeter_SetMode( player, eEarnMeterMode.DISABLED )
 }
 
-void function AddHUDKillstreak( entity victim, entity attacker, var damageInfo )
-{
-	if ( !victim.IsPlayer() || !attacker.IsPlayer() || GetGameState() != eGameState.Playing )
-		return
-
-	string victimStatusID = expect string(killStreak[victim.GetPlayerName()]["id"])
-	string attackerStatusID = expect string(killStreak[attacker.GetPlayerName()]["id"])
-
-	int attackerKills = expect int(killStreak[attacker.GetPlayerName()]["kills"])
-	int victimKills = expect int(killStreak[victim.GetPlayerName()]["kills"])
-
-	if(killStreak[victim.GetPlayerName()]["kills"] > 0)
-		NSDeleteStatusMessageOnPlayer(victim,  victimStatusID)
-
-	//killstreak handler
-	if(DamageInfo_GetDamageSourceIdentifier( damageInfo ) != eDamageSourceId.melee_pilot_emptyhanded){
-		killStreak[attacker.GetPlayerName()]["kills"]++
-
-		attackerKills = expect int(killStreak[attacker.GetPlayerName()]["kills"])
-		victimKills = expect int(killStreak[victim.GetPlayerName()]["kills"])
-
-		if(killStreak[attacker.GetPlayerName()]["kills"] == 1)
-			NSCreateStatusMessageOnPlayer(attacker,attackerKills.tostring()," Kill streak",attackerStatusID)
-		else
-			NSEditStatusMessageOnPlayer(attacker,attackerKills.tostring()," Kill streak",attackerStatusID)
-	}
-
-	if(killStreak[victim.GetPlayerName()]["kills"] >=10)
-		foreach(entity p in GetPlayerArray())
-			NSSendAnnouncementMessageToPlayer(p,attacker.GetPlayerName()+ " ended "+ victim.GetPlayerName()+"s kill streak", "The "+ victimKills+ "-kill streak was ended with a "+  GetGunNameByID( DamageInfo_GetDamageSourceIdentifier( damageInfo ) ), <0,0,0>,1,1 )
-
-	killStreak[victim.GetPlayerName()]["kills"] = 0
-	if(killStreak[attacker.GetPlayerName()]["kills"] %10 == 0 && killStreak[attacker.GetPlayerName()]["kills"] != 0)  
-		foreach(entity p in GetPlayerArray())
-			NSSendAnnouncementMessageToPlayer(p,attacker.GetPlayerName()+ " is on a "+attackerKills+"-kill streak","", <0,0,0>,1,1 )
-
-	
-	
-}
-
 void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 {
 	if ( !victim.IsPlayer() || !attacker.IsPlayer() || GetGameState() != eGameState.Playing )
@@ -318,7 +265,7 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 	{
 		string message = victim.GetPlayerName() + " committed suicide"
 		string description = "Press F in the chat"
-		thread sendAnnoucementToAll(0.05,message, description,1)
+		thread sendAnnoucementToAll(message, description,1)
 
 		DeRank( victim, 1 )
 	}
@@ -329,17 +276,17 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
             attacker.SetHealth(attacker.GetMaxHealth())
 			StatusEffect_AddTimed( attacker, eStatusEffect.speed_boost, 0.4, 4.25, 0.25)
         }
-		//for bankrupting 
 		if( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.mp_weapon_grenade_sonar && gnsOn ){
 			// to check if the best player got killed, for an sns like experience
 			if(victim == GetWinningPlayer())
-				thread sendAnnoucementToAll(0.01,"Score leader bankrupt",  attacker.GetPlayerName() + " bankrupted the score leader: " + victim.GetPlayerName(),5) //Has a waitFrame SO IT WILL BE SEND AFTER this func is executed
-
+				thread sendAnnoucementToAll("Score leader bankrupt",  attacker.GetPlayerName() + " bankrupted the score leader: " + victim.GetPlayerName(),1)
+			
 			//removes the score from the victim
 			int bankruptValue = GetPBScoreRemove(victim)
 			AddTeamScore( victim.GetTeam(), -bankruptValue)
 			victim.SetPlayerGameStat( PGS_ASSAULT_SCORE, GameRules_GetTeamScore( victim.GetTeam() )) //first argument is what to change, 2nd is what to change it to
 			attacker.SetPlayerGameStat(PGS_NPC_KILLS, attacker.GetPlayerGameStat(PGS_NPC_KILLS)+1 )
+
 			//messages for attacker and victim
 			string victimMessage = attacker.GetPlayerName()+" bankrupted you."
 			string victimDescription =  "You lost:  " + bankruptValue +" points."
@@ -347,19 +294,22 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			string attackerDescription = "They lost " + bankruptValue +" points."
 			
 			//send those messages
-			thread NSSendAnnouncementMessageToPlayer_Thread(0.01, victim,victimMessage , victimDescription, <254,0,0>, 3, 7)
-			thread NSSendAnnouncementMessageToPlayer_Thread(0.01, attacker,attackerMessage , attackerDescription, <254,0,0>, 3, 7)
+			NSSendAnnouncementMessageToPlayer( victim,victimMessage , victimDescription, <254,0,0>, 3, 7)
+			NSSendAnnouncementMessageToPlayer( attacker,attackerMessage , attackerDescription, <254,0,0>, 3, 7)
 			
 			// remove
 			if(playerHSNames.find(victim.GetPlayerName())!=-1)
 				playerHSNames.remove( playerHSNames.find( victim.GetPlayerName() ) )
 		}
 
-		if ( DamageInfo_GetDamageSourceIdentifier( damageInfo ) != eDamageSourceId.melee_pilot_emptyhanded )
-		{	
+		if (( DamageInfo_GetDamageSourceIdentifier( damageInfo ) != eDamageSourceId.melee_pilot_kunai )&& (DamageInfo_GetDamageSourceIdentifier( damageInfo ) != eDamageSourceId.melee_pilot_emptyhanded))
+		{
 			float percentageReward = GetCurrentPlaylistVarFloat( "gg_kill_reward", 1.0 )
 			string scoreEvent = "KillPilot"
-			//execution handler
+
+			if(PlayerInHardMode[victim.GetPlayerName()] == 3)
+				DeRank(victim, 1)
+				
 			if ( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.human_execution )
 			{
 				string message = victim.GetPlayerName() + " got executed."
@@ -371,22 +321,26 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 				percentageReward = GetCurrentPlaylistVarFloat( "gg_execution_reward", 1.0 )
 				scoreEvent = "Execution"
 			}
-
 			//hard mode player kills
-			if(attacker.GetPlayerName() in HardModeKills && PlayerInHardMode[attacker.GetUID()].inHardmode)
+			if(attacker.GetPlayerName() in HardModeKills && PlayerInHardMode[attacker.GetPlayerName()]>0)
 				HardModeKills[attacker.GetPlayerName()] += 1
 
 			if( GameRules_GetTeamScore( attacker.GetTeam() ) == GetGunGameWeapons().len()-2 ) // meleeport
 				playerHSNames.append( attacker.GetPlayerName() )
-			//adjust the reward for hardmode
-			percentageReward = PlayerInHardMode[attacker.GetUID()].GainOnKill.tofloat()
-
-			//gives the score to the attacker etc
+			if(PlayerInHardMode[attacker.GetPlayerName()] == 3) //hard mode extreme
+				percentageReward = 0.5
 			Reward( attacker, victim, scoreEvent, percentageReward )
 
-			//Derank Hardmode players on death
-			DeRank(victim, PlayerInHardMode[victim.GetUID()].lossOnDeath)
+			//killstreak handler
+			killStreak[attacker.GetPlayerName()]++
+			if(killStreak[victim.GetPlayerName()]>=10)
+			   	foreach(entity p in GetPlayerArray())
+					NSSendAnnouncementMessageToPlayer(p,attacker.GetPlayerName()+ " ended "+ victim.GetPlayerName()+"s kill streak", "The "+ killStreak[victim.GetPlayerName()]+ "-kill streak was ended with the "+  GetGunNameByID( DamageInfo_GetDamageSourceIdentifier( damageInfo ) ), <0,0,0>,1,1 )
 
+			killStreak[victim.GetPlayerName()] = 0
+			if(killStreak[attacker.GetPlayerName()]%10 == 0 && killStreak[attacker.GetPlayerName()] != 0)
+			   	foreach(entity p in GetPlayerArray())
+			   		NSSendAnnouncementMessageToPlayer(p,attacker.GetPlayerName()+ " is on a "+killStreak[attacker.GetPlayerName()]+"-kill streak","", <0,0,0>,1,1 )
 
 		}
 		else if( playerHSNames.find( attacker.GetPlayerName() ) == -1 ){ // melee but no meleeport
@@ -400,24 +354,24 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			Chat_ServerPrivateMessage(attacker,"\x1b[38;5;196mDon't melee other pilots, \x1b[0you will lose points for every melee, this time you lost \x1b[34m" + NoLifers[attacker.GetPlayerName()] ,true)
 		}
 		else if( playerHSNames.find( attacker.GetPlayerName() ) != -1){ // meleeport anti abuse system
-			if(attacker.GetPlayerName() in MeleeportKills)   // increase the count for meleeport kills
+			if(attacker.GetPlayerName() in MeleeportKills)
 				MeleeportKills[attacker.GetPlayerName()]+=1
 			else
 				MeleeportKills[attacker.GetPlayerName()] <- 1
-			if(MeleeportKills[attacker.GetPlayerName()]==10) // warns the palyer
-				Chat_ServerPrivateMessage(attacker, "If you keep abusing meleeport it will be removed from you",false)
-			if(MeleeportKills[attacker.GetPlayerName()]>= 20){  // removes the meleeeport
+			if(MeleeportKills[attacker.GetPlayerName()]==10)
+				NSSendPopUpMessageToPlayer(attacker, "If you keep abusing meleeport it will be removed from you")
+			if(MeleeportKills[attacker.GetPlayerName()]>= 20){
 				playerHSNames.remove( playerHSNames.find(attacker.GetPlayerName() ) )
 				UpdateLoadout(attacker)
-				Chat_ServerPrivateMessage(attacker, "Meleeport has been removed from you",false)
+				NSSendPopUpMessageToPlayer(attacker, "Meleeport has been removed from you")
 			}
 
 		}
-		//for the best player highlight
+
 		if (attacker == GetWinningPlayer())
 			SetHighlight( attacker )
 	}
-	//for assists
+
 	table<int, bool> alreadyAssisted
 	foreach( DamageHistoryStruct attackerInfo in victim.e.recentDamageHistory )
 	{
@@ -429,8 +383,8 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			if ( attackerInfo.damageSourceId != eDamageSourceId.melee_pilot_emptyhanded ) {
 				alreadyAssisted[attackerInfo.attacker.GetEncodedEHandle()] <- true
 				float assistReward
-				if(PlayerInHardMode[attacker.GetUID()].inHardmode ) 
-					assistReward = PlayerInHardMode[attacker.GetUID()].assist
+				if(PlayerInHardMode[attackerInfo.attacker.GetPlayerName()] == 3 ) 
+					assistReward = 0.0 
 				else 
 					assistReward = 0.5
 				Reward( attackerInfo.attacker, victim, "PilotAssist", GetCurrentPlaylistVarFloat( "gg_assist_reward", assistReward ) )
@@ -501,10 +455,7 @@ void function UpdateLoadout( entity player )
 	if ( weapon.offhandSlot != -1)
 	{
 		player.GiveOffhandWeapon( weapon.weapon, weapon.offhandSlot, weapon.mods )
-
-		if(weapon.weapon == "melee_titan_sword")
-			NSSendInfoMessageToPlayer(player, "You have an offhand weapon, to use it you need to press your grenade button")
-		// also checks if the player 
+		NSSendInfoMessageToPlayer(player,"You have an offhand weapon press %%offhand0%% to use it")
 		if( playerHSNames.find( player.GetPlayerName() ) == -1 || (player.GetPlayerName() in MeleeportKills && MeleeportKills[player.GetPlayerName()]>=20))
 			player.GiveOffhandWeapon( "melee_pilot_kunai", OFFHAND_MELEE, [ "allow_as_primary" ] )
 		else
@@ -515,7 +466,7 @@ void function UpdateLoadout( entity player )
 	else
 	{
 		player.GiveWeapon( weapon.weapon, weapon.mods )
-			// if meleeport is not on OR the player has too many meleeport kills
+
 		if( playerHSNames.find( player.GetPlayerName() ) == -1 || (player.GetPlayerName() in MeleeportKills && MeleeportKills[player.GetPlayerName()]>=20))
 			player.GiveOffhandWeapon( "melee_pilot_kunai", OFFHAND_MELEE )
 		else
@@ -548,7 +499,7 @@ void function showPlayersInHardmodeKills() {
 	if(HardModeKills.len() == 0)
 		return
 	foreach(key, value in HardModeKills)
-		Chat_ServerBroadcast(key +" got "+ value +" kills in hard mode")
+		Chat_ServerBroadcast("\x1b[38;5;51m"+key +"\x1b[0 got \x1b[38;5;128m"+ value +"\x1b[0 kills in hard mode")
 	
 }
 
@@ -563,13 +514,8 @@ void function OnClientConnected(entity player) {
 	}
 	//add player to the Killstreak table
 	if(!( player.GetPlayerName() in killStreak )){
-		table<string, var>TempTable = {}
-		killStreak[player.GetPlayerName()] <- TempTable
-		killStreak[player.GetPlayerName()]["kills"] <- 0
-		killStreak[player.GetPlayerName()]["id"] <-UniqueString(player.GetPlayerName()+"_KILL_STREAK_ID_")
+		killStreak[player.GetPlayerName()] <- 0
 	}
-
-	
     printt("[GUN GAME] OnClientConnected", player, "team", player.GetTeam())
 	if(hsOn) // if house flies is enabled add player to hsplayers array
 		playerHSNames.append( player.GetPlayerName() )
@@ -668,31 +614,12 @@ string function GetGunNameByID(int ID) {
 		default: return "<Gun Not available>"
 	  }
 	return "<Gun Not available>"
-	}catch(ex){return "<Gun Not available>"}
+}catch(ex){return "<Gun Not available>"}
 }
 
-void function NSSendAnnouncementMessageToPlayer_Thread(float delay,entity player, string title, string description,vector color, int priority, int style){
-	wait delay
-	NSSendAnnouncementMessageToPlayer( player,  title,  description, color, priority, style)
-}
 
-void function sendAnnoucementToAll(float delay,string title, string description,int style){
-	wait delay
+void function sendAnnoucementToAll(string title, string description,int style){
+	WaitFrame() // THANKS FIFTS
 	foreach(entity player in GetPlayerArray())
-		NSSendAnnouncementMessageToPlayer( player,  title,  description, <0,0,0>, 1, style)
-}
-
-void function CreateDelayedStatusMessage(float delay, entity player, string title, string description, string id){
-	wait delay
-	NSCreateStatusMessageOnPlayer(player,title,description,id)
-}
-
-void function EditDelayedStatusMessageOnPlayer(float delay, entity player, string title, string description, string id){
-	wait delay
-	NSEditStatusMessageOnPlayer(player,title,description,id)
-}
-
-void function DeleteDelayedStatusMessageOnPlayer(float delay, entity player, string id){
-	wait delay
-	NSDeleteStatusMessageOnPlayer(player,id)
+		NSSendAnnouncementMessageToPlayer( player,  title,  description, <0,0,0>, 3, style)
 }

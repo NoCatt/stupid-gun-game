@@ -71,6 +71,7 @@ void function CreateGamemodeGG()
         GunGameWeapon ggPredator     = { weapon = "mp_titanweapon_predator_cannon", ... }
         GunGameWeapon ggXo16         = { weapon = "mp_titanweapon_xo16_vanguard", ... }
 		GunGameWeapon ggTrippleThread= { weapon = "mp_titanweapon_triplethreat", ... }
+		GunGameWeapon ggQuadLauncher = { weapon = "mp_titanweapon_rocketeer_rocketstream", ... }
         
         //titan abilities
         GunGameWeapon ggWeebWave     = { weapon = "mp_titanweapon_arc_wave",  mods = ["pas_ronin_arcwave", "burn_mod_titan_arc_wave", "dev_mod_low_recharge"],         offhandSlot = 0, ... }                        
@@ -97,6 +98,7 @@ void function CreateGamemodeGG()
         // shotgun
 	    GunGameWeapon ggEva          = { weapon = "mp_weapon_shotgun",         mods = ["extended_ammo", "pas_fast_reload"], ... }
 	    GunGameWeapon ggMastiff      = { weapon = "mp_weapon_mastiff",         mods = ["extended_ammo", "pas_fast_reload"], ... }
+		GunGameWeapon ggDoubleBarrel = { weapon = "mp_weapon_shotgun_doublebarrel", ... }
 
         // grenadier
 	    GunGameWeapon ggSoftball     = { weapon = "mp_weapon_softball",        mods = ["extended_ammo", "pas_fast_reload"], ... }
@@ -129,6 +131,8 @@ void function CreateGamemodeGG()
         file.weapons.append(ggArena3)
         file.weapons.append(ggSmartpistol)
         file.weapons.append(ggFlightcoreRockets)
+		file.weapons.append(ggQuadLauncher)
+		file.weapons.append(ggDoubleBarrel)
 
 	    file.weapons.append(ggCar)
 	    file.weapons.append(ggAlternator)
