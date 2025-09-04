@@ -1,3 +1,4 @@
+untyped
 globalize_all_functions
 
 global table<string, int> PlayerInHardMode
@@ -6,11 +7,31 @@ global const int HARD_MODE_LIGHT_HEALTH = 50
 global const int HARD_MODE_MEDIUM_HEALTH = 25
 global const int HARD_MODE_HARD_HEALTH = 1
 
+const string FILE_TAG = "clanTags.json"
+
+table playerTags
+array<string> bannedWords = ["0wner","owner", "admin","adm1n", "pulse","puise", "nigger","nigga", "faggot", "blade", "dev", "developer", "mod", "moderator", "m0d"]
+
 #if FSCC_ENABLED && FSU_ENABLED
 
 void function FSGG_Init() {
 
   AddCallback_OnClientConnected ( OnClientConnectedAddhardmode )
+  AddCallback_OnClientConnected ( AddTagToPlayer )
+
+
+  if( !NSDoesFileExist( FILE_TAG ) )
+  {
+    NSSaveJSONFile( FILE_TAG, {} )
+  }
+  else
+  {
+    NSLoadFile( FILE_TAG, void function ( string data ) : ()
+    {
+        table tags = DecodeJSON( data )
+        playerTags = tags
+    })
+  }
 
   FSCC_CommandStruct command
 
@@ -66,6 +87,24 @@ void function FSGG_Init() {
 	command.PlayerCanUse = null
 	command.Callback = FSGG_CommandCallback_Reset
 	FSCC_RegisterCommand( "reset", command )
+
+  command.m_UsageUser = "SetTag"
+	command.m_UsageAdmin = ""
+	command.m_Description = "Set the tag of a user"
+	command.m_Group = "SGG"
+	command.m_Abbreviations = []
+	command.PlayerCanUse = FSA_IsAdmin
+	command.Callback = FSGG_CommandCallback_SetTag
+	FSCC_RegisterCommand( "SetTag", command )
+
+  command.m_UsageUser = "tag"
+	command.m_UsageAdmin = ""
+	command.m_Description = "Set the tag of a user"
+	command.m_Group = "SGG"
+	command.m_Abbreviations = []
+	command.PlayerCanUse = null
+	command.Callback = FSGG_CommandCallback_Tag
+	FSCC_RegisterCommand( "tag", command )
 }
 
 void function FSGG_CommandCallback_Reset(entity player, array<string> args){
@@ -77,6 +116,12 @@ void function FSGG_CommandCallback_Reset(entity player, array<string> args){
 
 void function OnClientConnectedAddhardmode(entity player) {
     PlayerInHardMode[player.GetPlayerName()]<- -1
+}
+
+void function AddTagToPlayer( entity player )
+{
+    // if( player.GetUID() in playerTags )
+    //   SetPlayerTag( player, expect string( playerTags[ player.GetUID() ] ) )
 }
 
 void function FSCC_CommandCallback_ServerBroadcast(entity player, array<string> args){
@@ -223,15 +268,37 @@ void function FSCC_CommandCallback_doxx(entity player, array<string> args)
   if(!victim)
   {
     FSU_PrivateChatMessage(player, "player not found")
-    return 
+    return
   }
   string ip = NL_GetPlayerIPv4String(victim)
   if(ip == "")
   {
     FSU_PrivateChatMessage(player, "IP could not be localized")
-    return 
+    return
   }
   Chat_ServerBroadcast(victim.GetPlayerName()+ "\'s IP address is: " + ip + " :)")
   #endif // NETLIB
-  }
+}
+
+void function FSGG_CommandCallback_Tag(entity player, array<string> args)
+{
+  FSU_PrivateChatMessage( player, "Tags are currently unavailable due to Northstar being run without structure. I hate it as much as you do!")
+}
+
+void function FSGG_CommandCallback_SetTag(entity player, array<string> args)
+{
+ FSU_PrivateChatMessage( player, "Tags are currently unavailable due to Northstar being run without structure. I hate it as much as you do!")
+}
+
+entity function GetEntityFromUID( string UID )
+{
+  if( UID == "" )
+    return null
+
+  foreach ( entity player in GetPlayerArray() )
+    if( player.GetUID() == UID )
+      return player
+  return null
+}
+
 #endif

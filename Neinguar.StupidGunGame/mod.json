@@ -1,0 +1,8 @@
+{
+    "Name" : "Neinguar.StupidGunGame",
+	"Description" : "Core files for sgg",
+	"Version": "1.3.0",
+	"LoadPriority": 2,
+	"ConVars": [],
+    "Scripts": []
+}

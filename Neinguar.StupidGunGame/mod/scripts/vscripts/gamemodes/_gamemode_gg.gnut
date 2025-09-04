@@ -47,6 +47,7 @@ void function GamemodeGG_Init()
 	AddClientCommandCallback("hs", EnablehsCMD) // this command toggles hs to all or a certain players syntax: hs <name/all> 0/1
 	AddClientCommandCallback("gns", EnablehsGNS)
 	Server_AddCustomScoreboardColumn("Pulse Kills", PGS_NPC_KILLS , 2 )
+	Server_AddCustomScoreboardColumn("Times bankrupted", PGS_TITAN_KILLS  , 2 )
 	
 	SetSpawnpointGamemodeOverride( FFA )
 
@@ -286,7 +287,8 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			AddTeamScore( victim.GetTeam(), -bankruptValue)
 			victim.SetPlayerGameStat( PGS_ASSAULT_SCORE, GameRules_GetTeamScore( victim.GetTeam() )) //first argument is what to change, 2nd is what to change it to
 			attacker.SetPlayerGameStat(PGS_NPC_KILLS, attacker.GetPlayerGameStat(PGS_NPC_KILLS)+1 )
-
+			victim.SetPlayerGameStat( PGS_TITAN_KILLS, victim.GetPlayerGameStat(PGS_TITAN_KILLS)+1 )
+			
 			//messages for attacker and victim
 			string victimMessage = attacker.GetPlayerName()+" bankrupted you."
 			string victimDescription =  "You lost:  " + bankruptValue +" points."
@@ -388,6 +390,7 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 				else 
 					assistReward = 0.5
 				Reward( attackerInfo.attacker, victim, "PilotAssist", GetCurrentPlaylistVarFloat( "gg_assist_reward", assistReward ) )
+				NSSendPopUpMessageToPlayer(attackerInfo.attacker, "Assisted "+ victim.GetPlayerName() )
 			}
 		}
 	}

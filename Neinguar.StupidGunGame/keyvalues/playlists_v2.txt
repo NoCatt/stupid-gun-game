@@ -42,8 +42,8 @@ playlists
 				description #PL_gg_desc
 				hint #PL_gg_hint
 				abbreviation #PL_gg_abbr
-				max_players 16
-				max_teams 16
+				max_players 20
+				max_teams 20
 				classic_mp 1
 				
 				scorelimit 21 // temp until we have a way of dynamically setting non-default scorelimit in code
