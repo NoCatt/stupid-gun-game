@@ -83,7 +83,7 @@ void function FSGG_Init() {
 	command.m_UsageAdmin = ""
 	command.m_Description = "resets your score"
 	command.m_Group = "SGG"
-	command.m_Abbreviations = []
+	command.m_Abbreviations = ["r"]
 	command.PlayerCanUse = null
 	command.Callback = FSGG_CommandCallback_Reset
 	FSCC_RegisterCommand( "reset", command )
