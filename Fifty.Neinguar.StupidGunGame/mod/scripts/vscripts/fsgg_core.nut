@@ -1,8 +1,7 @@
 untyped
 globalize_all_functions
 
-global table<string, int> PlayerInHardMode
-global table<string, int> HardModeKills
+
 global const int HARD_MODE_LIGHT_HEALTH = 50
 global const int HARD_MODE_MEDIUM_HEALTH = 25
 global const int HARD_MODE_HARD_HEALTH = 1
@@ -11,6 +10,42 @@ const string FILE_TAG = "clanTags.json"
 
 table playerTags
 array<string> bannedWords = ["0wner","owner", "admin","adm1n", "pulse","puise", "nigger","nigga", "faggot", "blade", "dev", "developer", "mod", "moderator", "m0d"]
+
+global struct hardmodeInfo{
+  bool isInHardmode = false
+  int health = 100
+  int killsPerGun = 1
+  bool reduceScoreOnDeath = false
+  string infoMessage = "with hard mode off"
+  int hardmodeKills = 0
+}
+
+global table<string, hardmodeInfo> PlayerInHardMode
+
+hardmodeInfo standart ={...}
+
+hardmodeInfo lightMode = {
+  isInHardmode = true,
+  health = 50,
+  infoMessage =  "in hard mode light",
+  ...
+}
+hardmodeInfo mediumMode = {
+  isInHardmode = true,
+  health = 25,
+  killsPerGun = 2,
+  reduceScoreOnDeath = false,
+  infoMessage = "in hard mode medium",
+  ...
+}
+hardmodeInfo extremeMode = {
+  isInHardmode = true,
+  health = 1,
+  killsPerGun = 2,
+  reduceScoreOnDeath = true,
+  infoMessage = "in hard mode extreme",
+  ...
+}
 
 #if FSCC_ENABLED && FSU_ENABLED
 
@@ -211,7 +246,7 @@ void function FSCC_CommandCallback_Hardmode (entity player, array < string > arg
     string Name1 = "Light"
     string Desc1 = "Reduces your health by 50"
     string Name2 = "Medium"
-    string Desc2 = "Reduces your health by 75 "
+    string Desc2 = "Reduces your health by 75, each gun now takes 2 kills"
     string Name3 = "Extreme"
     string Desc3 = "Reduces your healt by 99, each gun now takes 2 kills"
 
@@ -221,29 +256,20 @@ void function FSCC_CommandCallback_Hardmode (entity player, array < string > arg
        return
     }
     if(args[0]=="light"||args[0]=="Light"||args[0]=="LIGHT"||args[0]=="1"){
-      PlayerInHardMode[player.GetPlayerName()] = 1
-      ChangePlayerHealth(player, HARD_MODE_LIGHT_HEALTH)
-      Chat_ServerBroadcast("\x1b[38;5;51m"+player.GetPlayerName()+ " \x1b[0is now playing in hardmode light")
+      PlayerInHardMode[player.GetPlayerName()] = lightMode
     }
     if(args[0]=="medium"||args[0]=="Medium"||args[0]=="MEDIUM"||args[0]=="2"){
-      PlayerInHardMode[player.GetPlayerName()] = 2
-      ChangePlayerHealth(player, HARD_MODE_MEDIUM_HEALTH)
-      Chat_ServerBroadcast("\x1b[38;5;51m"+player.GetPlayerName()+ " \x1b[0is now playing in hardmode medium")
+      PlayerInHardMode[player.GetPlayerName()] = mediumMode
     }
     if(args[0]=="extreme"||args[0]=="Extreme"||args[0]=="EXTREME"||args[0]=="3"){
-      PlayerInHardMode[player.GetPlayerName()] = 3
-      ChangePlayerHealth(player, HARD_MODE_HARD_HEALTH)
-      Chat_ServerBroadcast("\x1b[38;5;51m"+player.GetPlayerName()+ " \x1b[0is now playing in hardmode extreme")
+      PlayerInHardMode[player.GetPlayerName()] = extremeMode
     }
     if(args[0]=="off"||args[0]=="Off"||args[0]=="OFF"||args[0]=="-1"){
-      PlayerInHardMode[player.GetPlayerName()] = -1
-      ChangePlayerHealth(player, 100)
-      Chat_ServerBroadcast("\x1b[38;5;51m"+player.GetPlayerName()+ " \x1b[0is no longer playing in hardmode")
+      PlayerInHardMode[player.GetPlayerName()] = standart
     }
-    if(PlayerInHardMode[player.GetPlayerName()]>0){
-      if( !(player.GetPlayerName() in HardModeKills ))
-        HardModeKills[player.GetPlayerName()] <- 0
-    }
+
+    ChangePlayerHealth(player, PlayerInHardMode[player].health)
+    Chat_ServerBroadcast("\x1b[38;5;51m"+player.GetPlayerName()+ " \x1b[0is now playing " + PlayerInHardMode[player].infoMessage )
     return
   }
 

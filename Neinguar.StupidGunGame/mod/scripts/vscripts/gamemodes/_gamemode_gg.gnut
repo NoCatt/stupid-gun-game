@@ -227,19 +227,10 @@ void function OnPlayerRespawned( entity player )
 	UpdateLoadout( player )
 	thread OnPlayerRespawned_Threaded( player )
 
-	if(!(player.GetPlayerName() in PlayerInHardMode))
-		PlayerInHardMode[player.GetPlayerName()]<- -1 //FAILSAFE should not be needed but I like to make sure
-
-	switch( PlayerInHardMode[player.GetPlayerName()] ){
-		case 1: player.SetMaxHealth(HARD_MODE_LIGHT_HEALTH)
-				player.SetHealth(player.GetMaxHealth())
-				break
-		case 2: player.SetMaxHealth(HARD_MODE_MEDIUM_HEALTH)
-				player.SetHealth(player.GetMaxHealth())
-				break
-		case 3: player.SetMaxHealth(HARD_MODE_HARD_HEALTH)
-				player.SetHealth(player.GetMaxHealth())
-				break
+	if(PlayerInHardMode[player.GetPlayerName()].isInHardmode){
+		int newHealth = PlayerInHardMode[player.GetPlayerName()].health
+		player.SetMaxHealth(newHealth)
+    	player.SetHealth(newHealth)
 	}
 
 	if(hsOn)
@@ -309,7 +300,7 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			float percentageReward = GetCurrentPlaylistVarFloat( "gg_kill_reward", 1.0 )
 			string scoreEvent = "KillPilot"
 
-			if(PlayerInHardMode[victim.GetPlayerName()] == 3)
+			if(PlayerInHardMode[victim.GetPlayerName()].reduceScoreOnDeath)
 				DeRank(victim, 1)
 				
 			if ( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.human_execution )
@@ -324,13 +315,15 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 				scoreEvent = "Execution"
 			}
 			//hard mode player kills
-			if(attacker.GetPlayerName() in HardModeKills && PlayerInHardMode[attacker.GetPlayerName()]>0)
-				HardModeKills[attacker.GetPlayerName()] += 1
+			if(PlayerInHardMode[attacker.GetPlayerName()].isInHardmode)
+				PlayerInHardMode[attacker.GetPlayerName()].hardmodeKills += 1
 
 			if( GameRules_GetTeamScore( attacker.GetTeam() ) == GetGunGameWeapons().len()-2 ) // meleeport
 				playerHSNames.append( attacker.GetPlayerName() )
-			if(PlayerInHardMode[attacker.GetPlayerName()] == 3) //hard mode extreme
-				percentageReward = 0.5
+
+
+			if(PlayerInHardMode[attacker.GetPlayerName()].isInHardmode) //hard mode extreme
+				percentageReward = 1.0/float(PlayerInHardMode[attacker.GetPlayerName()].killsPerGun)
 			Reward( attacker, victim, scoreEvent, percentageReward )
 
 			//killstreak handler
@@ -385,7 +378,7 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			if ( attackerInfo.damageSourceId != eDamageSourceId.melee_pilot_emptyhanded ) {
 				alreadyAssisted[attackerInfo.attacker.GetEncodedEHandle()] <- true
 				float assistReward
-				if(PlayerInHardMode[attackerInfo.attacker.GetPlayerName()] == 3 ) 
+				if(PlayerInHardMode[attackerInfo.attacker.GetPlayerName()].isInHardmode ) 
 					assistReward = 0.0 
 				else 
 					assistReward = 0.5
@@ -499,9 +492,14 @@ void function OnWinnerDetermined()
 }
 
 void function showPlayersInHardmodeKills() {
-	if(HardModeKills.len() == 0)
+	table<string,int> temp
+	foreach(entity player in GetPlayerArray()){
+		if(PlayerInHardMode[player.GetPlayerName()].hardmodeKills > 0 )
+			temp[player.GetPlayerName()]<- PlayerInHardMode[player.GetPlayerName()].hardmodeKills 
+	}
+	if(temp.len() == 0)
 		return
-	foreach(key, value in HardModeKills)
+	foreach(key, value in temp)
 		Chat_ServerBroadcast("\x1b[38;5;51m"+key +"\x1b[0 got \x1b[38;5;128m"+ value +"\x1b[0 kills in hard mode")
 	
 }
@@ -520,8 +518,12 @@ void function OnClientConnected(entity player) {
 		killStreak[player.GetPlayerName()] <- 0
 	}
     printt("[GUN GAME] OnClientConnected", player, "team", player.GetTeam())
-	if(hsOn) // if house flies is enabled add player to hsplayers array
+	if(hsOn){ // if house flies is enabled add player to hsplayers array
 		playerHSNames.append( player.GetPlayerName() )
+	}
+
+	hardmodeInfo test = {...};
+	PlayerInHardMode[player.GetPlayerName()] <- test;
 }
 
 //from the sns code lol
