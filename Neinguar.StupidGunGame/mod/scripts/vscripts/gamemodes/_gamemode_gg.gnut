@@ -300,8 +300,8 @@ void function OnPlayerKilled( entity victim, entity attacker, var damageInfo )
 			float percentageReward = GetCurrentPlaylistVarFloat( "gg_kill_reward", 1.0 )
 			string scoreEvent = "KillPilot"
 
-			if(PlayerInHardMode[victim.GetPlayerName()].reduceScoreOnDeath)
-				DeRank(victim, 1)
+			if(PlayerInHardMode[victim.GetPlayerName()].reduceScoreOnDeath > 0 )
+				DeRank(victim, PlayerInHardMode[victim.GetPlayerName()].reduceScoreOnDeath)
 				
 			if ( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.human_execution )
 			{
@@ -521,9 +521,6 @@ void function OnClientConnected(entity player) {
 	if(hsOn){ // if house flies is enabled add player to hsplayers array
 		playerHSNames.append( player.GetPlayerName() )
 	}
-
-	hardmodeInfo test = {...};
-	PlayerInHardMode[player.GetPlayerName()] <- test;
 }
 
 //from the sns code lol

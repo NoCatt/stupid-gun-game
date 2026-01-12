@@ -15,7 +15,7 @@ global struct hardmodeInfo{
   bool isInHardmode = false
   int health = 100
   int killsPerGun = 1
-  bool reduceScoreOnDeath = false
+  int reduceScoreOnDeath = 0
   string infoMessage = "with hard mode off"
   int hardmodeKills = 0
 }
@@ -34,7 +34,7 @@ hardmodeInfo mediumMode = {
   isInHardmode = true,
   health = 25,
   killsPerGun = 2,
-  reduceScoreOnDeath = false,
+  reduceScoreOnDeath = 0,
   infoMessage = "in hard mode medium",
   ...
 }
@@ -42,7 +42,7 @@ hardmodeInfo extremeMode = {
   isInHardmode = true,
   health = 1,
   killsPerGun = 2,
-  reduceScoreOnDeath = true,
+  reduceScoreOnDeath = 1,
   infoMessage = "in hard mode extreme",
   ...
 }
@@ -150,7 +150,8 @@ void function FSGG_CommandCallback_Reset(entity player, array<string> args){
 }
 
 void function OnClientConnectedAddhardmode(entity player) {
-    PlayerInHardMode[player.GetPlayerName()]<- -1
+    hardmodeInfo test = {...};
+	  PlayerInHardMode[player.GetPlayerName()] <- test;
 }
 
 void function AddTagToPlayer( entity player )
@@ -268,8 +269,30 @@ void function FSCC_CommandCallback_Hardmode (entity player, array < string > arg
       PlayerInHardMode[player.GetPlayerName()] = standart
     }
 
-    ChangePlayerHealth(player, PlayerInHardMode[player].health)
-    Chat_ServerBroadcast("\x1b[38;5;51m"+player.GetPlayerName()+ " \x1b[0is now playing " + PlayerInHardMode[player].infoMessage )
+    if(args[0] == "custom" || args[0] == "Custom"|| args[0] == "CUSTOM"){
+      if(args.len()< 4){
+        Chat_ServerPrivateMessage(player, "Usage: !hardmode custom \x1b[34m<health> <kills> <reset>\x1b[0m", false)
+        return
+      }
+      int newHealth = int(args[1])
+      int kills = int(args[2])
+      int reset = int(args[3])
+      if (newHealth <=0 || kills <=0 || reset <0){
+        Chat_ServerPrivateMessage(player, "Given values must be integers at or above 0",false)
+        return
+      }
+      hardmodeInfo customHM = { ...}
+      customHM.isInHardmode = true
+      customHM.health = 11
+      customHM.killsPerGun = kills
+      customHM.reduceScoreOnDeath = reset
+      customHM.infoMessage = "in custom hard mode"
+
+      PlayerInHardMode[player.GetPlayerName()] = customHM
+    }
+
+    ChangePlayerHealth(player, PlayerInHardMode[player.GetPlayerName()].health)
+    Chat_ServerBroadcast("\x1b[38;5;51m"+player.GetPlayerName()+ " \x1b[0is now playing " + PlayerInHardMode[player.GetPlayerName()].infoMessage )
     return
   }
 
