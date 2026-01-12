@@ -284,7 +284,7 @@ void function FSCC_CommandCallback_Hardmode (entity player, array < string > arg
       }
       hardmodeInfo customHM = { ...}
       customHM.isInHardmode = true
-      customHM.health = 11
+      customHM.health = newHealth
       customHM.killsPerGun = kills
       customHM.reduceScoreOnDeath = reset
       customHM.infoMessage = "in custom hard mode"
