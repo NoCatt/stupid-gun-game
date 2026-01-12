@@ -278,7 +278,7 @@ void function FSCC_CommandCallback_Hardmode (entity player, array < string > arg
       int newHealth = int(args[1])
       int kills = int(args[2])
       int reset = int(args[3])
-      if (newHealth <=0 || kills <=0 || reset <0){
+      if (newHealth <=0 || kills <=0 || reset <0 ||newHealth > 100){
         Chat_ServerPrivateMessage(player, "Given values must be integers at or above 0",false)
         return
       }
