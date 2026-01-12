@@ -253,8 +253,9 @@ void function FSCC_CommandCallback_Hardmode (entity player, array < string > arg
 
 
     if(args.len()==0){
-       Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
-       return
+      Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
+      Chat_ServerPrivateMessage(player,"If you are looking for a custom experience use \x1b[34m!hardmode custom <health> <kills> <reset on death>\x1b[0m",false)
+      return
     }
     if(args[0]=="light"||args[0]=="Light"||args[0]=="LIGHT"||args[0]=="1"){
       PlayerInHardMode[player.GetPlayerName()] = lightMode
@@ -292,7 +293,7 @@ void function FSCC_CommandCallback_Hardmode (entity player, array < string > arg
     }
 
     ChangePlayerHealth(player, PlayerInHardMode[player.GetPlayerName()].health)
-    Chat_ServerBroadcast("\x1b[38;5;51m"+player.GetPlayerName()+ " \x1b[0is now playing " + PlayerInHardMode[player.GetPlayerName()].infoMessage )
+    Chat_ServerBroadcast("\x1b[38;5;51m"+player.GetPlayerName()+ "\x1b[0is now playing " + PlayerInHardMode[player.GetPlayerName()].infoMessage )
     return
   }
 
