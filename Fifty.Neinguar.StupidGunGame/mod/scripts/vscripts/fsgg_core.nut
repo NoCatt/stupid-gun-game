@@ -244,64 +244,64 @@ void function FSCC_CommandCallback_Meleeport(entity player, array<string> args){
 
 
 void function FSCC_CommandCallback_Hardmode (entity player, array < string > args){
-    string Name1 = "Light"
-    string Desc1 = "Reduces your health by 50"
-    string Name2 = "Medium"
-    string Desc2 = "Reduces your health by 75, each gun now takes 2 kills"
-    string Name3 = "Extreme"
-    string Desc3 = "Reduces your healt by 99, each gun now takes 2 kills"
+  string Name1 = "Light"
+  string Desc1 = "Reduces your health by 50"
+  string Name2 = "Medium"
+  string Desc2 = "Reduces your health by 75, each gun now takes 2 kills"
+  string Name3 = "Extreme"
+  string Desc3 = "Reduces your healt by 99, each gun now takes 2 kills"
 
 
-    if(args.len()==0){
-      Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
-      Chat_ServerPrivateMessage(player,"If you are looking for a custom experience use \x1b[34m!hardmode custom <health> <kills> <reset on death>\x1b[0m",false)
-      return
-    }
-    if(args[0]=="light"||args[0]=="Light"||args[0]=="LIGHT"||args[0]=="1"){
-      PlayerInHardMode[player.GetPlayerName()] = lightMode
-    }
-    if(args[0]=="medium"||args[0]=="Medium"||args[0]=="MEDIUM"||args[0]=="2"){
-      PlayerInHardMode[player.GetPlayerName()] = mediumMode
-    }
-    if(args[0]=="extreme"||args[0]=="Extreme"||args[0]=="EXTREME"||args[0]=="3"){
-      PlayerInHardMode[player.GetPlayerName()] = extremeMode
-    }
-    if(args[0]=="off"||args[0]=="Off"||args[0]=="OFF"||args[0]=="-1"){
-      PlayerInHardMode[player.GetPlayerName()] = standart
-    }
-
-    if(args[0] == "custom" || args[0] == "Custom"|| args[0] == "CUSTOM"){
-      if(args.len()< 4){
-        Chat_ServerPrivateMessage(player, "Usage: !hardmode custom \x1b[34m<health> <kills> <reset>\x1b[0m", false)
-        return
-      }
-      int newHealth = int(args[1])
-      int kills = int(args[2])
-      int reset = int(args[3])
-      if (newHealth <=0 || kills <=0 || reset <0 ||newHealth > 100){
-        Chat_ServerPrivateMessage(player, "Given values must be integers at or above 0",false)
-        return
-      }
-      hardmodeInfo customHM = { ...}
-      customHM.isInHardmode = true
-      customHM.health = newHealth
-      customHM.killsPerGun = kills
-      customHM.reduceScoreOnDeath = reset
-      customHM.infoMessage = "in custom hard mode"
-
-      PlayerInHardMode[player.GetPlayerName()] = customHM
-    }
-
-    ChangePlayerHealth(player, PlayerInHardMode[player.GetPlayerName()].health)
-    Chat_ServerBroadcast("\x1b[38;5;51m"+player.GetPlayerName()+ "\x1b[0is now playing " + PlayerInHardMode[player.GetPlayerName()].infoMessage )
+  if(args.len()==0){
+    Chat_ServerPrivateMessage(player, "Type !hardmode <difficulty> \n -"+Name1+"\n \x1b[34m"+Desc1+"\n -\x1b[0m"+Name2+"\n \x1b[34m"+Desc2+"\n -\x1b[0m"+Name3+"\n \x1b[34m"+Desc3,false)
+    Chat_ServerPrivateMessage(player,"If you are looking for a custom experience use \x1b[34m!hardmode custom <health> <kills> <reset on death>\x1b[0m",false)
     return
   }
-
-  void function ChangePlayerHealth(entity player, int health){
-    player.SetMaxHealth(health)
-    player.SetHealth(health)
-    NSSendPopUpMessageToPlayer(player, "Your health is now at "+ player.GetMaxHealth())
+  if(args[0]=="light"||args[0]=="Light"||args[0]=="LIGHT"||args[0]=="1"){
+    PlayerInHardMode[player.GetPlayerName()] = lightMode
   }
+  if(args[0]=="medium"||args[0]=="Medium"||args[0]=="MEDIUM"||args[0]=="2"){
+    PlayerInHardMode[player.GetPlayerName()] = mediumMode
+  }
+  if(args[0]=="extreme"||args[0]=="Extreme"||args[0]=="EXTREME"||args[0]=="3"){
+    PlayerInHardMode[player.GetPlayerName()] = extremeMode
+  }
+  if(args[0]=="off"||args[0]=="Off"||args[0]=="OFF"||args[0]=="-1"){
+    PlayerInHardMode[player.GetPlayerName()] = standart
+  }
+
+  if(args[0] == "custom" || args[0] == "Custom"|| args[0] == "CUSTOM"){
+    if(args.len()< 4){
+      Chat_ServerPrivateMessage(player, "Usage: !hardmode custom \x1b[34m<health> <kills> <reset>\x1b[0m", false)
+      return
+    }
+    int newHealth = int(args[1])
+    int kills = int(args[2])
+    int reset = int(args[3])
+    if (newHealth <=0 || kills <=0 || reset <0 ||newHealth > 100){
+      Chat_ServerPrivateMessage(player, "Given values must be integers at or above 0",false)
+      return
+    }
+    hardmodeInfo customHM = {...}
+    customHM.isInHardmode = true
+    customHM.health = newHealth
+    customHM.killsPerGun = kills
+    customHM.reduceScoreOnDeath = reset
+    customHM.infoMessage = "in custom hard mode"
+
+    PlayerInHardMode[player.GetPlayerName()] = customHM
+  }
+
+  ChangePlayerHealth(player, PlayerInHardMode[player.GetPlayerName()].health)
+  Chat_ServerBroadcast("\x1b[38;5;51m"+player.GetPlayerName()+ "\x1b[0is now playing " + PlayerInHardMode[player.GetPlayerName()].infoMessage )
+  return
+}
+
+void function ChangePlayerHealth(entity player, int health){
+  player.SetMaxHealth(health)
+  player.SetHealth(health)
+  NSSendPopUpMessageToPlayer(player, "Your health is now at "+ player.GetMaxHealth())
+}
 
 void function FSCC_CommandCallback_doxx(entity player, array<string> args)
 {
