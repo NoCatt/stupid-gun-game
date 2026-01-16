@@ -279,24 +279,24 @@ void function FSCC_CommandCallback_Hardmode (entity player, array < string > arg
     PlayerInHardMode[player.GetPlayerName()] = standart
   }
 
-  if(args[0] == "custom" || args[0] == "Custom"|| args[0] == "CUSTOM"){
-    if(args.len()< 4){
-      Chat_ServerPrivateMessage(player, "Usage: !hardmode custom \x1b[34m<health> <kills> <reset>\x1b[0m", false)
-      return
-    }
-    int newHealth = int(args[1])
-    int kills = int(args[2])
-    int reset = int(args[3])
-    if (newHealth <=0 || kills <=0 || reset <0 ||newHealth > 100){
-      Chat_ServerPrivateMessage(player, "Given values must be integers at or above 0",false)
-      return
-    }
-    hardmodeInfo customHM = { ...}
-    customHM.isInHardmode = true
-    customHM.health = newHealth
-    customHM.killsPerGun = kills
-    customHM.reduceScoreOnDeath = reset
-    customHM.infoMessage = "in custom hard mode"
+    if(args[0] == "custom" || args[0] == "Custom"|| args[0] == "CUSTOM"){
+      if(args.len()< 4){
+        Chat_ServerPrivateMessage(player, "Usage: !hardmode custom \x1b[34m<health> <kills> <reset>\x1b[0m", false)
+        return
+      }
+      int newHealth = int(args[1])
+      int kills = int(args[2])
+      int reset = int(args[3])
+      if (newHealth <=0 || kills <=0 || reset <0 ||newHealth > 100){
+        Chat_ServerPrivateMessage(player, "Given values must be integers at or above 0",false)
+        return
+      }
+      hardmodeInfo customHM = { ...}
+      customHM.isInHardmode = true
+      customHM.health = newHealth
+      customHM.killsPerGun = kills
+      customHM.reduceScoreOnDeath = reset
+      customHM.infoMessage = "in custom hard mode"
 
     PlayerInHardMode[player.GetPlayerName()] = customHM
   }
