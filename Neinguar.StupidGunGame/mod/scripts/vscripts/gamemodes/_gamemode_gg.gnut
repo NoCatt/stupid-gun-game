@@ -3,16 +3,6 @@ untyped
 global function GamemodeGG_Init
 global bool gnsOn
 global function UpdateLoadout
-global struct Event{
-	string EventName
-	bool EventActive
-	string EventDesc
-	int duration
-	void functionref(string) EventInit
-	void functionref(string) EventExit
-}
-global array<Event> RandomEventsArray // ["meleeport","wingman","twokills","aa"]
-global bool eventOn
 global function showPlayersInHardmodeKills
 global array<string> playerHSNames = [] //players that have HouseFlies enabled
 global bool hsOn
@@ -44,8 +34,6 @@ struct {
 void function GamemodeGG_Init()
 {
 	
-	AddClientCommandCallback("hs", EnablehsCMD) // this command toggles hs to all or a certain players syntax: hs <name/all> 0/1
-	AddClientCommandCallback("gns", EnablehsGNS)
 	Server_AddCustomScoreboardColumn("Pulse Kills", PGS_NPC_KILLS , 2 )
 	Server_AddCustomScoreboardColumn("Times bankrupted", PGS_TITAN_KILLS  , 2 )
 	
@@ -66,8 +54,8 @@ void function GamemodeGG_Init()
 
 	AddCallback_GGEarnMeterFull( OnGGEarnMeterFilled )
 
-    	// CUSTOM
-    	AddCallback_OnClientConnected(OnClientConnected)
+	// CUSTOM
+	AddCallback_OnClientConnected(OnClientConnected)
 
 	if( RandomInt( 100 ) == 1 ) // easter egg (enables house flies for everyone)
 	{
@@ -87,127 +75,10 @@ void function GamemodeGG_Init()
 	}
 	catch ( ex ) {}
 
-	eventOn = false
 
 	bankrupt_base_value = 5
 }
 
-bool function EnablehsGNS (entity player, array < string > args)
-{
-	if(adminNames.find(player.GetPlayerName())==-1)
-		return true
-	try{
-		if (args[0]== "1"){
-			gnsOn = true
-			foreach(entity playerInArray in GetPlayerArray())
-				UpdateLoadout(playerInArray)
-		return true
-		}
-		if(args[0]=="0"){
-			gnsOn = false
-			foreach(entity playerInArray in GetPlayerArray())
-				UpdateLoadout(playerInArray)
-		return true
-		}
-
-	}
-	catch(ex){}
-	return false
-}
-
-bool function EnablehsCMD( entity player, array < string > args )
-{
-    #if SERVER
-	string playerName = player.GetPlayerName()
-	if( adminNames.find(playerName) != -1) // checks if player is an admin
-	{
-		if(args.len() == 0) // if only hs entered
-			{
-				SendHudMessage(player, "dumb!!! syntax: hs <name|all> <0/1>", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-				return true
-			}
-		switch ( args[0] )
-		{
-			// if has all entered
-			case("all"):
-				if(args[1] == "1")
-				{
-					hsOn = true;
-					foreach( entity pl in GetPlayerArray() )
-					{
-						if( playerHSNames.find( pl.GetPlayerName() ) == -1 )
-						{
-							playerHSNames.append( pl.GetPlayerName() )
-							UpdateLoadout(pl)
-							SendHudMessage(player, "Meleeport is active for everyone due to admin abuse", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-						}
-					}
-				}
-				else if(args[1] == "0")
-					{
-						hsOn = false;
-						playerHSNames.clear()
-						foreach( entity pl in GetPlayerArray() )
-							UpdateLoadout(pl)
-							SendHudMessage(player, "Meleeport is GONE for everyone everyone hate on the admin", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-					}
-				// if something that isnt 1 or 0 was entered
-				else
-					SendHudMessage(player, "dumb!!! syntax: hs <name|all> <0/1>", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-				break;
-
-			// if a 0 was entered in stead of a player's name
-			case("0"):
-				SendHudMessage(player, "dumb!!! syntax: hs <name|all> <0/1>", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-				break;
-
-			 // if a 1 was entered in stead of a player's name
-			case("1"):
-				SendHudMessage(player, "dumb!!! syntax: hs <name|all> <0/1>", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-				break;
-
-			default:
-				bool found = false
-				int playerIndex
-				// checks if the player entered is connected
-				for( int i = 0 ; i < GetPlayerArray().len() ; i++ )
-				{
-					entity pl = GetPlayerArray()[i]
-					if( pl.GetPlayerName() == args[0] )
-					{
-						found = true
-						playerIndex = i
-					}
-				}
-				if( found )
-					{
-						if( args[1] == "0" )
-						{
-							if( playerHSNames.find(args[0]) != -1 )
-							{
-								playerHSNames.remove( playerHSNames.find(args[0]) )
-								UpdateLoadout( GetPlayerArray()[playerIndex] )
-							}
-						}
-						else if( args[1] == "1")
-						{
-							if( playerHSNames.find(args[0]) == -1 )
-							{
-								playerHSNames.append( args[0] )
-								UpdateLoadout( GetPlayerArray()[playerIndex] )
-							}
-						}
-						else
-							SendHudMessage(player, "dumb!!! syntax: hs <name|all> <0/1>", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-					}
-				else
-					SendHudMessage(player, "wrong syntax or player not found", -1, 0.4, 255, 200, 200, 0, 0, 5, 0.15)
-				break;
-		}
-	}
-    #endif
-    return true
-}
 
 void function OnPlayerDisconnected(entity player)
 {
@@ -492,16 +363,26 @@ void function OnWinnerDetermined()
 }
 
 void function showPlayersInHardmodeKills() {
-	table<string,int> temp
-	foreach(entity player in GetPlayerArray()){
-		if(PlayerInHardMode[player.GetPlayerName()].hardmodeKills > 0 )
-			temp[player.GetPlayerName()]<- PlayerInHardMode[player.GetPlayerName()].hardmodeKills 
+	array< string >  HardModeKillsList = []
+
+	foreach(playerName, HardmodeInfo in PlayerInHardMode){
+		HardModeKillsList.append(playerName)
+		HardModeKillsList.append(string(HardmodeInfo.hardmodeKills))
 	}
-	if(temp.len() == 0)
+
+	if(HardModeKillsList.len() == 0)
 		return
-	foreach(key, value in temp)
-		Chat_ServerBroadcast("\x1b[38;5;51m"+key +"\x1b[0 got \x1b[38;5;128m"+ value +"\x1b[0 kills in hard mode")
+
+	int columns = 2
+	int pages = FSU_GetListPages(HardModeKillsList, columns) 
+	string sep = ": "
 	
+	FSU_ChatBroadcast("Kills players got in hard mode")
+	foreach( entity player in GetPlayerArray()){
+		for( int page = 1; page <= pages; page++ ){
+			FSU_PrintFormattedList( player, HardModeKillsList, page,sep , columns)
+		}
+	}
 }
 
 // CUSTOM
