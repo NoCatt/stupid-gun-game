@@ -494,6 +494,11 @@ string function GetGunNameByID(int ID) {
 		case "mp_weapon_wingman" : return "b3 Wingman"
 		case "mp_weapon_defender" : return "Chargerifle"
 		case "mp_weapon_grenade_sonar" : return "Pulse Blade"
+		case "mp_weapon_3030": return "3030 Repeater"
+		case "mp_weapon_nemesis": return "Nemessis"
+		case "mp_weapon_prowler_smg": return "Prowler"
+		case "mp_weapon_dragon_lmg": return "Rampage LMG"
+		case "mp_weapon_peacekeeper": return "Peacekeeper"
 		default: return "<Gun Not available>"
 	  }
 	return "<Gun Not available>"

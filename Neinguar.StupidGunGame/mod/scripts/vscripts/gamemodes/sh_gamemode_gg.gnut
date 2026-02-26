@@ -124,6 +124,13 @@ void function CreateGamemodeGG()
 	    GunGameWeapon ggChargerifle  = { weapon = "mp_weapon_defender",        mods = ["extended_ammo", "pas_fast_ads"], ... }
 	    GunGameWeapon ggPulse        = { weapon = "mp_weapon_grenade_sonar",   mods = [ "pas_power_cell", "amped_tacticals" ], offhandSlot = 0 }
 
+
+		GunGameWeapon gg3030 		 = { weapon = "mp_weapon_3030",   mods = [ "sight_ACGS" ], ...}
+		GunGameWeapon ggNemessis 	 = { weapon = "mp_weapon_nemesis",   mods = [ "sight_HCOG" ], ...}
+		GunGameWeapon ggProwler		 = { weapon = "mp_weapon_prowler_smg",   mods = [ "sight_HCOG" ], ...}
+		GunGameWeapon ggRampage	 	 = { weapon = "mp_weapon_dragon_lmg",   mods = [  ], ...}
+		GunGameWeapon ggREALPK	 	 = { weapon = "mp_weapon_peacekeeper",   mods = [  ], ...}
+
         // add guns
         file.weapons.append(ggPeacekraber)
         file.weapons.append(ggGunshipTurret)
@@ -179,7 +186,7 @@ void function CreateGamemodeGG()
        file.weapons.append(ggWeebWave)                  
 
         // Random order til now
-        file.weapons.randomize()
+        
         
 		
 		file.hardWeapons.append(ggWingman)
@@ -188,15 +195,19 @@ void function CreateGamemodeGG()
 		file.hardWeapons.append(ggP2016)
 		file.hardWeapons.append(ggSmr)
 		file.hardWeapons.append(ggKraber)
-		while(file.hardWeapons.find(file.weapons[0])!=-1){
-			file.weapons.randomize()
-		}
+				file.weapons.append(gg3030)
+		file.weapons.append(ggNemessis)
+		file.weapons.append(ggRampage)
+		file.weapons.append(ggProwler)
+		file.weapons.append(ggREALPK)
 		
 
 	    file.weapons.append(ggChargerifle)
-      file.weapons.append(ggSword)
-      file.weapons.append(ggShield)
-	    file.weapons.append(ggPulse)
+		file.weapons.append(ggSword)
+		file.weapons.append(ggShield)
+		file.weapons.randomize()
+
+		file.weapons.append(ggPulse)
 	}
 
 
