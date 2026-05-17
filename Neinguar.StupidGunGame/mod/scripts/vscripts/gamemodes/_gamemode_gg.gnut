@@ -366,6 +366,9 @@ void function showPlayersInHardmodeKills() {
 	array< string >  HardModeKillsList = []
 
 	foreach(playerName, HardmodeInfo in PlayerInHardMode){
+		if(HardmodeInfo.hardmodeKills == 0 ){
+			continue
+		}
 		HardModeKillsList.append(playerName)
 		HardModeKillsList.append(string(HardmodeInfo.hardmodeKills))
 	}
